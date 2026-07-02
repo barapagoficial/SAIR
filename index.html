@@ -1,0 +1,4312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+<title>ShizuAI Rebirth 1 · SAIR1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+:root {
+--pink: #ff4d8f; --blue: #4d79ff;
+--pink-glow: rgba(255, 77, 143, 0.35);
+--blue-glow: rgba(77, 121, 255, 0.35);
+--grad-main: linear-gradient(135deg, #ff4d8f 0%, #a855f7 50%, #4d79ff 100%);
+--font-sans: 'Inter', system-ui, sans-serif;
+--font-display: 'Space Grotesk', sans-serif;
+--font-mono: 'JetBrains Mono', monospace;
+--transition-theme: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+body[data-theme="dark"] {
+--bg-0: #07070b; --bg-1: #0d0d14; --bg-2: #15151f;
+--bg-card: rgba(255,255,255,0.04); --bg-card-hover: rgba(255,255,255,0.06);
+--bg-input: rgba(255,255,255,0.03);
+--border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.15);
+--text-1: #ffffff; --text-2: #c5c5d6; --text-3: #8a8aa0; --text-4: #5a5a70;
+--overlay: rgba(0,0,0,0.7);
+--shadow-card: 0 20px 60px rgba(0,0,0,0.5);
+--splash-bg: radial-gradient(ellipse at center, #12121c 0%, #07070b 70%);
+--bubble-user: linear-gradient(135deg, #ff4d8f, #a855f7);
+--bubble-ai: rgba(255,255,255,0.06);
+--skeleton-bg: rgba(255,255,255,0.04);
+--skeleton-shine: rgba(255,255,255,0.08);
+}
+body[data-theme="light"] {
+--bg-0: #fafafa; --bg-1: #ffffff; --bg-2: #f5f5f7;
+--bg-card: rgba(255,255,255,0.9); --bg-card-hover: #ffffff;
+--bg-input: rgba(0,0,0,0.03);
+--border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.15);
+--text-1: #0a0a0f; --text-2: #2a2a3a; --text-3: #5a5a70; --text-4: #8a8aa0;
+--overlay: rgba(0,0,0,0.5);
+--shadow-card: 0 20px 60px rgba(0,0,0,0.1);
+--splash-bg: radial-gradient(ellipse at center, #ffffff 0%, #f0f0f5 70%);
+--pink-glow: rgba(255, 77, 143, 0.2); --blue-glow: rgba(77, 121, 255, 0.2);
+--bubble-user: linear-gradient(135deg, #ff4d8f, #a855f7);
+--bubble-ai: rgba(0,0,0,0.05);
+--skeleton-bg: rgba(0,0,0,0.04);
+--skeleton-shine: rgba(0,0,0,0.08);
+}
+body {
+font-family: var(--font-sans); background: var(--bg-0);
+color: var(--text-2); overflow-x: hidden; line-height: 1.6;
+transition: var(--transition-theme);
+}
+
+#splash {
+position: fixed; inset: 0; z-index: 9999;
+background: var(--splash-bg);
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+transition: opacity 1s ease;
+}
+#splash.hidden { opacity: 0; pointer-events: none; }
+.splash-developer {
+font-family: var(--font-mono);
+font-size: clamp(0.85rem, 1.4vw, 1rem);
+letter-spacing: 0.25em; text-transform: uppercase;
+color: var(--text-3); margin-bottom: 1.5rem;
+}
+.splash-developer::before, .splash-developer::after {
+content: ''; display: inline-block; width: 30px; height: 1px;
+background: linear-gradient(90deg, transparent, var(--text-3), transparent);
+vertical-align: middle; margin: 0 1rem;
+}
+.splash-title {
+font-family: var(--font-display);
+font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 700;
+background: var(--grad-main);
+-webkit-background-clip: text; background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+.splash-sub {
+margin-top: 1rem; font-family: var(--font-mono);
+font-size: 0.85rem; color: var(--text-3); letter-spacing: 0.3em;
+}
+
+.settings-btn {
+position: fixed; top: 1.5rem; right: 1.5rem; z-index: 1000;
+width: 48px; height: 48px; border-radius: 14px;
+background: var(--bg-card); border: 1px solid var(--border);
+backdrop-filter: blur(20px); cursor: pointer;
+display: grid; place-items: center;
+transition: all 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+opacity: 1;
+transform: scale(1);
+}
+.settings-btn.hidden {
+opacity: 0;
+transform: scale(0.8);
+pointer-events: none;
+}
+.settings-btn:hover {
+transform: rotate(45deg) scale(1.05);
+border-color: var(--pink);
+box-shadow: 0 8px 30px var(--pink-glow);
+}
+.settings-btn svg { width: 22px; height: 22px; stroke: var(--text-2); }
+.settings-btn:hover svg { stroke: var(--pink); }
+
+.modal-overlay {
+position: fixed; inset: 0; z-index: 2000;
+background: var(--overlay); backdrop-filter: blur(8px);
+display: none; align-items: center; justify-content: center;
+padding: 1rem; opacity: 0; transition: opacity 0.3s ease;
+}
+.modal-overlay.visible { display: flex; opacity: 1; }
+.modal {
+width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+background: var(--bg-1); border: 1px solid var(--border);
+border-radius: 20px; padding: 1.5rem;
+box-shadow: var(--shadow-card);
+transform: scale(0.95); transition: transform 0.3s ease;
+}
+.modal-overlay.visible .modal { transform: scale(1); }
+.modal-header {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 1.5rem; padding-bottom: 1rem;
+border-bottom: 1px solid var(--border);
+}
+.modal-title {
+font-family: var(--font-display);
+font-size: 1.3rem; font-weight: 700; color: var(--text-1);
+}
+.modal-close {
+width: 32px; height: 32px; border-radius: 8px;
+background: transparent; border: 1px solid var(--border);
+color: var(--text-3); cursor: pointer;
+display: grid; place-items: center; transition: all 0.2s ease;
+}
+.modal-close:hover {
+background: rgba(239, 68, 68, 0.1);
+border-color: rgba(239, 68, 68, 0.3);
+color: #fca5a5;
+}
+
+.form-group { margin-bottom: 1.2rem; }
+.form-label {
+display: block; font-size: 0.85rem; font-weight: 500;
+color: var(--text-2); margin-bottom: 0.5rem;
+}
+.form-label .hint {
+font-size: 0.75rem; color: var(--text-4); font-weight: 400;
+margin-left: 0.5rem;
+}
+.form-input, .form-textarea {
+width: 100%; padding: 0.85rem 1rem;
+background: var(--bg-input); border: 1px solid var(--border);
+border-radius: 10px; color: var(--text-1);
+font-family: var(--font-sans); font-size: 0.95rem;
+transition: all 0.25s ease;
+}
+.form-textarea {
+min-height: 100px; resize: vertical;
+font-family: var(--font-sans); line-height: 1.5;
+}
+.form-textarea.mono {
+font-family: var(--font-mono); font-size: 0.85rem;
+}
+.form-input:focus, .form-textarea:focus {
+outline: none; border-color: var(--pink);
+box-shadow: 0 0 0 3px rgba(255,77,143,0.1);
+}
+
+.btn {
+padding: 0.85rem 1.5rem; border-radius: 10px;
+font-family: var(--font-sans); font-weight: 600;
+font-size: 0.95rem; cursor: pointer;
+transition: all 0.25s ease; border: none;
+display: inline-flex; align-items: center; gap: 0.5rem;
+justify-content: center;
+}
+.btn-primary {
+background: var(--grad-main); color: #fff;
+box-shadow: 0 8px 25px var(--pink-glow);
+}
+.btn-primary:hover:not(:disabled) {
+transform: translateY(-2px);
+box-shadow: 0 12px 35px var(--pink-glow);
+}
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-ghost {
+background: var(--bg-card); color: var(--text-2);
+border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+background: var(--bg-card-hover);
+border-color: var(--border-strong);
+}
+.btn-danger {
+background: transparent; color: #fca5a5;
+border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+.btn-small {
+padding: 0.5rem 0.9rem; font-size: 0.8rem;
+border-radius: 8px;
+}
+
+.skeleton-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: 18px;
+padding: 1.6rem;
+display: flex;
+flex-direction: column;
+gap: 0.8rem;
+overflow: hidden;
+position: relative;
+}
+.skeleton-card::after {
+content: '';
+position: absolute;
+inset: 0;
+background: linear-gradient(90deg, transparent 0%, var(--skeleton-shine) 50%, transparent 100%);
+animation: shimmer 1.8s infinite;
+background-size: 200% 100%;
+}
+@keyframes shimmer {
+0% { background-position: -200% 0; }
+100% { background-position: 200% 0; }
+}
+.skeleton-avatar {
+width: 72px;
+height: 72px;
+border-radius: 18px;
+background: var(--skeleton-bg);
+flex-shrink: 0;
+}
+.skeleton-line {
+height: 12px;
+border-radius: 6px;
+background: var(--skeleton-bg);
+width: 100%;
+}
+.skeleton-line.short { width: 60%; }
+.skeleton-line.medium { width: 80%; }
+.skeleton-line.long { width: 100%; }
+
+#auth-screen {
+display: none; min-height: 100vh;
+align-items: center; justify-content: center;
+padding: 1rem; background: var(--bg-0);
+}
+#auth-screen.visible { display: flex; }
+.auth-container {
+width: 100%; max-width: 440px;
+background: var(--bg-card); border: 1px solid var(--border);
+border-radius: 20px; padding: 2rem 1.5rem;
+backdrop-filter: blur(20px); box-shadow: var(--shadow-card);
+}
+.auth-header { text-align: center; margin-bottom: 2rem; }
+.auth-title {
+font-family: var(--font-display);
+font-size: 1.8rem; font-weight: 700;
+color: var(--text-1); margin-bottom: 0.5rem;
+}
+.auth-subtitle { font-size: 0.9rem; color: var(--text-3); }
+.auth-tabs {
+display: flex; gap: 0.5rem; margin-bottom: 2rem;
+background: var(--bg-input); padding: 4px;
+border-radius: 10px; border: 1px solid var(--border);
+}
+.auth-tab {
+flex: 1; padding: 0.7rem; background: transparent;
+border: none; border-radius: 8px; color: var(--text-3);
+font-family: var(--font-sans); font-weight: 600;
+cursor: pointer; transition: all 0.25s ease;
+}
+.auth-tab.active {
+background: var(--grad-main); color: #fff;
+box-shadow: 0 4px 15px var(--pink-glow);
+}
+.auth-form { display: none; }
+.auth-form.active { display: block; }
+.form-message {
+margin-top: 1rem; padding: 0.8rem; border-radius: 8px;
+font-size: 0.85rem; text-align: center; display: none;
+}
+.form-message.error {
+display: block; background: rgba(239, 68, 68, 0.1);
+border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;
+}
+.form-message.success {
+display: block; background: rgba(34, 197, 94, 0.1);
+border: 1px solid rgba(34, 197, 94, 0.3); color: #4ade80;
+}
+
+#dashboard {
+display: none; min-height: 100vh;
+padding: 1rem; background: var(--bg-0);
+}
+#dashboard.visible { display: block; }
+.dashboard-header {
+max-width: 1280px; margin: 0 auto 1.5rem;
+display: flex; justify-content: space-between; align-items: center;
+padding-right: 60px; flex-wrap: wrap; gap: 0.75rem;
+}
+.dashboard-welcome h1 {
+font-family: var(--font-display);
+font-size: 1.6rem; font-weight: 700;
+color: var(--text-1); margin-bottom: 0.2rem;
+}
+.dashboard-welcome p { color: var(--text-3); font-size: 0.9rem; }
+.dashboard-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+.dashboard-tabs {
+max-width: 1280px; margin: 0 auto 1.5rem;
+display: flex; gap: 0.3rem;
+border-bottom: 1px solid var(--border);
+flex-wrap: wrap;
+}
+.dashboard-tab {
+padding: 0.6rem 1rem; background: transparent;
+border: none; color: var(--text-3);
+font-family: var(--font-sans); font-weight: 600;
+font-size: 0.9rem; cursor: pointer;
+border-bottom: 2px solid transparent;
+transition: all 0.25s ease;
+white-space: nowrap;
+}
+.dashboard-tab:hover { color: var(--text-1); }
+.dashboard-tab.active {
+color: var(--pink);
+border-bottom-color: var(--pink);
+}
+
+.section-title {
+font-family: var(--font-display);
+font-size: 1.2rem; font-weight: 600;
+color: var(--text-1); margin-bottom: 1rem;
+display: flex; align-items: center; gap: 0.5rem;
+}
+.characters-grid {
+max-width: 1280px; margin: 0 auto;
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+gap: 1rem;
+}
+.character-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: 18px;
+padding: 1.4rem;
+transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+cursor: pointer;
+position: relative;
+overflow: hidden;
+backdrop-filter: blur(10px);
+}
+body[data-theme="dark"] .character-card {
+background: linear-gradient(135deg,
+rgba(255, 255, 255, 0.04) 0%,
+rgba(255, 255, 255, 0.02) 100%);
+}
+.character-card::before {
+content: ''; position: absolute;
+top: 0; left: 0; right: 0; height: 2px;
+background: var(--grad-main);
+transform: scaleX(0); transform-origin: left;
+transition: transform 0.3s ease;
+}
+.character-card:hover {
+background: var(--bg-card-hover);
+border-color: rgba(255, 77, 143, 0.3);
+transform: translateY(-4px) scale(1.01);
+box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3),
+0 0 0 1px rgba(255, 77, 143, 0.1),
+0 10px 30px var(--pink-glow);
+}
+.character-card:hover::before { transform: scaleX(1); }
+.character-avatar {
+width: 64px; height: 64px; border-radius: 16px;
+background: var(--grad-main);
+display: grid; place-items: center;
+font-family: var(--font-display);
+font-size: 1.8rem; font-weight: 700; color: #fff;
+margin-bottom: 0.8rem; overflow: hidden;
+box-shadow: 0 4px 15px var(--pink-glow);
+}
+.character-avatar img {
+width: 100%; height: 100%; object-fit: cover;
+}
+.character-name {
+font-family: var(--font-display);
+font-size: 1.05rem; font-weight: 600;
+color: var(--text-1); margin-bottom: 0.3rem;
+display: flex; align-items: center; gap: 0.4rem;
+flex-wrap: wrap;
+}
+.badge-public {
+font-size: 0.6rem; padding: 0.15rem 0.5rem;
+background: rgba(77, 121, 255, 0.15);
+color: var(--blue); border-radius: 6px;
+font-weight: 600; text-transform: uppercase;
+letter-spacing: 0.05em;
+}
+.badge-private {
+font-size: 0.6rem; padding: 0.15rem 0.5rem;
+background: rgba(138, 138, 160, 0.15);
+color: var(--text-3); border-radius: 6px;
+font-weight: 600; text-transform: uppercase;
+letter-spacing: 0.05em;
+}
+.character-author {
+font-size: 0.7rem; color: var(--text-4);
+margin-bottom: 0.4rem;
+}
+.character-desc {
+font-size: 0.85rem; color: var(--text-3);
+line-height: 1.4; margin-bottom: 0.8rem;
+display: -webkit-box; -webkit-line-clamp: 2;
+-webkit-box-orient: vertical; overflow: hidden;
+}
+.character-actions {
+display: flex; gap: 0.4rem;
+flex-wrap: wrap;
+}
+.character-actions .btn {
+flex: 1 1 auto;
+}
+
+.empty-state {
+max-width: 1280px; margin: 2rem auto;
+text-align: center; padding: 3rem 1.5rem;
+background: var(--bg-card); border: 1px dashed var(--border);
+border-radius: 20px;
+}
+.empty-state-icon {
+font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;
+}
+.empty-state h3 {
+font-family: var(--font-display);
+color: var(--text-1); margin-bottom: 0.5rem;
+}
+.empty-state p { color: var(--text-3); margin-bottom: 1.5rem; }
+
+.avatar-editor {
+margin-bottom: 1.5rem;
+}
+.avatar-preview-container {
+width: 140px; height: 140px;
+border-radius: 20px; overflow: hidden;
+background: var(--bg-input);
+border: 2px dashed var(--border);
+margin: 0 auto 1rem;
+position: relative;
+cursor: pointer;
+display: grid; place-items: center;
+transition: all 0.25s ease;
+}
+.avatar-preview-container:hover {
+border-color: var(--pink);
+background: var(--bg-card-hover);
+}
+.avatar-preview-container.has-image {
+border-style: solid;
+border-color: var(--border);
+}
+.avatar-preview {
+width: 100%; height: 100%;
+object-fit: cover;
+transform-origin: center center;
+}
+.avatar-placeholder {
+text-align: center;
+color: var(--text-3);
+font-size: 0.85rem;
+padding: 1rem;
+}
+.avatar-placeholder-icon {
+font-size: 2.5rem; margin-bottom: 0.5rem;
+opacity: 0.5;
+}
+.avatar-controls {
+display: none;
+flex-direction: column;
+gap: 0.75rem;
+padding: 1rem;
+background: var(--bg-input);
+border-radius: 10px;
+margin-top: 0.75rem;
+}
+.avatar-controls.visible { display: flex; }
+.slider-group {
+display: flex; flex-direction: column; gap: 0.3rem;
+}
+.slider-label {
+display: flex; justify-content: space-between;
+font-size: 0.75rem; color: var(--text-3);
+}
+input[type="range"] {
+width: 100%; height: 4px;
+background: var(--border); border-radius: 2px;
+outline: none; -webkit-appearance: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+-webkit-appearance: none;
+width: 16px; height: 16px;
+background: var(--grad-main);
+border-radius: 50%; cursor: pointer;
+box-shadow: 0 2px 8px var(--pink-glow);
+}
+input[type="range"]::-moz-range-thumb {
+width: 16px; height: 16px;
+background: var(--pink);
+border-radius: 50%; cursor: pointer;
+border: none;
+}
+.avatar-actions-row {
+display: flex; gap: 0.5rem;
+}
+.avatar-actions-row .btn {
+flex: 1; padding: 0.6rem; font-size: 0.85rem;
+}
+
+.switch-group {
+display: flex; align-items: center; justify-content: space-between;
+padding: 0.8rem 1rem; background: var(--bg-input);
+border: 1px solid var(--border); border-radius: 12px;
+margin-bottom: 1rem;
+}
+.switch-info { flex: 1; }
+.switch-title {
+font-weight: 600; color: var(--text-1);
+font-size: 0.95rem; margin-bottom: 0.2rem;
+}
+.switch-desc {
+font-size: 0.8rem; color: var(--text-3);
+}
+.switch {
+position: relative;
+width: 48px; height: 26px;
+flex-shrink: 0;
+margin-left: 1rem;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider {
+position: absolute; cursor: pointer;
+inset: 0; background: var(--border-strong);
+border-radius: 26px;
+transition: 0.3s;
+}
+.switch-slider::before {
+content: ''; position: absolute;
+height: 20px; width: 20px;
+left: 3px; bottom: 3px;
+background: white; border-radius: 50%;
+transition: 0.3s;
+}
+.switch input:checked + .switch-slider {
+background: var(--grad-main);
+}
+.switch input:checked + .switch-slider::before {
+transform: translateX(22px);
+}
+
+.settings-section { margin-bottom: 1.5rem; }
+.settings-section:last-child { margin-bottom: 0; }
+.section-label {
+font-size: 0.75rem; font-weight: 600;
+color: var(--text-3); text-transform: uppercase;
+letter-spacing: 0.1em; margin-bottom: 0.75rem; display: block;
+}
+.theme-switcher {
+display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
+}
+.theme-option {
+padding: 0.8rem; background: var(--bg-input);
+border: 2px solid var(--border); border-radius: 12px;
+cursor: pointer; transition: all 0.25s ease;
+display: flex; flex-direction: column;
+align-items: center; gap: 0.4rem;
+}
+.theme-option:hover {
+border-color: var(--border-strong);
+background: var(--bg-card-hover);
+}
+.theme-option.active {
+border-color: var(--pink);
+background: linear-gradient(135deg, rgba(255,77,143,0.08), rgba(77,121,255,0.05));
+box-shadow: 0 0 0 3px rgba(255,77,143,0.1);
+}
+.theme-option-icon {
+width: 40px; height: 40px; border-radius: 10px;
+display: grid; place-items: center;
+}
+.theme-option-icon.dark-icon { background: linear-gradient(135deg, #1a1a2e, #0a0a0f); }
+.theme-option-icon.light-icon {
+background: linear-gradient(135deg, #ffffff, #f0f0f5);
+border: 1px solid var(--border);
+}
+.theme-option-icon svg { width: 22px; height: 22px; }
+.theme-option-label { font-size: 0.85rem; font-weight: 600; color: var(--text-1); }
+
+.api-key-wrapper { position: relative; }
+.api-key-input {
+width: 100%; padding: 0.85rem 3rem 0.85rem 1rem;
+background: var(--bg-input); border: 1px solid var(--border);
+border-radius: 10px; color: var(--text-1);
+font-family: var(--font-mono); font-size: 0.85rem;
+}
+.api-key-input:focus {
+outline: none; border-color: var(--pink);
+box-shadow: 0 0 0 3px rgba(255,77,143,0.1);
+}
+.api-key-toggle {
+position: absolute; right: 0.5rem; top: 50%;
+transform: translateY(-50%);
+width: 36px; height: 36px; border-radius: 8px;
+background: transparent; border: none; cursor: pointer;
+display: grid; place-items: center; color: var(--text-3);
+}
+.api-key-toggle:hover { background: var(--bg-card-hover); color: var(--pink); }
+.api-key-toggle svg { width: 18px; height: 18px; stroke: currentColor; }
+.api-key-status {
+display: flex; align-items: center; gap: 0.5rem;
+margin-top: 0.75rem; font-size: 0.8rem;
+padding: 0.6rem 0.8rem; border-radius: 8px;
+}
+.api-key-status.saved {
+background: rgba(34, 197, 94, 0.1);
+border: 1px solid rgba(34, 197, 94, 0.2); color: #4ade80;
+}
+.api-key-status.empty {
+background: rgba(251, 191, 36, 0.1);
+border: 1px solid rgba(251, 191, 36, 0.2); color: #fbbf24;
+}
+.api-key-status svg {
+width: 14px; height: 14px; stroke: currentColor; flex-shrink: 0;
+}
+.api-key-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.btn-small {
+flex: 1; padding: 0.6rem 1rem; border-radius: 8px;
+font-family: var(--font-sans); font-size: 0.85rem;
+font-weight: 600; cursor: pointer; transition: all 0.25s ease;
+border: 1px solid var(--border); background: var(--bg-input);
+color: var(--text-2);
+}
+.btn-small:hover {
+background: var(--bg-card-hover); border-color: var(--border-strong);
+}
+.btn-small.primary {
+background: var(--grad-main); color: #fff; border: none;
+box-shadow: 0 4px 15px var(--pink-glow);
+}
+.btn-small.danger {
+color: #fca5a5; border-color: rgba(239, 68, 68, 0.2);
+}
+.btn-small.danger:hover {
+background: rgba(239, 68, 68, 0.1);
+border-color: rgba(239, 68, 68, 0.4);
+}
+.api-key-info {
+margin-top: 1rem; padding: 0.8rem;
+background: rgba(77, 121, 255, 0.05);
+border: 1px solid rgba(77, 121, 255, 0.15);
+border-radius: 8px; font-size: 0.78rem;
+color: var(--text-3); line-height: 1.5;
+}
+.api-key-info a { color: var(--blue); text-decoration: none; }
+.api-key-info a:hover { text-decoration: underline; }
+
+#chat-view {
+display: none;
+position: fixed; inset: 0;
+background: var(--bg-0);
+z-index: 500;
+flex-direction: column;
+}
+#chat-view.visible { display: flex; }
+.chat-layout {
+display: flex; flex: 1; overflow: hidden;
+}
+.chat-sidebar {
+width: 280px;
+background: var(--bg-1);
+border-right: 1px solid var(--border);
+display: flex; flex-direction: column;
+flex-shrink: 0;
+transition: transform 0.3s ease;
+}
+.chat-sidebar-header {
+padding: 1rem;
+border-bottom: 1px solid var(--border);
+display: flex; align-items: center; gap: 0.75rem;
+}
+.chat-char-avatar {
+width: 44px; height: 44px; border-radius: 12px;
+background: var(--grad-main);
+display: grid; place-items: center;
+font-weight: 700; color: #fff;
+overflow: hidden; flex-shrink: 0;
+}
+.chat-char-avatar img {
+width: 100%; height: 100%; object-fit: cover;
+}
+.chat-char-info { flex: 1; min-width: 0; }
+.chat-char-name {
+font-family: var(--font-display);
+font-weight: 600; color: var(--text-1);
+font-size: 0.95rem;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chat-char-sub {
+font-size: 0.75rem; color: var(--text-3);
+}
+.chat-back-btn {
+width: 36px; height: 36px; border-radius: 8px;
+background: transparent; border: 1px solid var(--border);
+color: var(--text-2); cursor: pointer;
+display: grid; place-items: center;
+transition: all 0.2s ease; flex-shrink: 0;
+}
+.chat-back-btn:hover {
+background: var(--bg-card-hover);
+border-color: var(--border-strong);
+}
+.chat-new-btn {
+margin: 0.8rem 1rem;
+padding: 0.7rem;
+background: var(--grad-main); color: #fff;
+border: none; border-radius: 10px;
+font-family: var(--font-sans); font-weight: 600;
+font-size: 0.85rem; cursor: pointer;
+display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+box-shadow: 0 4px 15px var(--pink-glow);
+}
+.chat-list {
+flex: 1; overflow-y: auto;
+padding: 0 0.5rem;
+}
+.chat-list-item {
+padding: 0.7rem 0.8rem;
+border-radius: 10px;
+cursor: pointer;
+margin-bottom: 0.3rem;
+transition: all 0.2s ease;
+display: flex; align-items: center; justify-content: space-between;
+gap: 0.5rem;
+}
+.chat-list-item:hover {
+background: var(--bg-card-hover);
+}
+.chat-list-item.active {
+background: var(--bg-card);
+border: 1px solid var(--border);
+}
+.chat-list-title {
+font-size: 0.85rem; color: var(--text-1);
+font-weight: 500;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+flex: 1;
+}
+.chat-list-date {
+font-size: 0.65rem; color: var(--text-4);
+flex-shrink: 0;
+}
+.chat-list-delete {
+background: transparent; border: none;
+color: var(--text-4); cursor: pointer;
+padding: 0.2rem; border-radius: 4px;
+opacity: 0; transition: all 0.2s ease;
+display: grid; place-items: center;
+}
+.chat-list-item:hover .chat-list-delete { opacity: 1; }
+.chat-list-delete:hover { color: #fca5a5; background: rgba(239,68,68,0.1); }
+
+.chat-main {
+flex: 1; display: flex; flex-direction: column;
+background: var(--bg-0);
+min-width: 0;
+position: relative;
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+}
+.chat-main.has-background .chat-messages {
+background: rgba(0, 0, 0, 0.3);
+backdrop-filter: blur(2px);
+}
+body[data-theme="light"] .chat-main.has-background .chat-messages {
+background: rgba(255, 255, 255, 0.5);
+}
+.chat-messages {
+flex: 1; overflow-y: auto;
+padding: 1rem;
+display: flex; flex-direction: column;
+gap: 0.8rem;
+}
+#chat-view.immersive .chat-messages {
+max-width: 900px;
+margin: 0 auto;
+padding: 2rem 1rem;
+padding-top: 3rem;
+}
+#chat-view.immersive .chat-sidebar {
+display: none;
+}
+#chat-view.immersive .chat-main {
+width: 100%;
+}
+#chat-view.immersive .chat-input-area {
+background: transparent;
+border-top: none;
+}
+#chat-view.immersive .chat-input-wrapper {
+max-width: 900px;
+}
+#chat-view.immersive .chat-input {
+background: var(--bg-card);
+backdrop-filter: blur(20px);
+border: 1px solid var(--border);
+}
+.chat-empty {
+flex: 1; display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+color: var(--text-3); text-align: center;
+padding: 2rem;
+}
+.chat-empty-icon {
+font-size: 3rem; margin-bottom: 1rem; opacity: 0.4;
+}
+.message-bubble {
+max-width: 85%;
+padding: 0.8rem 1rem;
+border-radius: 18px;
+line-height: 1.6;
+font-size: 0.92rem;
+word-wrap: break-word;
+animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+position: relative;
+transition: all 0.3s ease;
+}
+.message-bubble:hover {
+transform: translateY(-1px);
+}
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(15px) scale(0.98); }
+to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes slideInLeft {
+from { opacity: 0; transform: translateX(-20px); }
+to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInRight {
+from { opacity: 0; transform: translateX(20px); }
+to { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+from { opacity: 0; transform: scale(0.9); }
+to { opacity: 1; transform: scale(1); }
+}
+.message-bubble.user {
+align-self: flex-end;
+background: var(--bubble-user);
+color: #fff;
+border-bottom-right-radius: 6px;
+box-shadow: 0 8px 24px rgba(255, 77, 143, 0.25),
+0 2px 8px rgba(0, 0, 0, 0.15);
+position: relative;
+animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.message-bubble.user::before {
+content: '';
+position: absolute;
+inset: 0;
+border-radius: inherit;
+background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+pointer-events: none;
+}
+.message-bubble.assistant {
+align-self: flex-start;
+background: var(--bubble-ai);
+color: var(--text-1);
+border: 1px solid var(--border);
+border-bottom-left-radius: 6px;
+box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+inset 0 1px 0 rgba(255, 255, 255, 0.05);
+backdrop-filter: blur(10px);
+animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+body[data-theme="dark"] .message-bubble.assistant {
+border-color: rgba(255, 255, 255, 0.1);
+background: linear-gradient(135deg,
+rgba(77, 121, 255, 0.06) 0%,
+rgba(255, 77, 143, 0.04) 100%);
+}
+.message-bubble.assistant em,
+.message-bubble.assistant .accion {
+color: var(--pink);
+font-style: italic;
+}
+.message-bubble.error {
+align-self: flex-start;
+background: rgba(239, 68, 68, 0.1);
+border: 1px solid rgba(239, 68, 68, 0.3);
+color: #fca5a5;
+}
+.message-actions {
+display: flex;
+gap: 0.4rem;
+margin-top: 0.5rem;
+opacity: 0;
+transition: opacity 0.25s ease;
+flex-wrap: wrap;
+}
+.message-bubble:hover .message-actions {
+opacity: 1;
+}
+.message-bubble.assistant .message-actions {
+justify-content: flex-start;
+}
+.message-bubble.user .message-actions {
+justify-content: flex-end;
+}
+.btn-message {
+background: rgba(255, 255, 255, 0.95);
+border: 1px solid rgba(255, 255, 255, 0.3);
+color: #1a1a2e;
+padding: 0.3rem 0.6rem;
+border-radius: 8px;
+font-size: 0.7rem;
+font-weight: 600;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+gap: 0.3rem;
+transition: all 0.25s ease;
+font-family: var(--font-sans);
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+backdrop-filter: blur(10px);
+}
+.btn-message:hover {
+background: rgba(255, 255, 255, 1);
+border-color: var(--pink);
+color: var(--pink);
+transform: translateY(-1px);
+box-shadow: 0 4px 12px rgba(255, 77, 143, 0.3);
+}
+body[data-theme="dark"] .message-bubble.assistant .btn-message {
+background: rgba(255, 255, 255, 0.12);
+border-color: rgba(255, 255, 255, 0.2);
+color: var(--text-1);
+}
+body[data-theme="dark"] .message-bubble.assistant .btn-message:hover {
+background: rgba(255, 255, 255, 0.2);
+border-color: var(--blue);
+color: var(--blue);
+}
+.btn-message svg {
+width: 12px; height: 12px;
+stroke: currentColor; fill: none;
+stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.btn-regenerate {
+background: rgba(255, 255, 255, 0.08);
+border: 1px solid rgba(255, 255, 255, 0.12);
+color: var(--text-3);
+padding: 0.3rem 0.6rem;
+border-radius: 8px;
+font-size: 0.7rem;
+font-weight: 500;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+gap: 0.3rem;
+transition: all 0.25s ease;
+font-family: var(--font-sans);
+}
+.btn-regenerate:hover {
+background: rgba(77, 121, 255, 0.15);
+border-color: var(--blue);
+color: var(--blue);
+transform: translateY(-1px);
+}
+.btn-regenerate:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+transform: none;
+}
+.btn-regenerate svg {
+width: 12px;
+height: 12px;
+stroke: currentColor;
+fill: none;
+stroke-width: 2.5;
+stroke-linecap: round;
+stroke-linejoin: round;
+}
+.btn-regenerate.spinning svg {
+animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
+}
+.typing-indicator {
+display: inline-flex; gap: 4px;
+padding: 0.5rem 0;
+}
+.typing-indicator span {
+width: 8px; height: 8px; border-radius: 50%;
+background: var(--text-3);
+animation: typing 1.4s infinite;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing {
+0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+30% { opacity: 1; transform: translateY(-4px); }
+}
+
+.chat-input-area {
+padding: 0.8rem 1rem 1rem;
+border-top: 1px solid var(--border);
+background: var(--bg-1);
+}
+.chat-input-wrapper {
+max-width: 900px; margin: 0 auto;
+display: flex; gap: 0.5rem;
+align-items: flex-end;
+}
+.chat-input {
+flex: 1;
+padding: 0.8rem 1rem;
+background: var(--bg-input);
+border: 1px solid var(--border);
+border-radius: 14px;
+color: var(--text-1);
+font-family: var(--font-sans);
+font-size: 0.95rem;
+resize: none;
+max-height: 150px;
+min-height: 48px;
+line-height: 1.5;
+transition: all 0.25s ease;
+}
+.chat-input:focus {
+outline: none;
+border-color: var(--pink);
+box-shadow: 0 0 0 3px rgba(255,77,143,0.1);
+}
+.chat-send-btn {
+width: 48px; height: 48px;
+border-radius: 14px;
+background: var(--grad-main);
+border: none; color: #fff;
+cursor: pointer;
+display: grid; place-items: center;
+transition: all 0.25s ease;
+box-shadow: 0 4px 15px var(--pink-glow);
+flex-shrink: 0;
+}
+.chat-send-btn:hover:not(:disabled) {
+transform: translateY(-2px);
+box-shadow: 0 8px 25px var(--pink-glow);
+}
+.chat-send-btn:disabled {
+opacity: 0.5; cursor: not-allowed;
+}
+.chat-send-btn svg {
+width: 20px; height: 20px;
+stroke: currentColor; fill: none;
+stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.btn-immersive {
+position: absolute;
+top: 0.8rem;
+left: 0.8rem;
+width: 40px;
+height: 40px;
+border-radius: 10px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+color: var(--text-2);
+cursor: pointer;
+display: grid;
+place-items: center;
+transition: all 0.25s ease;
+z-index: 100;
+backdrop-filter: blur(10px);
+}
+.btn-immersive:hover {
+background: var(--bg-card-hover);
+border-color: var(--pink);
+color: var(--pink);
+transform: scale(1.05);
+}
+.btn-immersive svg {
+width: 18px; height: 18px;
+stroke: currentColor; fill: none;
+stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.btn-hamburger {
+display: none;
+position: absolute;
+top: 0.8rem;
+left: 0.8rem;
+width: 40px;
+height: 40px;
+border-radius: 10px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+color: var(--text-2);
+cursor: pointer;
+transition: all 0.25s ease;
+z-index: 101;
+backdrop-filter: blur(10px);
+}
+.btn-hamburger:hover {
+background: var(--bg-card-hover);
+border-color: var(--pink);
+color: var(--pink);
+}
+.btn-hamburger svg {
+width: 24px; height: 24px;
+stroke: currentColor; fill: none;
+stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.message-bubble.editing {
+background: var(--bg-card) !important;
+border: 2px solid var(--pink) !important;
+color: var(--text-1) !important;
+}
+.edit-textarea {
+width: 100%;
+min-height: 60px;
+background: transparent;
+border: none;
+color: var(--text-1);
+font-family: var(--font-sans);
+font-size: 0.95rem;
+line-height: 1.6;
+resize: vertical;
+outline: none;
+}
+.edit-actions {
+display: flex;
+gap: 0.5rem;
+margin-top: 0.6rem;
+justify-content: flex-end;
+}
+.edit-actions button {
+padding: 0.4rem 0.8rem;
+border-radius: 8px;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
+border: none;
+font-family: var(--font-sans);
+}
+.edit-save {
+background: var(--grad-main);
+color: #fff;
+box-shadow: 0 4px 12px var(--pink-glow);
+}
+.edit-cancel {
+background: var(--bg-input);
+color: var(--text-2);
+border: 1px solid var(--border) !important;
+}
+
+.toast {
+position: fixed; bottom: 2rem; left: 50%;
+transform: translateX(-50%) translateY(100px);
+padding: 0.8rem 1.5rem;
+background: var(--bg-1); border: 1px solid var(--border);
+border-radius: 10px; color: var(--text-1);
+font-size: 0.9rem; font-weight: 500;
+box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+z-index: 3000; opacity: 0; transition: all 0.3s ease;
+display: flex; align-items: center; gap: 0.5rem;
+max-width: 90vw;
+}
+.toast.visible {
+opacity: 1; transform: translateX(-50%) translateY(0);
+}
+.toast.success { border-color: rgba(34, 197, 94, 0.3); }
+.toast.success::before { content: '✓'; color: #4ade80; font-weight: bold; }
+.toast.error { border-color: rgba(239, 68, 68, 0.3); }
+.toast.error::before { content: '✕'; color: #fca5a5; font-weight: bold; }
+
+.announcements-container {
+max-width: 900px;
+margin: 0 auto;
+display: flex;
+flex-direction: column;
+gap: 1.2rem;
+}
+.announcement-card {
+position: relative;
+background: linear-gradient(135deg,
+rgba(255, 77, 143, 0.08) 0%,
+rgba(168, 85, 247, 0.08) 50%,
+rgba(77, 121, 255, 0.08) 100%);
+border: 1px solid rgba(255, 77, 143, 0.2);
+border-radius: 18px;
+padding: 1.5rem;
+overflow: hidden;
+transition: all 0.3s ease;
+}
+body[data-theme="light"] .announcement-card {
+background: linear-gradient(135deg,
+rgba(255, 77, 143, 0.06) 0%,
+rgba(168, 85, 247, 0.06) 50%,
+rgba(77, 121, 255, 0.06) 100%);
+}
+.announcement-card::before {
+content: '';
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 3px;
+background: var(--grad-main);
+}
+.announcement-card::after {
+content: '';
+position: absolute;
+top: -50%; right: -20%;
+width: 300px; height: 300px;
+background: radial-gradient(circle, var(--pink-glow) 0%, transparent 70%);
+opacity: 0.3;
+pointer-events: none;
+animation: floatA 15s ease-in-out infinite;
+}
+.announcement-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 40px rgba(255, 77, 143, 0.15);
+border-color: rgba(255, 77, 143, 0.4);
+}
+.announcement-header {
+display: flex;
+align-items: center;
+gap: 0.8rem;
+margin-bottom: 0.8rem;
+position: relative;
+z-index: 1;
+flex-wrap: wrap;
+}
+.announcement-badge {
+display: inline-flex;
+align-items: center;
+gap: 0.4rem;
+padding: 0.3rem 0.7rem;
+background: var(--grad-main);
+color: #fff;
+border-radius: 100px;
+font-size: 0.65rem;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.1em;
+box-shadow: 0 4px 15px var(--pink-glow);
+}
+.announcement-badge svg {
+width: 12px; height: 12px;
+stroke: currentColor;
+fill: none;
+stroke-width: 2.5;
+}
+.announcement-date {
+font-size: 0.7rem;
+color: var(--text-4);
+margin-left: auto;
+}
+.announcement-title {
+font-family: var(--font-display);
+font-size: 1.2rem;
+font-weight: 700;
+color: var(--text-1);
+margin-bottom: 0.6rem;
+position: relative;
+z-index: 1;
+}
+.announcement-content {
+font-size: 0.92rem;
+color: var(--text-2);
+line-height: 1.6;
+position: relative;
+z-index: 1;
+white-space: pre-wrap;
+word-wrap: break-word;
+}
+.announcement-delete {
+position: absolute;
+top: 1rem; right: 1rem;
+width: 32px; height: 32px;
+border-radius: 8px;
+background: rgba(239, 68, 68, 0.1);
+border: 1px solid rgba(239, 68, 68, 0.2);
+color: #fca5a5;
+cursor: pointer;
+display: grid;
+place-items: center;
+opacity: 0;
+transition: all 0.2s ease;
+z-index: 2;
+}
+.announcement-card:hover .announcement-delete {
+opacity: 1;
+}
+.announcement-delete:hover {
+background: rgba(239, 68, 68, 0.2);
+border-color: rgba(239, 68, 68, 0.4);
+}
+.announcement-form {
+max-width: 900px;
+margin: 0 auto 1.5rem;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 1.5rem;
+}
+.announcement-form-title {
+font-family: var(--font-display);
+font-size: 1.1rem;
+font-weight: 600;
+color: var(--text-1);
+margin-bottom: 1rem;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+.announcement-form .form-textarea {
+min-height: 80px;
+}
+.announcement-form-actions {
+display: flex;
+gap: 0.75rem;
+margin-top: 1rem;
+justify-content: flex-end;
+}
+.no-announcements {
+max-width: 900px;
+margin: 2rem auto;
+text-align: center;
+padding: 3rem 1.5rem;
+background: var(--bg-card);
+border: 1px dashed var(--border);
+border-radius: 20px;
+}
+
+.user-badge {
+display: inline-flex;
+align-items: center;
+gap: 0.4rem;
+padding: 0.4rem 0.8rem;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: 100px;
+font-size: 0.8rem;
+color: var(--text-1);
+font-weight: 500;
+}
+.user-badge .user-avatar-mini {
+width: 24px; height: 24px;
+border-radius: 50%;
+background: var(--grad-main);
+display: grid; place-items: center;
+font-size: 0.7rem; font-weight: 700;
+color: #fff;
+}
+.user-badge .role-tag {
+font-size: 0.6rem;
+padding: 0.1rem 0.4rem;
+border-radius: 4px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+}
+.user-badge .role-tag.owner {
+background: linear-gradient(135deg, #fbbf24, #f59e0b);
+color: #1a1a2e;
+}
+.user-badge .role-tag.admin {
+background: linear-gradient(135deg, #a855f7, #7c3aed);
+color: #fff;
+}
+.user-badge .role-tag.user {
+background: rgba(138, 138, 160, 0.15);
+color: var(--text-3);
+}
+
+.username-form {
+display: flex;
+gap: 0.5rem;
+align-items: flex-start;
+}
+.username-form .form-input {
+flex: 1;
+}
+.username-hint {
+font-size: 0.75rem;
+color: var(--text-4);
+margin-top: 0.4rem;
+}
+.username-hint.error {
+color: #fca5a5;
+}
+.username-hint.success {
+color: #4ade80;
+}
+.username-current {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+padding: 0.8rem 1rem;
+background: var(--bg-input);
+border: 1px solid var(--border);
+border-radius: 10px;
+margin-bottom: 1rem;
+}
+.username-current-avatar {
+width: 40px; height: 40px;
+border-radius: 50%;
+background: var(--grad-main);
+display: grid; place-items: center;
+font-weight: 700; color: #fff;
+font-size: 1.1rem;
+flex-shrink: 0;
+}
+.username-current-info {
+flex: 1;
+min-width: 0;
+}
+.username-current-name {
+font-weight: 600;
+color: var(--text-1);
+font-size: 0.95rem;
+}
+.username-current-email {
+font-size: 0.78rem;
+color: var(--text-4);
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.announcement-author {
+display: inline-flex;
+align-items: center;
+gap: 0.4rem;
+font-size: 0.75rem;
+color: var(--text-3);
+margin-left: 0.5rem;
+}
+.announcement-author-avatar {
+width: 22px; height: 22px;
+border-radius: 50%;
+background: var(--grad-main);
+display: grid; place-items: center;
+font-size: 0.6rem; font-weight: 700;
+color: #fff;
+}
+::selection { background: var(--pink); color: #fff; }
+
+@keyframes floatA {
+0%, 100% { transform: translate(0, 0) rotate(0deg); }
+50% { transform: translate(-20px, 10px) rotate(5deg); }
+}
+
+@media (max-width: 768px) {
+.dashboard-header {
+flex-direction: column;
+align-items: stretch;
+padding-right: 0;
+gap: 0.5rem;
+}
+.dashboard-actions {
+justify-content: flex-start;
+flex-wrap: wrap;
+}
+.dashboard-tabs {
+gap: 0.2rem;
+}
+.dashboard-tab {
+font-size: 0.8rem;
+padding: 0.5rem 0.7rem;
+}
+.characters-grid {
+grid-template-columns: 1fr 1fr;
+gap: 0.8rem;
+}
+.character-card {
+padding: 1rem;
+}
+.character-avatar {
+width: 56px; height: 56px;
+font-size: 1.5rem;
+}
+.character-name {
+font-size: 0.95rem;
+}
+.character-desc {
+font-size: 0.8rem;
+}
+.character-actions .btn {
+font-size: 0.75rem;
+padding: 0.4rem 0.6rem;
+}
+.settings-btn {
+top: 0.8rem;
+right: 0.8rem;
+width: 40px;
+height: 40px;
+}
+.modal {
+padding: 1rem;
+}
+.auth-container {
+padding: 1.5rem 1rem;
+}
+.chat-sidebar {
+position: absolute;
+top: 0;
+left: 0;
+bottom: 0;
+z-index: 20;
+transform: translateX(-100%);
+width: 280px;
+box-shadow: 2px 0 20px rgba(0,0,0,0.5);
+}
+.chat-sidebar.open {
+transform: translateX(0);
+}
+.btn-hamburger {
+display: grid;
+}
+.chat-messages {
+padding: 1rem 0.8rem;
+gap: 0.6rem;
+}
+.message-bubble {
+max-width: 90%;
+font-size: 0.88rem;
+padding: 0.7rem 0.9rem;
+}
+.chat-input-area {
+padding: 0.6rem 0.8rem 0.8rem;
+}
+.chat-input {
+font-size: 0.9rem;
+padding: 0.6rem 0.8rem;
+min-height: 40px;
+}
+.chat-send-btn {
+width: 44px;
+height: 44px;
+}
+#chat-view.immersive .chat-messages {
+padding: 1.5rem 0.8rem;
+padding-top: 3rem;
+}
+.announcement-card {
+padding: 1.2rem;
+}
+.announcement-title {
+font-size: 1.1rem;
+}
+.announcement-form {
+padding: 1rem;
+}
+.username-form {
+flex-direction: column;
+}
+.username-form .btn {
+width: 100%;
+}
+.dashboard-welcome h1 {
+font-size: 1.3rem;
+}
+.splash-title {
+font-size: 2rem;
+}
+.splash-developer {
+font-size: 0.7rem;
+letter-spacing: 0.15em;
+}
+.splash-developer::before,
+.splash-developer::after {
+width: 20px;
+margin: 0 0.5rem;
+}
+}
+
+@media (max-width: 480px) {
+.characters-grid {
+grid-template-columns: 1fr;
+}
+.dashboard-tabs {
+flex-wrap: nowrap;
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+}
+.dashboard-tab {
+font-size: 0.75rem;
+padding: 0.4rem 0.6rem;
+white-space: nowrap;
+}
+.character-card {
+padding: 0.8rem;
+}
+.character-avatar {
+width: 48px; height: 48px;
+font-size: 1.2rem;
+}
+.modal {
+padding: 0.8rem;
+}
+.auth-container {
+padding: 1rem;
+}
+.auth-title {
+font-size: 1.4rem;
+}
+.chat-sidebar {
+width: 260px;
+}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div id="splash">
+<div class="splash-developer">Desarrollado por Moon-BaraPag</div>
+<h1 class="splash-title">ShizuAI Rebirth 1</h1>
+<div class="splash-sub">SAIR1 · v1.1.0</div>
+</div>
+
+<button class="settings-btn" id="settings-btn" title="Ajustes">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="3"/>
+<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+</svg>
+</button>
+
+<div class="modal-overlay" id="settings-modal">
+<div class="modal">
+<div class="modal-header">
+<h2 class="modal-title">⚙️ Ajustes</h2>
+<button class="modal-close" data-close-modal="settings-modal">✕</button>
+</div>
+<div class="settings-section">
+<label class="section-label">Apariencia</label>
+<div class="theme-switcher">
+<div class="theme-option" data-theme-value="dark">
+<div class="theme-option-icon dark-icon">
+<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+</svg>
+</div>
+<span class="theme-option-label">Oscuro</span>
+</div>
+<div class="theme-option" data-theme-value="light">
+<div class="theme-option-icon light-icon">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="5"/>
+<line x1="12" y1="1" x2="12" y2="3"/>
+<line x1="12" y1="21" x2="12" y2="23"/>
+<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+<line x1="1" y1="12" x2="3" y2="12"/>
+<line x1="21" y1="12" x2="23" y2="12"/>
+<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+</svg>
+</div>
+<span class="theme-option-label">Claro</span>
+</div>
+</div>
+</div>
+<div class="settings-section">
+<label class="section-label">Fondo del chat</label>
+<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+<button class="btn btn-ghost btn-small" id="btn-bg-none">Sin fondo</button>
+<button class="btn btn-ghost btn-small" id="btn-bg-upload">📷 Subir imagen</button>
+<button class="btn btn-ghost btn-small" id="btn-bg-preview" style="display:none;">Ver actual</button>
+</div>
+<input type="file" id="chat-bg-file" accept="image/*" style="display:none;">
+<p style="font-size:0.75rem;color:var(--text-4);margin-top:0.5rem;">La imagen se guarda localmente en tu navegador</p>
+</div>
+<div class="settings-section">
+<label class="section-label">API Key de Gemini</label>
+<div class="api-key-wrapper">
+<input type="password" id="gemini-api-key" class="api-key-input" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
+<button class="api-key-toggle" id="toggle-api-key" title="Mostrar/Ocultar">
+<svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+<circle cx="12" cy="12" r="3"/>
+</svg>
+</button>
+</div>
+<div class="form-group" style="margin-top:0.75rem;">
+<label class="form-label" for="gemini-model">Modelo de Gemini</label>
+<input type="text" id="gemini-model" class="form-input" list="model-options" placeholder="Ej: gemini-2.0-flash" autocomplete="off" spellcheck="false">
+<datalist id="model-options">
+<option value="gemini-2.0-flash">
+<option value="gemini-1.5-pro">
+<option value="gemini-1.5-flash">
+<option value="gemini-1.5-flash-8b">
+<option value="gemini-2.0-flash-exp">
+<option value="gemini-2.0-pro-exp">
+<option value="gemini-3.5-flash">
+</datalist>
+</div>
+<div id="api-key-status" class="api-key-status empty">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="10"/>
+<line x1="12" y1="8" x2="12" y2="12"/>
+<line x1="12" y1="16" x2="12.01" y2="16"/>
+</svg>
+<span id="api-key-status-text">No hay API Key configurada</span>
+</div>
+<div class="api-key-actions">
+<button class="btn-small primary" id="save-api-key">Guardar</button>
+<button class="btn-small danger" id="clear-api-key">Eliminar</button>
+</div>
+<div class="api-key-info">
+🔒 Tu API Key se guarda <strong>localmente</strong> en tu navegador. Obtén tu key en <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.
+</div>
+</div>
+<div class="settings-section">
+<label class="section-label">Perfil de Usuario</label>
+<div class="username-current" id="username-current">
+<div class="username-current-avatar" id="username-avatar">?</div>
+<div class="username-current-info">
+<div class="username-current-name" id="username-display">Cargando...</div>
+<div class="username-current-email" id="username-email"></div>
+</div>
+</div>
+<form id="form-username">
+<div class="form-group" style="margin-bottom:0.5rem">
+<label class="form-label" for="new-username">Nombre de usuario</label>
+<div class="username-form">
+<input type="text" id="new-username" class="form-input" placeholder="ej: shizu_fan_29" maxlength="20" pattern="^[a-zA-Z0-9_]{3,20}$" autocomplete="off" spellcheck="false">
+<button type="submit" class="btn btn-primary" style="padding:0.85rem 1.2rem">
+Guardar
+</button>
+</div>
+<div class="username-hint" id="username-hint">
+3-20 caracteres. Solo letras, números y guion bajo (_).
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="character-modal">
+<div class="modal">
+<div class="modal-header">
+<h2 class="modal-title" id="character-modal-title">✨ Crear Personaje</h2>
+<button class="modal-close" data-close-modal="character-modal">✕</button>
+</div>
+<form id="form-personaje">
+<input type="hidden" id="char-id" name="id">
+<div class="avatar-editor">
+<label class="section-label" style="text-align:center;display:block">Avatar del personaje</label>
+<div class="avatar-preview-container" id="avatar-preview-container">
+<div class="avatar-placeholder" id="avatar-placeholder">
+<div class="avatar-placeholder-icon">📷</div>
+<div>Click para subir imagen</div>
+</div>
+<img id="avatar-preview" class="avatar-preview" style="display:none" alt="preview">
+</div>
+<input type="file" id="avatar-file" accept="image/*" style="display:none">
+<div class="avatar-controls" id="avatar-controls">
+<div class="slider-group">
+<div class="slider-label"><span>Zoom</span><span id="zoom-value">100%</span></div>
+<input type="range" id="avatar-zoom" min="100" max="300" value="100">
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>Posición X</span><span id="x-value">0</span></div>
+<input type="range" id="avatar-x" min="-100" max="100" value="0">
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>Posición Y</span><span id="y-value">0</span></div>
+<input type="range" id="avatar-y" min="-100" max="100" value="0">
+</div>
+<div class="avatar-actions-row">
+<button type="button" class="btn btn-ghost btn-small" id="avatar-change">Cambiar</button>
+<button type="button" class="btn btn-danger btn-small" id="avatar-remove">Quitar</button>
+</div>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label" for="char-nombre">Nombre del personaje</label>
+<input type="text" id="char-nombre" name="nombre" class="form-input" placeholder="Ej: Shizu" required maxlength="60">
+</div>
+<div class="form-group">
+<label class="form-label" for="char-desc">Descripción corta <span class="hint">(para la tarjeta)</span></label>
+<input type="text" id="char-desc" name="descripcion_corta" class="form-input" placeholder="Ej: Una chica tímida que ama los libros" maxlength="200">
+</div>
+<div class="switch-group">
+<div class="switch-info">
+<div class="switch-title">🌍 Personaje público</div>
+<div class="switch-desc">Aparecerá en la sección "Comunidad" para que otros usuarios lo descubran</div>
+</div>
+<label class="switch">
+<input type="checkbox" id="char-publico" name="publico">
+<span class="switch-slider"></span>
+</label>
+</div>
+<div class="form-group">
+<label class="form-label" for="char-personalidad">Personalidad <span class="hint">(rasgos, forma de hablar)</span></label>
+<textarea id="char-personalidad" name="personalidad" class="form-textarea" placeholder="Ej: Tímida, inteligente, sarcástica cuando se siente cómoda..." required></textarea>
+</div>
+<div class="form-group">
+<label class="form-label" for="char-escenario">Escenario / Contexto</label>
+<textarea id="char-escenario" name="escenario" class="form-textarea" placeholder="Ej: Están en la biblioteca de la escuela, es de tarde..."></textarea>
+</div>
+<div class="form-group">
+<label class="form-label" for="char-ejemplos">Ejemplos de diálogo <span class="hint">(usa *acciones*)</span></label>
+<textarea id="char-ejemplos" name="ejemplos" class="form-textarea mono" placeholder="{{user}}: Hola, ¿qué lees?&#10;{{char}}: *aprieta el libro contra su pecho* A-ah... nada importante..."></textarea>
+</div>
+<div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+<button type="button" class="btn btn-ghost" data-close-modal="character-modal" style="flex:1">Cancelar</button>
+<button type="submit" class="btn btn-primary" id="btn-crear-personaje" style="flex:1">Guardar personaje</button>
+</div>
+</form>
+</div>
+</div>
+
+<div id="auth-screen">
+<div class="auth-container">
+<div class="auth-header">
+<h2 class="auth-title">Bienvenido a SAIR1</h2>
+<p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p>
+</div>
+<div class="auth-tabs">
+<button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+<button class="auth-tab" data-tab="register">Registrarse</button>
+</div>
+<form id="login-form" class="auth-form active">
+<div class="form-group">
+<label class="form-label" for="login-email">Correo electrónico</label>
+<input type="email" id="login-email" class="form-input" placeholder="tu@email.com" required>
+</div>
+<div class="form-group">
+<label class="form-label" for="login-password">Contraseña</label>
+<input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+</div>
+<button type="submit" class="btn btn-primary" style="width:100%">Iniciar Sesión</button>
+<div id="login-message" class="form-message"></div>
+</form>
+<form id="register-form" class="auth-form">
+<div class="form-group">
+<label class="form-label" for="register-email">Correo electrónico</label>
+<input type="email" id="register-email" class="form-input" placeholder="tu@email.com" required>
+</div>
+<div class="form-group">
+<label class="form-label" for="register-password">Contraseña</label>
+<input type="password" id="register-password" class="form-input" placeholder="Mínimo 6 caracteres" minlength="6" required>
+</div>
+<div class="form-group">
+<label class="form-label" for="register-confirm">Confirmar contraseña</label>
+<input type="password" id="register-confirm" class="form-input" placeholder="Repite tu contraseña" minlength="6" required>
+</div>
+<button type="submit" class="btn btn-primary" style="width:100%">Crear Cuenta</button>
+<div id="register-message" class="form-message"></div>
+</form>
+</div>
+</div>
+
+<div id="dashboard">
+<div class="dashboard-header">
+<div class="dashboard-welcome">
+<h1 id="dashboard-title">Tus personajes</h1>
+<p id="dashboard-subtitle">Crea, edita y chatea con tus personajes de IA</p>
+</div>
+<div class="dashboard-actions">
+<div class="user-badge" id="user-badge" title="Tu perfil">
+<div class="user-avatar-mini" id="user-badge-avatar">?</div>
+<span id="user-badge-name">Cargando...</span>
+<span class="role-tag user" id="user-badge-role">user</span>
+</div>
+<button class="btn btn-primary" id="btn-nuevo-personaje">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+Crear personaje
+</button>
+<button class="btn btn-ghost" id="logout-btn">Salir</button>
+</div>
+</div>
+<div class="dashboard-tabs">
+<button class="dashboard-tab active" data-view="my-characters">🎭 Mis Personajes</button>
+<button class="dashboard-tab" data-view="community">🌍 Comunidad</button>
+<button class="dashboard-tab" data-view="announcements" style="margin-left:auto">📢 Anuncios</button>
+</div>
+<div id="characters-container"></div>
+</div>
+
+<div id="chat-view">
+<div class="chat-layout">
+<aside class="chat-sidebar" id="chat-sidebar">
+<div class="chat-sidebar-header">
+<button class="chat-back-btn" id="chat-back-btn" title="Volver">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+</button>
+<div class="chat-char-avatar" id="chat-char-avatar"></div>
+<div class="chat-char-info">
+<div class="chat-char-name" id="chat-char-name">Personaje</div>
+<div class="chat-char-sub" id="chat-char-sub">Chats</div>
+</div>
+</div>
+<button class="chat-new-btn" id="chat-new-btn">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+Nuevo chat
+</button>
+<button class="chat-new-btn" id="chat-export-btn" style="background: var(--bg-card); color: var(--text-2); border: 1px solid var(--border); box-shadow: none; margin-top: 0.5rem;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+<polyline points="7 10 12 15 17 10"></polyline>
+<line x1="12" y1="15" x2="12" y2="3"></line>
+</svg>
+Exportar chat
+</button>
+<div class="chat-list" id="chat-list"></div>
+</aside>
+<main class="chat-main">
+<button class="btn-hamburger" id="btn-hamburger" title="Mostrar/ocultar sidebar">
+<svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+<button class="btn-immersive" id="btn-immersive" title="Modo inmersivo">
+<svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+</button>
+<div class="chat-messages" id="chat-messages">
+<div class="chat-empty" id="chat-empty">
+<div class="chat-empty-icon">💬</div>
+<h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:0.5rem">Comienza una conversación</h3>
+<p>Selecciona un chat o crea uno nuevo</p>
+</div>
+</div>
+<div class="chat-input-area">
+<div class="chat-input-wrapper">
+<textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea>
+<button class="chat-send-btn" id="chat-send-btn" disabled>
+<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+</button>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
+<script>
+const CONFIG = {
+SUPABASE_URL: 'https://tcnzimhqjyivlrvqzwpb.supabase.co',
+SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',
+LS: {
+THEME: 'sair1_theme',
+GEMINI_KEY: 'sair1_gemini_key',
+GEMINI_MODEL: 'sair1_gemini_model'
+}
+};
+
+let sbClient = null;
+let currentUser = null;
+let userRole = null;
+let userUsername = null;
+let currentView = 'my-characters';
+let currentCharacter = null;
+let currentChatId = null;
+let isStreaming = false;
+let rateLimitTimer = null;
+let rateLimitCountdown = 0;
+let pendingAction = null;
+let pendingData = null;
+
+const CACHE = {
+personajes: null,
+personajesComunidad: null,
+anuncios: null,
+usernames: {},
+cacheTime: { personajes: 0, personajesComunidad: 0, anuncios: 0 },
+TTL: 30000
+};
+
+const LOADING = {
+personajes: false,
+personajesComunidad: false,
+anuncios: false
+};
+
+function isCacheValid(key) {
+return CACHE[key] && (Date.now() - CACHE.cacheTime[key] < CACHE.TTL);
+}
+
+async function ejecutarConRefresh(fn, maxRetries = 1) {
+for (let intent = 0; intent <= maxRetries; intent++) {
+try {
+return await fn();
+} catch (err) {
+if (err.message && (
+err.message.includes('JWT expired') ||
+err.message.includes('jwt expired') ||
+err.message.includes('invalid token') ||
+err.message.includes('token expired')
+)) {
+if (intent < maxRetries) {
+console.warn('⏳ Token expirado, refrescando sesión...');
+try {
+const { data, error } = await sbClient.auth.refreshSession();
+if (error) {
+console.error('❌ Error al refrescar sesión:', error);
+await sbClient.auth.signOut();
+currentUser = null;
+userRole = null;
+userUsername = null;
+showAuth();
+throw new Error('Sesión expirada. Inicia sesión de nuevo.');
+}
+if (data.session) {
+currentUser = data.session.user;
+await cargarPerfilYRol();
+console.log('✅ Sesión refrescada correctamente');
+continue;
+}
+} catch (refreshErr) {
+console.error('❌ Falló el refresco de sesión:', refreshErr);
+await sbClient.auth.signOut();
+currentUser = null;
+userRole = null;
+userUsername = null;
+showAuth();
+throw new Error('Sesión expirada. Inicia sesión de nuevo.');
+}
+}
+}
+throw err;
+}
+}
+}
+
+function showToast(message, type = 'success') {
+const toast = document.getElementById('toast');
+let safeMessage = message;
+if (message.includes('violates row-level security') ||
+message.includes('permission denied') ||
+message.includes('relation') ||
+message.includes('column') ||
+message.includes('table')) {
+safeMessage = 'Error de permisos. Contacta al administrador.';
+}
+const div = document.createElement('div');
+div.textContent = safeMessage;
+toast.innerHTML = div.innerHTML;
+toast.className = `toast ${type}`;
+setTimeout(() => toast.classList.add('visible'), 10);
+setTimeout(() => toast.classList.remove('visible'), 3500);
+}
+
+function escapeHtml(str) {
+if (!str) return '';
+const div = document.createElement('div');
+div.textContent = str;
+return div.innerHTML;
+}
+
+function renderMarkdown(texto) {
+if (!texto) return '';
+return texto
+.replace(/&/g, '&amp;')
+.replace(/</g, '&lt;')
+.replace(/>/g, '&gt;')
+.replace(/\*([^*\n]+)\*/g, '<em class="accion">*$1*</em>')
+.replace(/\n/g, '<br>');
+}
+
+function formatDate(dateStr) {
+const d = new Date(dateStr);
+const now = new Date();
+const diff = now - d;
+if (diff < 60000) return 'ahora';
+if (diff < 3600000) return `hace ${Math.floor(diff/60000)}m`;
+if (diff < 86400000) return `hace ${Math.floor(diff/3600000)}h`;
+if (diff < 604800000) return `hace ${Math.floor(diff/86400000)}d`;
+return d.toLocaleDateString();
+}
+
+const _obf_k = (str) => {
+if (!str) return '';
+return btoa(str.split('').map((c, i) =>
+String.fromCharCode(c.charCodeAt(0) ^ (i % 10 + 3))
+).join(''));
+};
+
+const _deobf_k = (str) => {
+if (!str) return '';
+try {
+const decoded = atob(str);
+return decoded.split('').map((c, i) =>
+String.fromCharCode(c.charCodeAt(0) ^ (i % 10 + 3))
+).join('');
+} catch { return ''; }
+};
+
+function getGeminiKey() {
+const stored = localStorage.getItem(CONFIG.LS.GEMINI_KEY);
+return stored ? _deobf_k(stored) : '';
+}
+
+function getGeminiModel() {
+const stored = localStorage.getItem(CONFIG.LS.GEMINI_MODEL);
+return stored || 'gemini-2.0-flash';
+}
+
+function setGeminiModel(model) {
+localStorage.setItem(CONFIG.LS.GEMINI_MODEL, model);
+}
+
+async function cargarPerfilYRol() {
+if (!currentUser) {
+userRole = null;
+userUsername = null;
+return;
+}
+try {
+const [rolResult, perfilResult] = await Promise.all([
+sbClient.from('roles').select('rol').eq('user_id', currentUser.id).single(),
+sbClient.from('perfiles').select('username').eq('user_id', currentUser.id).single()
+]);
+userRole = rolResult.data?.rol || 'user';
+userUsername = perfilResult.data?.username || null;
+console.log('👤 Perfil:', userUsername, '| Rol:', userRole);
+} catch (err) {
+console.error('Error cargando perfil:', err);
+userRole = 'user';
+userUsername = null;
+}
+actualizarUIPerfil();
+}
+
+function actualizarUIPerfil() {
+const displayName = userUsername || currentUser?.email?.split('@')[0] || 'Usuario';
+const initial = displayName.charAt(0).toUpperCase();
+const badgeName = document.getElementById('user-badge-name');
+const badgeAvatar = document.getElementById('user-badge-avatar');
+const badgeRole = document.getElementById('user-badge-role');
+if (badgeName) badgeName.textContent = displayName;
+if (badgeAvatar) badgeAvatar.textContent = initial;
+if (badgeRole) {
+badgeRole.textContent = userRole;
+badgeRole.className = `role-tag ${userRole}`;
+}
+const usernameDisplay = document.getElementById('username-display');
+const usernameEmail = document.getElementById('username-email');
+const usernameAvatar = document.getElementById('username-avatar');
+const newUsernameInput = document.getElementById('new-username');
+if (usernameDisplay) usernameDisplay.textContent = displayName;
+if (usernameEmail && currentUser) usernameEmail.textContent = currentUser.email;
+if (usernameAvatar) usernameAvatar.textContent = initial;
+if (newUsernameInput) newUsernameInput.value = '';
+}
+
+async function cambiarUsername(nuevoUsername) {
+if (!currentUser) throw new Error('No hay sesión');
+const regex = /^[a-zA-Z0-9_]{3,20}$/;
+if (!regex.test(nuevoUsername)) {
+throw new Error('Username inválido. Usa 3-20 caracteres: letras, números o _');
+}
+const { error } = await sbClient
+.from('perfiles')
+.update({ username: nuevoUsername })
+.eq('user_id', currentUser.id);
+if (error) {
+if (error.code === '23505' || error.message.includes('unique')) {
+throw new Error('Ese nombre de usuario ya está en uso');
+}
+throw new Error(error.message);
+}
+userUsername = nuevoUsername;
+actualizarUIPerfil();
+}
+
+function isOwner() {
+return userRole === 'owner';
+}
+
+async function obtenerUsername(userId) {
+if (!userId) return 'anónimo';
+if (CACHE.usernames[userId]) return CACHE.usernames[userId];
+try {
+const { data, error } = await sbClient
+.from('perfiles')
+.select('username')
+.eq('user_id', userId)
+.single();
+if (error || !data) return userId.substring(0, 8) + '...';
+CACHE.usernames[userId] = data.username;
+return data.username;
+} catch (err) {
+return userId.substring(0, 8) + '...';
+}
+}
+
+async function obtenerUsernamesBatch(userIds) {
+if (!userIds || userIds.length === 0) return {};
+const map = {};
+const idsSinCaché = userIds.filter(id => !CACHE.usernames[id]);
+if (idsSinCaché.length === 0) {
+userIds.forEach(id => { map[id] = CACHE.usernames[id]; });
+return map;
+}
+try {
+const { data, error } = await sbClient
+.from('perfiles')
+.select('user_id, username')
+.in('user_id', idsSinCaché);
+if (data && !error) {
+data.forEach(p => {
+CACHE.usernames[p.user_id] = p.username;
+map[p.user_id] = p.username;
+});
+}
+} catch (err) {
+console.error('Error obteniendo usernames batch:', err);
+}
+userIds.forEach(id => {
+if (!map[id]) {
+map[id] = CACHE.usernames[id] || id.substring(0, 8) + '...';
+}
+});
+return map;
+}
+
+function applyTheme(theme) {
+document.body.setAttribute('data-theme', theme);
+localStorage.setItem(CONFIG.LS.THEME, theme);
+document.querySelectorAll('.theme-option').forEach(opt => {
+opt.classList.toggle('active', opt.dataset.themeValue === theme);
+});
+}
+applyTheme(localStorage.getItem(CONFIG.LS.THEME) || 'dark');
+
+function openModal(id) {
+document.getElementById(id).classList.add('visible');
+}
+function closeModal(id) {
+document.getElementById(id).classList.remove('visible');
+}
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+updateApiKeyUI();
+openModal('settings-modal');
+});
+
+document.querySelectorAll('[data-close-modal]').forEach(btn => {
+btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+});
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+overlay.addEventListener('click', (e) => {
+if (e.target === overlay) overlay.classList.remove('visible');
+});
+});
+document.addEventListener('keydown', (e) => {
+if (e.key === 'Escape') {
+document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
+}
+});
+
+document.querySelectorAll('.theme-option').forEach(opt => {
+opt.addEventListener('click', () => {
+applyTheme(opt.dataset.themeValue);
+showToast(`Tema ${opt.dataset.themeValue === 'dark' ? 'oscuro' : 'claro'} activado`);
+});
+});
+
+function updateApiKeyUI() {
+const key = getGeminiKey();
+const model = getGeminiModel();
+const statusEl = document.getElementById('api-key-status');
+const input = document.getElementById('gemini-api-key');
+const modelInput = document.getElementById('gemini-model');
+if (modelInput) modelInput.value = model;
+if (key) {
+statusEl.className = 'api-key-status saved';
+statusEl.innerHTML = `
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+<polyline points="22 4 12 14.01 9 11.01"/>
+</svg>
+<span>API Key configurada (${key.substring(0, 8)}...${key.substring(key.length - 4)}) · Modelo: ${model}</span>
+`;
+input.value = key;
+} else {
+statusEl.className = 'api-key-status empty';
+statusEl.innerHTML = `
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="10"/>
+<line x1="12" y1="8" x2="12" y2="12"/>
+<line x1="12" y1="16" x2="12.01" y2="16"/>
+</svg>
+<span>No hay API Key configurada</span>
+`;
+input.value = '';
+}
+}
+
+document.getElementById('toggle-api-key').addEventListener('click', () => {
+const input = document.getElementById('gemini-api-key');
+input.type = input.type === 'password' ? 'text' : 'password';
+});
+
+document.getElementById('save-api-key').addEventListener('click', () => {
+const key = document.getElementById('gemini-api-key').value.trim();
+const model = document.getElementById('gemini-model').value.trim() || 'gemini-2.0-flash';
+if (!key || key.length < 20) {
+showToast('API Key inválida', 'error');
+return;
+}
+localStorage.setItem(CONFIG.LS.GEMINI_KEY, _obf_k(key));
+setGeminiModel(model);
+updateApiKeyUI();
+showToast('API Key y modelo guardados');
+});
+
+document.getElementById('clear-api-key').addEventListener('click', () => {
+if (getGeminiKey() && confirm('¿Eliminar tu API Key y modelo?')) {
+localStorage.removeItem(CONFIG.LS.GEMINI_KEY);
+localStorage.removeItem(CONFIG.LS.GEMINI_MODEL);
+updateApiKeyUI();
+showToast('API Key y modelo eliminados');
+}
+});
+
+const BG_STORAGE_KEY = 'sair1_chat_bg';
+
+function aplicarFondoChat() {
+const bg = localStorage.getItem(BG_STORAGE_KEY);
+const chatMain = document.querySelector('.chat-main');
+const btnPreview = document.getElementById('btn-bg-preview');
+if (bg) {
+chatMain.style.backgroundImage = `url(${bg})`;
+chatMain.classList.add('has-background');
+if (btnPreview) btnPreview.style.display = 'inline-flex';
+} else {
+chatMain.style.backgroundImage = '';
+chatMain.classList.remove('has-background');
+if (btnPreview) btnPreview.style.display = 'none';
+}
+}
+
+const observer = new MutationObserver(() => {
+if (document.getElementById('chat-view').classList.contains('visible')) {
+aplicarFondoChat();
+}
+});
+observer.observe(document.getElementById('chat-view'), { attributes: true, attributeFilter: ['class'] });
+
+document.getElementById('btn-bg-none').addEventListener('click', () => {
+localStorage.removeItem(BG_STORAGE_KEY);
+aplicarFondoChat();
+showToast('Fondo eliminado');
+});
+
+document.getElementById('btn-bg-upload').addEventListener('click', () => {
+document.getElementById('chat-bg-file').click();
+});
+
+document.getElementById('chat-bg-file').addEventListener('change', (e) => {
+const file = e.target.files[0];
+if (!file) return;
+if (file.size > 5 * 1024 * 1024) {
+showToast('❌ Imagen muy grande (máx 5MB)', 'error');
+return;
+}
+const reader = new FileReader();
+reader.onload = (ev) => {
+localStorage.setItem(BG_STORAGE_KEY, ev.target.result);
+aplicarFondoChat();
+showToast('✅ Fondo aplicado');
+};
+reader.readAsDataURL(file);
+});
+
+document.getElementById('btn-bg-preview')?.addEventListener('click', () => {
+const bg = localStorage.getItem(BG_STORAGE_KEY);
+if (bg) {
+const win = window.open();
+win.document.write(`<img src="${bg}" style="max-width:100%;height:auto;">`);
+}
+});
+
+let avatarData = {
+original: null,
+final: null,
+zoom: 100,
+x: 0,
+y: 0
+};
+
+const avatarContainer = document.getElementById('avatar-preview-container');
+const avatarPreview = document.getElementById('avatar-preview');
+const avatarPlaceholder = document.getElementById('avatar-placeholder');
+const avatarControls = document.getElementById('avatar-controls');
+const avatarFile = document.getElementById('avatar-file');
+
+avatarContainer.addEventListener('click', () => {
+if (!avatarData.original) avatarFile.click();
+});
+
+avatarFile.addEventListener('change', (e) => {
+const file = e.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = (ev) => {
+avatarData.original = ev.target.result;
+avatarData.zoom = 100;
+avatarData.x = 0;
+avatarData.y = 0;
+updateAvatarPreview();
+avatarControls.classList.add('visible');
+avatarContainer.classList.add('has-image');
+};
+reader.readAsDataURL(file);
+});
+
+function updateAvatarPreview() {
+if (!avatarData.original) return;
+avatarPreview.src = avatarData.original;
+avatarPreview.style.display = 'block';
+avatarPlaceholder.style.display = 'none';
+avatarPreview.style.transform = `scale(${avatarData.zoom/100}) translate(${avatarData.x}%, ${avatarData.y}%)`;
+document.getElementById('zoom-value').textContent = avatarData.zoom + '%';
+document.getElementById('x-value').textContent = avatarData.x;
+document.getElementById('y-value').textContent = avatarData.y;
+}
+
+document.getElementById('avatar-zoom').addEventListener('input', (e) => {
+avatarData.zoom = parseInt(e.target.value);
+updateAvatarPreview();
+});
+document.getElementById('avatar-x').addEventListener('input', (e) => {
+avatarData.x = parseInt(e.target.value);
+updateAvatarPreview();
+});
+document.getElementById('avatar-y').addEventListener('input', (e) => {
+avatarData.y = parseInt(e.target.value);
+updateAvatarPreview();
+});
+
+document.getElementById('avatar-change').addEventListener('click', () => {
+avatarFile.click();
+});
+
+document.getElementById('avatar-remove').addEventListener('click', () => {
+avatarData = { original: null, final: null, zoom: 100, x: 0, y: 0 };
+avatarPreview.style.display = 'none';
+avatarPlaceholder.style.display = 'block';
+avatarContainer.classList.remove('has-image');
+avatarControls.classList.remove('visible');
+avatarFile.value = '';
+document.getElementById('avatar-zoom').value = 100;
+document.getElementById('avatar-x').value = 0;
+document.getElementById('avatar-y').value = 0;
+});
+
+function procesarAvatar() {
+return new Promise((resolve) => {
+if (!avatarData.original) {
+resolve(null);
+return;
+}
+const img = new Image();
+img.onload = () => {
+const size = 400;
+const canvas = document.createElement('canvas');
+canvas.width = size;
+canvas.height = size;
+const ctx = canvas.getContext('2d');
+const imgRatio = img.width / img.height;
+let drawW, drawH;
+if (imgRatio > 1) {
+drawH = size;
+drawW = size * imgRatio;
+} else {
+drawW = size;
+drawH = size / imgRatio;
+}
+const zoomFactor = avatarData.zoom / 100;
+drawW *= zoomFactor;
+drawH *= zoomFactor;
+let drawX = (size - drawW) / 2;
+let drawY = (size - drawH) / 2;
+drawX += (avatarData.x / 100) * size;
+drawY += (avatarData.y / 100) * size;
+ctx.drawImage(img, drawX, drawY, drawW, drawH);
+resolve(canvas.toDataURL('image/jpeg', 0.85));
+};
+img.src = avatarData.original;
+});
+}
+
+function setAvatarForEdit(avatarUrl) {
+if (avatarUrl) {
+avatarData.original = avatarUrl;
+avatarData.final = avatarUrl;
+avatarPreview.src = avatarUrl;
+avatarPreview.style.display = 'block';
+avatarPreview.style.transform = 'none';
+avatarPlaceholder.style.display = 'none';
+avatarContainer.classList.add('has-image');
+avatarControls.classList.add('visible');
+} else {
+document.getElementById('avatar-remove').click();
+}
+}
+
+function construirSystemPrompt({ nombre, personalidad, escenario, ejemplos }) {
+const LIMITS = {
+nombre: 60,
+personalidad: 3000,
+escenario: 2000,
+ejemplos: 4000
+};
+if (nombre && nombre.length > LIMITS.nombre) {
+throw new Error(`Nombre demasiado largo (máx. ${LIMITS.nombre})`);
+}
+if (personalidad && personalidad.length > LIMITS.personalidad) {
+throw new Error(`Personalidad demasiado larga (máx. ${LIMITS.personalidad})`);
+}
+if (escenario && escenario.length > LIMITS.escenario) {
+throw new Error(`Escenario demasiado largo (máx. ${LIMITS.escenario})`);
+}
+if (ejemplos && ejemplos.length > LIMITS.ejemplos) {
+throw new Error(`Ejemplos demasiado largos (máx. ${LIMITS.ejemplos})`);
+}
+const partes = [];
+partes.push(`[Sistema de Roleplay]`);
+partes.push(`Interpretarás al personaje "${nombre}" de forma inmersiva y consistente.`);
+partes.push(``);
+partes.push(`REGLAS ESTRICTAS DE FORMATO:`);
+partes.push(`- Usa *asteriscos* para acciones, pensamientos, expresiones y entorno.`);
+partes.push(`- Escribe el diálogo normal sin comillas.`);
+partes.push(`- NUNCA rompas el personaje. NUNCA hables como IA.`);
+partes.push(`- Responde siempre en primera persona como ${nombre}.`);
+partes.push(`- Sé descriptivo con las acciones.`);
+partes.push(``);
+if (personalidad?.trim()) {
+partes.push(`[Personalidad de ${nombre}]`);
+partes.push(personalidad.trim());
+partes.push(``);
+}
+if (escenario?.trim()) {
+partes.push(`[Escenario]`);
+partes.push(escenario.trim());
+partes.push(``);
+}
+if (ejemplos?.trim()) {
+partes.push(`[Ejemplos de diálogo - imita este estilo]`);
+partes.push(ejemplos.trim());
+partes.push(``);
+}
+partes.push(`[Final] Mantén siempre el rol de ${nombre}.`);
+return partes.join('\n');
+}
+
+async function crearPersonaje(datos) {
+if (!currentUser) throw new Error('No hay sesión');
+if (!datos.nombre?.trim()) throw new Error('El nombre es obligatorio');
+const system_prompt = construirSystemPrompt(datos);
+const avatar_url = await procesarAvatar();
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('personajes')
+.insert({
+user_id: currentUser.id,
+nombre: datos.nombre.trim(),
+descripcion_corta: (datos.descripcion_corta || '').slice(0, 200),
+system_prompt,
+avatar_url,
+publico: !!datos.publico
+})
+.select()
+.single();
+if (error) throw new Error(error.message);
+return data;
+});
+}
+
+async function actualizarPersonaje(id, datos) {
+if (!currentUser) throw new Error('No hay sesión');
+const system_prompt = construirSystemPrompt(datos);
+const avatar_url = await procesarAvatar();
+const updates = {
+nombre: datos.nombre.trim(),
+descripcion_corta: (datos.descripcion_corta || '').slice(0, 200),
+system_prompt,
+publico: !!datos.publico
+};
+if (avatar_url !== null) updates.avatar_url = avatar_url;
+else if (avatarData.original === null) updates.avatar_url = null;
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('personajes')
+.update(updates)
+.eq('id', id)
+.eq('user_id', currentUser.id)
+.select()
+.single();
+if (error) throw new Error(error.message);
+return data;
+});
+}
+
+async function listarPersonajes() {
+if (!currentUser) return [];
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('personajes')
+.select('*')
+.eq('user_id', currentUser.id)
+.order('creado_en', { ascending: false });
+if (error) throw new Error(error.message);
+return data || [];
+});
+}
+
+async function listarPersonajesComunidad() {
+if (!currentUser) return [];
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('personajes')
+.select('id, nombre, descripcion_corta, avatar_url, publico, user_id, creado_en')
+.eq('publico', true)
+.order('creado_en', { ascending: false })
+.limit(50);
+if (error) throw new Error(error.message);
+return data || [];
+});
+}
+
+async function obtenerPersonaje(id) {
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('personajes')
+.select('*')
+.eq('id', id)
+.single();
+if (error) throw new Error('Personaje no encontrado');
+return data;
+});
+}
+
+async function eliminarPersonaje(id) {
+return ejecutarConRefresh(async () => {
+const { error } = await sbClient
+.from('personajes')
+.delete()
+.eq('id', id)
+.eq('user_id', currentUser.id);
+if (error) throw new Error(error.message);
+return true;
+});
+}
+
+async function listarAnuncios() {
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('anuncios')
+.select('*')
+.order('creado_en', { ascending: false })
+.limit(50);
+if (error) throw new Error(error.message);
+return data || [];
+});
+}
+
+async function crearAnuncio(titulo, contenido) {
+if (!isOwner()) throw new Error('Solo el Owner puede publicar anuncios');
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('anuncios')
+.insert({
+user_id: currentUser.id,
+titulo: titulo.trim(),
+contenido: contenido.trim()
+})
+.select()
+.single();
+if (error) throw new Error(error.message);
+return data;
+});
+}
+
+async function eliminarAnuncio(id) {
+if (!isOwner()) throw new Error('No autorizado');
+return ejecutarConRefresh(async () => {
+const { error } = await sbClient
+.from('anuncios')
+.delete()
+.eq('id', id);
+if (error) throw new Error(error.message);
+return true;
+});
+}
+
+async function crearNuevoChat(personajeId) {
+if (!currentUser) throw new Error('No hay sesión');
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('chats')
+.insert({
+user_id: currentUser.id,
+personaje_id: personajeId,
+historial: []
+})
+.select()
+.single();
+if (error) throw new Error(error.message);
+return data;
+});
+}
+
+async function listarChats(personajeId) {
+return ejecutarConRefresh(async () => {
+const { data, error } = await sbClient
+.from('chats')
+.select('*')
+.eq('user_id', currentUser.id)
+.eq('personaje_id', personajeId)
+.order('actualizado_en', { ascending: false });
+if (error) throw new Error(error.message);
+return data || [];
+});
+}
+
+async function eliminarChat(chatId) {
+return ejecutarConRefresh(async () => {
+const { error } = await sbClient
+.from('chats')
+.delete()
+.eq('id', chatId)
+.eq('user_id', currentUser.id);
+if (error) throw new Error(error.message);
+return true;
+});
+}
+
+async function cargarHistorialChat(chatId) {
+return ejecutarConRefresh(async () => {
+const { data: chat, error } = await sbClient
+.from('chats')
+.select('historial')
+.eq('id', chatId)
+.single();
+if (error) throw new Error(error.message);
+let historial = chat?.historial || [];
+if (historial.length === 0) {
+const { data: oldMessages, error: errOld } = await sbClient
+.from('mensajes')
+.select('id, rol, contenido, creado_en')
+.eq('chat_id', chatId)
+.order('creado_en', { ascending: true });
+if (!errOld && oldMessages && oldMessages.length > 0) {
+historial = oldMessages.map(m => ({
+id: m.id,
+rol: m.rol,
+contenido: m.contenido
+}));
+await sbClient
+.from('chats')
+.update({ historial })
+.eq('id', chatId);
+}
+}
+const historialGemini = historial
+.filter(m => m.rol === 'user' || m.rol === 'assistant')
+.map(m => ({
+role: m.rol === 'assistant' ? 'model' : 'user',
+parts: [{ text: m.contenido }]
+}));
+return { mensajes: historial, historialGemini };
+});
+}
+
+async function guardarMensaje(chatId, rol, contenido) {
+return ejecutarConRefresh(async () => {
+const { data: chat, error } = await sbClient
+.from('chats')
+.select('historial')
+.eq('id', chatId)
+.single();
+if (error) throw new Error(error.message);
+const historial = chat.historial || [];
+const nuevoMsg = {
+id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+rol,
+contenido
+};
+historial.push(nuevoMsg);
+const { error: updateError } = await sbClient
+.from('chats')
+.update({ historial })
+.eq('id', chatId);
+if (updateError) throw new Error(updateError.message);
+return nuevoMsg;
+});
+}
+
+async function eliminarMensajeDeChat(chatId, mensajeId) {
+return ejecutarConRefresh(async () => {
+const { data: chat, error } = await sbClient
+.from('chats')
+.select('historial')
+.eq('id', chatId)
+.single();
+if (error) throw new Error(error.message);
+let historial = chat.historial || [];
+const nuevoHistorial = historial.filter(m => m.id !== mensajeId);
+if (nuevoHistorial.length === historial.length) {
+throw new Error('Mensaje no encontrado');
+}
+const { error: updateError } = await sbClient
+.from('chats')
+.update({ historial: nuevoHistorial })
+.eq('id', chatId);
+if (updateError) throw new Error(updateError.message);
+return true;
+});
+}
+
+async function actualizarHistorialChat(chatId, nuevoHistorial) {
+return ejecutarConRefresh(async () => {
+const { error } = await sbClient
+.from('chats')
+.update({ historial: nuevoHistorial })
+.eq('id', chatId);
+if (error) throw new Error(error.message);
+return true;
+});
+}
+
+async function* enviarAGeminiStream(systemPrompt, historial, nuevoMensaje) {
+const apiKey = getGeminiKey();
+if (!apiKey) {
+throw new Error('⚠️ Configura tu API Key de Gemini en los ajustes (⚙️)');
+}
+const model = getGeminiModel();
+const contents = [...historial, { role: 'user', parts: [{ text: nuevoMensaje }] }];
+const body = {
+system_instruction: { parts: [{ text: systemPrompt }] },
+contents,
+generationConfig: {
+temperature: 0.9,
+topP: 0.95,
+topK: 40,
+maxOutputTokens: 2048,
+}
+};
+const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+const response = await fetch(url, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(body)
+});
+if (!response.ok) {
+const errText = await response.text();
+let msg = `Error de Gemini (${response.status})`;
+try {
+const errJson = JSON.parse(errText);
+if (errJson.error?.message) msg = errJson.error.message;
+} catch {}
+throw new Error(msg);
+}
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+let buffer = '';
+while (true) {
+const { done, value } = await reader.read();
+if (done) break;
+buffer += decoder.decode(value, { stream: true });
+const lines = buffer.split('\n');
+buffer = lines.pop();
+for (const line of lines) {
+if (line.startsWith('data: ')) {
+const data = line.slice(6).trim();
+if (data === '[DONE]') return;
+try {
+const json = JSON.parse(data);
+const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+if (text) yield text;
+} catch {}
+}
+}
+}
+}
+
+async function fetchWithRetry(fn, retries = 2, delay = 1000) {
+for (let i = 0; i <= retries; i++) {
+try {
+return await fn();
+} catch (err) {
+if (err.message && (
+err.message.includes('JWT expired') ||
+err.message.includes('jwt expired') ||
+err.message.includes('invalid token') ||
+err.message.includes('token expired')
+)) {
+console.warn('⏳ Token expirado, intentando refrescar...');
+try {
+const { data, error } = await sbClient.auth.refreshSession();
+if (error) {
+console.error('❌ Error al refrescar sesión:', error);
+await sbClient.auth.signOut();
+currentUser = null;
+userRole = null;
+userUsername = null;
+showAuth();
+throw new Error('Sesión expirada. Inicia sesión de nuevo.');
+}
+if (data.session) {
+currentUser = data.session.user;
+await cargarPerfilYRol();
+console.log('✅ Sesión refrescada correctamente');
+return await fn();
+}
+} catch (refreshErr) {
+console.error('❌ Falló el refresco de sesión:', refreshErr);
+await sbClient.auth.signOut();
+currentUser = null;
+userRole = null;
+userUsername = null;
+showAuth();
+throw new Error('Sesión expirada. Inicia sesión de nuevo.');
+}
+}
+if (i === retries) throw err;
+console.warn(`⚠️ Reintentando (${i+1}/${retries})...`);
+await new Promise(r => setTimeout(r, delay * (i + 1)));
+}
+}
+}
+
+async function renderCharacters() {
+const container = document.getElementById('characters-container');
+const cacheKey = currentView === 'my-characters' ? 'personajes' : 'personajesComunidad';
+if (LOADING[cacheKey]) return;
+if (isCacheValid(cacheKey) && CACHE[cacheKey]) {
+renderCharactersGrid(CACHE[cacheKey], currentView !== 'my-characters');
+return;
+}
+LOADING[cacheKey] = true;
+container.innerHTML = `
+<div style="max-width:1280px;margin:0 auto">
+<div style="margin-bottom:1.5rem;"><div class="skeleton-line short" style="height:24px;"></div></div>
+<div class="characters-grid">
+${Array(6).fill(0).map(() => `
+<div class="skeleton-card">
+<div class="skeleton-avatar"></div>
+<div class="skeleton-line medium"></div>
+<div class="skeleton-line short"></div>
+<div class="skeleton-line"></div>
+</div>
+`).join('')}
+</div>
+</div>
+`;
+try {
+let personajes, esComunidad = false;
+if (currentView === 'my-characters') {
+personajes = await fetchWithRetry(() => listarPersonajes());
+} else {
+personajes = await fetchWithRetry(() => listarPersonajesComunidad());
+esComunidad = true;
+}
+CACHE[cacheKey] = personajes;
+CACHE.cacheTime[cacheKey] = Date.now();
+renderCharactersGrid(personajes, esComunidad);
+} catch (err) {
+console.error('Error en renderCharacters:', err);
+container.innerHTML = `
+<div class="empty-state">
+<div class="empty-state-icon">⚠️</div>
+<h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:0.5rem">Error al cargar</h3>
+<p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p>
+<button class="btn btn-primary" onclick="renderCharacters()">🔄 Reintentar</button>
+</div>
+`;
+} finally {
+LOADING[cacheKey] = false;
+}
+}
+
+function renderCharactersGrid(personajes, esComunidad) {
+const container = document.getElementById('characters-container');
+if (!personajes || personajes.length === 0) {
+if (esComunidad) {
+container.innerHTML = `
+<div class="empty-state">
+<div class="empty-state-icon">🌍</div>
+<h3>Aún no hay personajes públicos</h3>
+<p>Sé el primero en compartir un personaje con la comunidad</p>
+</div>
+`;
+} else {
+container.innerHTML = `
+<div class="empty-state">
+<div class="empty-state-icon">✨</div>
+<h3>Aún no tienes personajes</h3>
+<p>Crea tu primer personaje para empezar a chatear</p>
+<button class="btn btn-primary" onclick="document.getElementById('btn-nuevo-personaje').click()">
+Crear mi primer personaje
+</button>
+</div>
+`;
+}
+return;
+}
+const titulo = esComunidad ? `🌍 Personajes de la Comunidad (${personajes.length})` : `🎭 Mis Personajes (${personajes.length})`;
+container.innerHTML = `
+<div style="max-width:1280px;margin:0 auto 1.5rem">
+<h2 class="section-title">${titulo}</h2>
+</div>
+<div class="characters-grid" id="characters-grid-content"></div>
+`;
+const grid = document.getElementById('characters-grid-content');
+grid.innerHTML = personajes.map(p => {
+const avatarContent = p.avatar_url
+? `<img src="${p.avatar_url}" alt="${escapeHtml(p.nombre)}">`
+: p.nombre.charAt(0).toUpperCase();
+const badge = esComunidad
+? ''
+: (p.publico ? '<span class="badge-public">Público</span>' : '<span class="badge-private">Privado</span>');
+let authorLine = '';
+if (esComunidad) {
+authorLine = `<div class="character-author" data-user-id="${p.user_id}">Cargando...</div>`;
+}
+const actionsHtml = esComunidad
+? `<button class="btn btn-primary btn-small btn-chat" data-id="${p.id}">💬 Chatear</button>`
+: `
+<button class="btn btn-primary btn-small btn-chat" data-id="${p.id}">💬 Chatear</button>
+<button class="btn btn-ghost btn-small btn-edit" data-id="${p.id}" title="Editar">✏️</button>
+<button class="btn btn-danger btn-small btn-delete" data-id="${p.id}" title="Eliminar">🗑️</button>
+`;
+return `
+<div class="character-card" data-id="${p.id}">
+<div class="character-avatar">${avatarContent}</div>
+<div class="character-name">
+${escapeHtml(p.nombre)}
+${badge}
+</div>
+${authorLine}
+<div class="character-desc">${escapeHtml(p.descripcion_corta || 'Sin descripción')}</div>
+<div class="character-actions">${actionsHtml}</div>
+</div>
+`;
+}).join('');
+if (esComunidad) {
+const userIds = [...new Set(personajes.map(p => p.user_id))];
+obtenerUsernamesBatch(userIds).then(usernamesMap => {
+personajes.forEach(p => {
+const authorEl = grid.querySelector(`[data-user-id="${p.user_id}"]`);
+if (authorEl) {
+if (p.user_id === currentUser.id) {
+authorEl.innerHTML = '👤 Tú';
+} else {
+authorEl.innerHTML = `por @${escapeHtml(usernamesMap[p.user_id] || 'anónimo')}`;
+}
+}
+});
+});
+}
+grid.querySelectorAll('.btn-delete').forEach(btn => {
+btn.addEventListener('click', async (e) => {
+e.stopPropagation();
+if (confirm('¿Eliminar este personaje? Se borrarán también sus chats.')) {
+try {
+await fetchWithRetry(() => eliminarPersonaje(btn.dataset.id));
+showToast('Personaje eliminado');
+CACHE.personajes = null;
+CACHE.cacheTime.personajes = 0;
+renderCharacters();
+} catch (err) {
+showToast(err.message, 'error');
+}
+}
+});
+});
+grid.querySelectorAll('.btn-edit').forEach(btn => {
+btn.addEventListener('click', async (e) => {
+e.stopPropagation();
+await abrirEditorPersonaje(btn.dataset.id);
+});
+});
+grid.querySelectorAll('.btn-chat').forEach(btn => {
+btn.addEventListener('click', async (e) => {
+e.stopPropagation();
+await abrirChatConPersonaje(btn.dataset.id);
+});
+});
+}
+
+async function renderAnuncios() {
+const container = document.getElementById('characters-container');
+if (LOADING.anuncios) return;
+if (isCacheValid('anuncios') && CACHE.anuncios) {
+renderAnunciosContent(CACHE.anuncios);
+return;
+}
+LOADING.anuncios = true;
+container.innerHTML = '<p style="color:var(--text-3);text-align:center;padding:2rem">Cargando anuncios...</p>';
+try {
+const anuncios = await fetchWithRetry(() => listarAnuncios());
+CACHE.anuncios = anuncios;
+CACHE.cacheTime.anuncios = Date.now();
+renderAnunciosContent(anuncios);
+} catch (err) {
+console.error('Error en renderAnuncios:', err);
+container.innerHTML = `
+<div class="empty-state">
+<div class="empty-state-icon">⚠️</div>
+<h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:0.5rem">Error al cargar anuncios</h3>
+<p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p>
+<button class="btn btn-primary" onclick="renderAnuncios()">🔄 Reintentar</button>
+</div>
+`;
+} finally {
+LOADING.anuncios = false;
+}
+}
+
+function renderAnunciosContent(anuncios) {
+const container = document.getElementById('characters-container');
+let html = '';
+if (isOwner()) {
+html += `
+<div class="announcement-form">
+<div class="announcement-form-title">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+</svg>
+Publicar nuevo anuncio
+</div>
+<form id="form-anuncio">
+<div class="form-group">
+<input type="text" id="anuncio-titulo" class="form-input" placeholder="Título del anuncio" required maxlength="100">
+</div>
+<div class="form-group">
+<textarea id="anuncio-contenido" class="form-textarea" placeholder="Escribe el contenido del anuncio..." required maxlength="2000"></textarea>
+</div>
+<div class="announcement-form-actions">
+<button type="submit" class="btn btn-primary">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<line x1="22" y1="2" x2="11" y2="13"/>
+<polygon points="22 2 15 22 11 13 2 9 22 2"/>
+</svg>
+Publicar anuncio
+</button>
+</div>
+</form>
+</div>
+`;
+}
+if (anuncios.length === 0) {
+html += `
+<div class="no-announcements">
+<div class="empty-state-icon">📢</div>
+<h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:0.5rem">No hay anuncios aún</h3>
+<p style="color:var(--text-3)">Los anuncios del Owner aparecerán aquí</p>
+</div>
+`;
+} else {
+html += `<div class="announcements-container">`;
+html += anuncios.map(a => `
+<div class="announcement-card" data-id="${a.id}">
+${isOwner() ? `
+<button class="announcement-delete" data-id="${a.id}" title="Eliminar anuncio">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<polyline points="3 6 5 6 21 6"/>
+<path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
+</svg>
+</button>
+` : ''}
+<div class="announcement-header">
+<span class="announcement-badge">
+<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+</svg>
+Owner
+</span>
+<span class="announcement-author" data-user-id="${a.user_id}">
+<span class="announcement-author-avatar">?</span>
+por @cargando...
+</span>
+<span class="announcement-date">${formatDate(a.creado_en)}</span>
+</div>
+<div class="announcement-title">${escapeHtml(a.titulo)}</div>
+<div class="announcement-content">${escapeHtml(a.contenido)}</div>
+</div>
+`).join('');
+html += `</div>`;
+}
+container.innerHTML = html;
+const authorUserIds = [...new Set(anuncios.map(a => a.user_id))];
+obtenerUsernamesBatch(authorUserIds).then(usernamesMap => {
+anuncios.forEach(a => {
+const authorEl = container.querySelector(`.announcement-card[data-id="${a.id}"] [data-user-id="${a.user_id}"]`);
+if (authorEl) {
+const username = usernamesMap[a.user_id] || 'anónimo';
+authorEl.innerHTML = `
+<span class="announcement-author-avatar">${username.charAt(0).toUpperCase()}</span>
+por @${escapeHtml(username)}
+`;
+}
+});
+});
+container.querySelectorAll('.announcement-delete').forEach(btn => {
+btn.addEventListener('click', async (e) => {
+e.stopPropagation();
+if (confirm('¿Eliminar este anuncio?')) {
+try {
+await fetchWithRetry(() => eliminarAnuncio(btn.dataset.id));
+showToast('Anuncio eliminado');
+CACHE.anuncios = null;
+CACHE.cacheTime.anuncios = 0;
+renderAnuncios();
+} catch (err) {
+showToast(err.message, 'error');
+}
+}
+});
+});
+const formAnuncio = document.getElementById('form-anuncio');
+if (formAnuncio) {
+formAnuncio.addEventListener('submit', async (e) => {
+e.preventDefault();
+const titulo = document.getElementById('anuncio-titulo').value.trim();
+const contenido = document.getElementById('anuncio-contenido').value.trim();
+if (!titulo || !contenido) return;
+try {
+await fetchWithRetry(() => crearAnuncio(titulo, contenido));
+showToast('✅ Anuncio publicado');
+CACHE.anuncios = null;
+CACHE.cacheTime.anuncios = 0;
+renderAnuncios();
+} catch (err) {
+showToast(`❌ ${err.message}`, 'error');
+}
+});
+}
+}
+
+async function abrirEditorPersonaje(id = null) {
+const form = document.getElementById('form-personaje');
+form.reset();
+document.getElementById('avatar-remove').click();
+document.getElementById('char-id').value = '';
+if (id) {
+document.getElementById('character-modal-title').textContent = '✏️ Editar Personaje';
+document.getElementById('btn-crear-personaje').textContent = 'Guardar cambios';
+try {
+const p = await obtenerPersonaje(id);
+document.getElementById('char-id').value = p.id;
+document.getElementById('char-nombre').value = p.nombre;
+document.getElementById('char-desc').value = p.descripcion_corta || '';
+document.getElementById('char-publico').checked = !!p.publico;
+const parsed = parsearSystemPrompt(p.system_prompt);
+document.getElementById('char-personalidad').value = parsed.personalidad;
+document.getElementById('char-escenario').value = parsed.escenario;
+document.getElementById('char-ejemplos').value = parsed.ejemplos;
+setAvatarForEdit(p.avatar_url);
+} catch (err) {
+showToast(err.message, 'error');
+return;
+}
+} else {
+document.getElementById('character-modal-title').textContent = '✨ Crear Personaje';
+document.getElementById('btn-crear-personaje').textContent = 'Crear personaje';
+}
+openModal('character-modal');
+}
+
+function parsearSystemPrompt(sp) {
+const result = { personalidad: '', escenario: '', ejemplos: '' };
+if (!sp) return result;
+const secciones = sp.split(/\n\[(?=[^\]]+\])/);
+for (const sec of secciones) {
+if (sec.startsWith('Personalidad de')) {
+result.personalidad = sec.replace(/^Personalidad de[^]]*\]\n?/, '').trim();
+} else if (sec.startsWith('Escenario]')) {
+result.escenario = sec.replace(/^Escenario\]\n?/, '').trim();
+} else if (sec.startsWith('Ejemplos de diálogo')) {
+result.ejemplos = sec.replace(/^Ejemplos de diálogo[^]]*\]\n?/, '').trim();
+}
+}
+return result;
+}
+
+document.getElementById('btn-nuevo-personaje').addEventListener('click', () => {
+abrirEditorPersonaje(null);
+});
+
+document.getElementById('form-personaje').addEventListener('submit', async (e) => {
+e.preventDefault();
+const btn = document.getElementById('btn-crear-personaje');
+const originalText = btn.textContent;
+btn.disabled = true;
+btn.textContent = 'Guardando...';
+try {
+const fd = new FormData(e.target);
+const datos = {
+nombre: fd.get('nombre'),
+descripcion_corta: fd.get('descripcion_corta'),
+personalidad: fd.get('personalidad'),
+escenario: fd.get('escenario'),
+ejemplos: fd.get('ejemplos'),
+publico: document.getElementById('char-publico').checked
+};
+const id = document.getElementById('char-id').value;
+if (id) {
+await actualizarPersonaje(id, datos);
+showToast('✅ Personaje actualizado');
+} else {
+await crearPersonaje(datos);
+showToast('✅ Personaje creado');
+}
+closeModal('character-modal');
+CACHE.personajes = null;
+CACHE.cacheTime.personajes = 0;
+CACHE.personajesComunidad = null;
+CACHE.cacheTime.personajesComunidad = 0;
+renderCharacters();
+} catch (err) {
+showToast(`❌ ${err.message}`, 'error');
+} finally {
+btn.disabled = false;
+btn.textContent = originalText;
+}
+});
+
+document.querySelectorAll('.dashboard-tab').forEach(tab => {
+tab.addEventListener('click', () => {
+document.querySelectorAll('.dashboard-tab').forEach(t => t.classList.remove('active'));
+tab.classList.add('active');
+currentView = tab.dataset.view;
+const title = document.getElementById('dashboard-title');
+const subtitle = document.getElementById('dashboard-subtitle');
+const btnNuevo = document.getElementById('btn-nuevo-personaje');
+if (currentView === 'my-characters') {
+title.textContent = 'Tus personajes';
+subtitle.textContent = 'Crea, edita y chatea con tus personajes de IA';
+btnNuevo.style.display = 'inline-flex';
+renderCharacters();
+} else if (currentView === 'community') {
+title.textContent = 'Comunidad';
+subtitle.textContent = 'Descubre personajes creados por otros usuarios';
+btnNuevo.style.display = 'none';
+renderCharacters();
+} else if (currentView === 'announcements') {
+title.textContent = 'Anuncios';
+subtitle.textContent = isOwner() ? 'Publica anuncios para toda la comunidad' : 'Anuncios oficiales del Owner';
+btnNuevo.style.display = 'none';
+renderAnuncios();
+}
+});
+});
+
+async function abrirChatConPersonaje(personajeId) {
+try {
+currentCharacter = await obtenerPersonaje(personajeId);
+currentChatId = null;
+const avatarEl = document.getElementById('chat-char-avatar');
+if (currentCharacter.avatar_url) {
+avatarEl.innerHTML = `<img src="${currentCharacter.avatar_url}" alt="">`;
+} else {
+avatarEl.textContent = currentCharacter.nombre.charAt(0).toUpperCase();
+}
+document.getElementById('chat-char-name').textContent = currentCharacter.nombre;
+document.getElementById('chat-char-sub').textContent = 'Chats';
+document.getElementById('chat-view').classList.add('visible');
+document.getElementById('dashboard').style.display = 'none';
+aplicarFondoChat();
+await renderChatList();
+mostrarChatVacio();
+} catch (err) {
+showToast(err.message, 'error');
+}
+}
+
+async function renderChatList() {
+const list = document.getElementById('chat-list');
+try {
+const chats = await listarChats(currentCharacter.id);
+document.getElementById('chat-char-sub').textContent = `${chats.length} chat${chats.length !== 1 ? 's' : ''}`;
+if (chats.length === 0) {
+list.innerHTML = `<p style="text-align:center;color:var(--text-4);font-size:0.85rem;padding:1rem">Sin chats aún</p>`;
+return;
+}
+list.innerHTML = chats.map(c => `
+<div class="chat-list-item ${c.id === currentChatId ? 'active' : ''}" data-id="${c.id}">
+<div class="chat-list-title">Chat ${c.id.substring(0,6)}</div>
+<div class="chat-list-date">${formatDate(c.creado_en)}</div>
+<button class="chat-list-delete" data-id="${c.id}" title="Eliminar">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+</button>
+</div>
+`).join('');
+list.querySelectorAll('.chat-list-item').forEach(item => {
+item.addEventListener('click', (e) => {
+if (e.target.closest('.chat-list-delete')) return;
+seleccionarChat(item.dataset.id);
+});
+});
+list.querySelectorAll('.chat-list-delete').forEach(btn => {
+btn.addEventListener('click', async (e) => {
+e.stopPropagation();
+if (confirm('¿Eliminar este chat?')) {
+try {
+await eliminarChat(btn.dataset.id);
+if (currentChatId === btn.dataset.id) {
+currentChatId = null;
+mostrarChatVacio();
+}
+renderChatList();
+showToast('Chat eliminado');
+} catch (err) {
+showToast(err.message, 'error');
+}
+}
+});
+});
+} catch (err) {
+console.error('Error en renderChatList:', err);
+list.innerHTML = `<p style="color:#fca5a5;padding:1rem;font-size:0.85rem">Error al cargar chats</p>`;
+}
+}
+
+function mostrarChatVacio() {
+const messages = document.getElementById('chat-messages');
+messages.innerHTML = `
+<div class="chat-empty" id="chat-empty">
+<div class="chat-empty-icon">💬</div>
+<h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:0.5rem">Comienza una conversación</h3>
+<p>Selecciona un chat o crea uno nuevo</p>
+</div>
+`;
+}
+
+async function seleccionarChat(chatId) {
+currentChatId = chatId;
+document.querySelectorAll('.chat-list-item').forEach(i => {
+i.classList.toggle('active', i.dataset.id === chatId);
+});
+const messages = document.getElementById('chat-messages');
+messages.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:2rem">Cargando mensajes...</div>';
+try {
+const { mensajes } = await cargarHistorialChat(chatId);
+messages.innerHTML = '';
+if (mensajes.length === 0) {
+messages.innerHTML = `
+<div class="chat-empty">
+<div class="chat-empty-icon">✨</div>
+<h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:0.5rem">Nuevo chat con ${escapeHtml(currentCharacter.nombre)}</h3>
+<p>Escribe algo para comenzar</p>
+</div>
+`;
+} else {
+mensajes.forEach(m => {
+if (m.rol === 'user' || m.rol === 'assistant') {
+agregarBubble(m.contenido, m.rol, false, m.id);
+}
+});
+}
+messages.scrollTop = messages.scrollHeight;
+} catch (err) {
+console.error('Error en seleccionarChat:', err);
+messages.innerHTML = `<p style="color:#fca5a5;text-align:center;padding:2rem">Error al cargar mensajes</p>`;
+}
+}
+
+document.getElementById('chat-new-btn').addEventListener('click', async () => {
+try {
+const chat = await crearNuevoChat(currentCharacter.id);
+await renderChatList();
+await seleccionarChat(chat.id);
+showToast('Nuevo chat creado');
+} catch (err) {
+showToast(err.message, 'error');
+}
+});
+
+document.getElementById('chat-back-btn').addEventListener('click', () => {
+document.getElementById('chat-view').classList.remove('visible');
+document.getElementById('dashboard').style.display = 'block';
+currentCharacter = null;
+currentChatId = null;
+renderCharacters();
+});
+
+document.getElementById('btn-immersive').addEventListener('click', () => {
+const chatView = document.getElementById('chat-view');
+const btn = document.getElementById('btn-immersive');
+chatView.classList.toggle('immersive');
+if (chatView.classList.contains('immersive')) {
+btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>`;
+btn.title = 'Salir del modo inmersivo';
+showToast('🎯 Modo inmersivo activado');
+} else {
+btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;
+btn.title = 'Modo inmersivo';
+}
+});
+
+document.addEventListener('keydown', (e) => {
+if (e.key === 'F11' && document.getElementById('chat-view').classList.contains('visible')) {
+e.preventDefault();
+document.getElementById('btn-immersive').click();
+}
+});
+
+document.getElementById('chat-export-btn').addEventListener('click', async () => {
+if (!currentChatId) {
+showToast('Selecciona un chat primero', 'error');
+return;
+}
+const formato = await mostrarMenuExportar();
+if (!formato) return;
+try {
+const { mensajes } = await cargarHistorialChat(currentChatId);
+const fecha = new Date().toISOString().split('T')[0];
+const nombreChar = currentCharacter?.nombre || 'chat';
+const nombreArchivo = `${nombreChar}_${currentChatId.substring(0,8)}_${fecha}`;
+let contenido, tipo, extension;
+if (formato === 'txt') {
+contenido = mensajes
+.filter(m => m.rol === 'user' || m.rol === 'assistant')
+.map(m => {
+const autor = m.rol === 'user' ? 'Tú' : currentCharacter.nombre;
+return `[${autor}]\n${m.contenido}\n`;
+})
+.join('\n---\n\n');
+contenido = `Chat con ${currentCharacter.nombre}\nFecha: ${fecha}\n${'='.repeat(50)}\n\n${contenido}`;
+tipo = 'text/plain';
+extension = 'txt';
+} else if (formato === 'json') {
+const data = {
+character: {
+id: currentCharacter.id,
+name: currentCharacter.nombre,
+system_prompt: currentCharacter.system_prompt
+},
+export_date: new Date().toISOString(),
+messages: mensajes.map(m => ({
+role: m.rol,
+content: m.contenido,
+timestamp: m.creado_en || null
+}))
+};
+contenido = JSON.stringify(data, null, 2);
+tipo = 'application/json';
+extension = 'json';
+}
+const blob = new Blob([contenido], { type: tipo });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = `${nombreArchivo}.${extension}`;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+showToast(`✅ Chat exportado como .${extension}`);
+} catch (err) {
+console.error('Error al exportar:', err);
+showToast('❌ Error al exportar', 'error');
+}
+});
+
+function mostrarMenuExportar() {
+return new Promise((resolve) => {
+const overlay = document.createElement('div');
+overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:3000;display:flex;align-items:center;justify-content:center;padding:2rem;';
+overlay.innerHTML = `
+<div style="background:var(--bg-1);border:1px solid var(--border);border-radius:20px;padding:2rem;max-width:400px;width:100%;box-shadow:var(--shadow-card);">
+<h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:1rem;font-size:1.2rem;">📥 Exportar chat</h3>
+<p style="color:var(--text-3);font-size:0.9rem;margin-bottom:1.5rem;">Elige el formato de exportación:</p>
+<div style="display:flex;flex-direction:column;gap:0.75rem;">
+<button class="btn btn-ghost" data-format="txt" style="justify-content:flex-start;gap:0.75rem;">
+<span style="font-size:1.5rem;">📄</span>
+<div style="text-align:left;">
+<div style="font-weight:600;color:var(--text-1);">Texto plano (.txt)</div>
+<div style="font-size:0.8rem;color:var(--text-3);">Fácil de leer</div>
+</div>
+</button>
+<button class="btn btn-ghost" data-format="json" style="justify-content:flex-start;gap:0.75rem;">
+<span style="font-size:1.5rem;">🔧</span>
+<div style="text-align:left;">
+<div style="font-weight:600;color:var(--text-1);">JSON (.json)</div>
+<div style="font-size:0.8rem;color:var(--text-3);">Para importar o procesar</div>
+</div>
+</button>
+<button class="btn btn-ghost" data-format="cancel" style="margin-top:0.5rem;">Cancelar</button>
+</div>
+</div>
+`;
+document.body.appendChild(overlay);
+overlay.addEventListener('click', (e) => {
+const btn = e.target.closest('[data-format]');
+if (btn) {
+const format = btn.dataset.format;
+overlay.remove();
+resolve(format === 'cancel' ? null : format);
+} else if (e.target === overlay) {
+overlay.remove();
+resolve(null);
+}
+});
+});
+}
+
+const chatInput = document.getElementById('chat-input');
+const chatSendBtn = document.getElementById('chat-send-btn');
+
+chatInput.addEventListener('input', () => {
+chatInput.style.height = 'auto';
+chatInput.style.height = Math.min(chatInput.scrollHeight, 150) + 'px';
+chatSendBtn.disabled = !chatInput.value.trim() || isStreaming || !currentChatId;
+});
+
+chatInput.addEventListener('keydown', (e) => {
+if (e.key === 'Enter' && !e.shiftKey) {
+e.preventDefault();
+if (!chatSendBtn.disabled) enviarMensaje();
+}
+});
+
+chatSendBtn.addEventListener('click', enviarMensaje);
+
+function agregarBubble(texto, rol, conTyping = false, mensajeId = null) {
+const messages = document.getElementById('chat-messages');
+const div = document.createElement('div');
+div.className = `message-bubble ${rol}`;
+if (mensajeId) {
+div.dataset.mensajeId = mensajeId;
+}
+if (conTyping) {
+div.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+} else {
+div.innerHTML = rol === 'assistant' ? renderMarkdown(texto) : escapeHtml(texto);
+div.dataset.originalText = texto;
+agregarBotones(div, rol);
+}
+messages.appendChild(div);
+messages.scrollTop = messages.scrollHeight;
+return div;
+}
+
+function agregarBotones(bubble, rol) {
+const oldActions = bubble.querySelector('.message-actions');
+if (oldActions) oldActions.remove();
+const actionsDiv = document.createElement('div');
+actionsDiv.className = 'message-actions';
+let buttonsHTML = '';
+buttonsHTML += `
+<button class="btn-message btn-copy" title="Copiar mensaje">
+<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+Copiar
+</button>
+`;
+if (rol === 'user') {
+buttonsHTML += `
+<button class="btn-message btn-edit-msg" title="Editar mensaje">
+<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+Editar
+</button>
+`;
+} else if (rol === 'assistant') {
+const mensajeId = bubble.dataset.mensajeId || '';
+buttonsHTML += `
+<button class="btn-message btn-regenerate" data-mensaje-id="${mensajeId}" title="Regenerar respuesta">
+<svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>
+Regenerar
+</button>
+`;
+}
+actionsDiv.innerHTML = buttonsHTML;
+bubble.appendChild(actionsDiv);
+}
+
+function mostrarErrorRateLimit(bubble, errorMessage, actionType, actionData) {
+if (rateLimitTimer) {
+clearInterval(rateLimitTimer);
+rateLimitTimer = null;
+}
+let segundos = 60;
+const match = errorMessage.match(/(\d+)\s*seconds?/i);
+if (match) {
+segundos = parseInt(match[1]) || 60;
+}
+rateLimitCountdown = segundos;
+pendingAction = actionType;
+pendingData = actionData;
+const messages = document.getElementById('chat-messages');
+const div = document.createElement('div');
+div.className = 'message-bubble error';
+div.style.maxWidth = '90%';
+const updateContent = () => {
+div.innerHTML = `
+<div style="display:flex;flex-direction:column;gap:0.5rem;">
+<span style="color:#fca5a5;">⏳ Límite de peticiones excedido. Espera <strong>${rateLimitCountdown}s</strong> para reintentar.</span>
+<div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:0.3rem;">
+<button class="btn-message btn-retry" style="${rateLimitCountdown > 0 ? 'opacity:0.5;pointer-events:none;' : ''}">
+<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<polyline points="23 4 23 10 17 10"></polyline>
+<polyline points="1 20 1 14 7 14"></polyline>
+<path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path>
+</svg>
+Reintentar
+</button>
+</div>
+</div>
+`;
+};
+updateContent();
+if (bubble) {
+bubble.innerHTML = div.innerHTML;
+bubble.className = 'message-bubble error';
+bubble._rateLimitDiv = div;
+} else {
+messages.appendChild(div);
+window._rateLimitBubble = div;
+}
+rateLimitTimer = setInterval(() => {
+rateLimitCountdown--;
+if (rateLimitCountdown <= 0) {
+clearInterval(rateLimitTimer);
+rateLimitTimer = null;
+const targetBubble = bubble || window._rateLimitBubble;
+if (targetBubble) {
+const btn = targetBubble.querySelector('.btn-retry');
+if (btn) {
+btn.style.opacity = '1';
+btn.style.pointerEvents = 'auto';
+}
+const span = targetBubble.querySelector('span');
+if (span) {
+span.innerHTML = '⏳ Límite de peticiones excedido. <strong>¡Ya puedes reintentar!</strong>';
+}
+}
+} else {
+const targetBubble = bubble || window._rateLimitBubble;
+if (targetBubble) {
+const span = targetBubble.querySelector('span');
+if (span) {
+span.innerHTML = `⏳ Límite de peticiones excedido. Espera <strong>${rateLimitCountdown}s</strong> para reintentar.`;
+}
+}
+}
+}, 1000);
+const retryHandler = (e) => {
+const btn = e.target.closest('.btn-retry');
+if (!btn) return;
+if (rateLimitCountdown > 0) return;
+if (rateLimitTimer) {
+clearInterval(rateLimitTimer);
+rateLimitTimer = null;
+}
+const targetBubble = bubble || window._rateLimitBubble;
+if (targetBubble) {
+targetBubble.remove();
+}
+if (window._rateLimitBubble) {
+delete window._rateLimitBubble;
+}
+if (pendingAction === 'send') {
+enviarMensaje();
+} else if (pendingAction === 'regenerate') {
+const { mensajeId, bubbleElement } = pendingData;
+regenerarRespuesta(mensajeId, bubbleElement);
+}
+pendingAction = null;
+pendingData = null;
+};
+document.removeEventListener('click', retryHandler);
+document.addEventListener('click', retryHandler);
+}
+
+let ultimoMensajeEnviado = '';
+
+async function enviarMensaje() {
+if (!currentChatId || isStreaming) return;
+const texto = chatInput.value.trim();
+if (!texto) return;
+const MAX_MSG_LENGTH = 8000;
+if (texto.length > MAX_MSG_LENGTH) {
+showToast(`Mensaje demasiado largo (máx. ${MAX_MSG_LENGTH} caracteres)`, 'error');
+return;
+}
+const key = getGeminiKey();
+if (!key) {
+showToast('⚠️ Configura tu API Key en ajustes (⚙️)', 'error');
+return;
+}
+const empty = document.getElementById('chat-empty');
+if (empty) empty.remove();
+ultimoMensajeEnviado = texto;
+const userBubble = agregarBubble(texto, 'user');
+chatInput.value = '';
+chatInput.style.height = 'auto';
+chatSendBtn.disabled = true;
+isStreaming = true;
+const bubbleIA = agregarBubble('', 'assistant', true);
+try {
+const { historialGemini } = await cargarHistorialChat(currentChatId);
+const generator = enviarAGeminiStream(
+currentCharacter.system_prompt,
+historialGemini,
+texto
+);
+let textoCompleto = '';
+for await (const chunk of generator) {
+textoCompleto += chunk;
+const typing = bubbleIA.querySelector('.typing-indicator');
+if (typing) typing.remove();
+bubbleIA.innerHTML = renderMarkdown(textoCompleto);
+document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+if (!textoCompleto.trim()) {
+bubbleIA.innerHTML = '<em style="color:var(--text-3)">Respuesta vacía</em>';
+}
+const mensajeUser = await guardarMensaje(currentChatId, 'user', texto);
+const mensajeAssistant = await guardarMensaje(currentChatId, 'assistant', textoCompleto);
+userBubble.dataset.mensajeId = mensajeUser.id;
+bubbleIA.dataset.mensajeId = mensajeAssistant.id;
+bubbleIA.dataset.originalText = textoCompleto;
+bubbleIA.innerHTML = renderMarkdown(textoCompleto);
+agregarBotones(bubbleIA, 'assistant');
+} catch (err) {
+const typing = bubbleIA.querySelector('.typing-indicator');
+if (typing) typing.remove();
+const isRateLimit = err.message && (
+err.message.includes('429') ||
+err.message.toLowerCase().includes('rate limit') ||
+err.message.toLowerCase().includes('quota') ||
+err.message.toLowerCase().includes('too many requests')
+);
+if (isRateLimit) {
+mostrarErrorRateLimit(bubbleIA, err.message, 'send', { text: texto, historialGemini: null, systemPrompt: currentCharacter.system_prompt });
+} else {
+bubbleIA.className = 'message-bubble error';
+bubbleIA.innerHTML = `⚠️ ${escapeHtml(err.message)}`;
+const actionsDiv = document.createElement('div');
+actionsDiv.className = 'message-actions';
+actionsDiv.innerHTML = `
+<button class="btn-message btn-retry" onclick="enviarMensaje()" style="background:rgba(255,77,143,0.15);border-color:var(--pink);color:var(--pink);">
+<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<polyline points="23 4 23 10 17 10"></polyline>
+<polyline points="1 20 1 14 7 14"></polyline>
+<path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path>
+</svg>
+Reintentar
+</button>
+`;
+bubbleIA.appendChild(actionsDiv);
+}
+} finally {
+isStreaming = false;
+chatSendBtn.disabled = !chatInput.value.trim() || !currentChatId;
+}
+}
+
+async function regenerarRespuesta(mensajeId, bubbleElement) {
+if (isStreaming) {
+showToast('Espera a que termine la respuesta actual', 'error');
+return;
+}
+const key = getGeminiKey();
+if (!key) {
+showToast('⚠️ Configura tu API Key en ajustes (⚙️)', 'error');
+return;
+}
+const btnRegenerate = bubbleElement.querySelector('.btn-regenerate');
+if (btnRegenerate) {
+btnRegenerate.disabled = true;
+btnRegenerate.classList.add('spinning');
+btnRegenerate.innerHTML = `
+<svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>
+Regenerando...
+`;
+}
+try {
+const { mensajes } = await cargarHistorialChat(currentChatId);
+const idx = mensajes.findIndex(m => m.id === mensajeId);
+if (idx === -1) throw new Error('Mensaje no encontrado');
+if (mensajes[idx].rol !== 'assistant') throw new Error('Solo se pueden regenerar respuestas del asistente');
+const historialRecortado = mensajes.slice(0, idx);
+const ultimoUser = historialRecortado.length > 0 && historialRecortado[historialRecortado.length-1].rol === 'user'
+? historialRecortado[historialRecortado.length-1]
+: null;
+if (!ultimoUser) throw new Error('No se encontró el mensaje del usuario correspondiente');
+await actualizarHistorialChat(currentChatId, historialRecortado);
+bubbleElement.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+const historialGemini = historialRecortado
+.filter(m => m.rol === 'user' || m.rol === 'assistant')
+.map(m => ({
+role: m.rol === 'assistant' ? 'model' : 'user',
+parts: [{ text: m.contenido }]
+}));
+const historialSinUltimo = historialGemini.slice(0, -1);
+const generator = enviarAGeminiStream(
+currentCharacter.system_prompt,
+historialSinUltimo,
+ultimoUser.contenido
+);
+let textoCompleto = '';
+for await (const chunk of generator) {
+textoCompleto += chunk;
+const typing = bubbleElement.querySelector('.typing-indicator');
+if (typing) typing.remove();
+bubbleElement.innerHTML = renderMarkdown(textoCompleto);
+document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+if (!textoCompleto.trim()) {
+bubbleElement.innerHTML = '<em style="color:var(--text-3)">Respuesta vacía</em>';
+}
+const nuevoMensaje = await guardarMensaje(currentChatId, 'assistant', textoCompleto);
+bubbleElement.dataset.mensajeId = nuevoMensaje.id;
+bubbleElement.dataset.originalText = textoCompleto;
+bubbleElement.innerHTML = renderMarkdown(textoCompleto);
+agregarBotones(bubbleElement, 'assistant');
+showToast('✅ Respuesta regenerada');
+} catch (err) {
+console.error('Error al regenerar:', err);
+const isRateLimit = err.message && (
+err.message.includes('429') ||
+err.message.toLowerCase().includes('rate limit') ||
+err.message.toLowerCase().includes('quota') ||
+err.message.toLowerCase().includes('too many requests')
+);
+if (isRateLimit) {
+mostrarErrorRateLimit(bubbleElement, err.message, 'regenerate', { mensajeId, bubbleElement });
+} else {
+bubbleElement.innerHTML = `<span style="color:#fca5a5">⚠️ ${escapeHtml(err.message)}</span>`;
+agregarBotones(bubbleElement, 'assistant');
+showToast(`❌ ${err.message}`, 'error');
+}
+}
+}
+
+function iniciarEdicionMensaje(bubble) {
+if (isStreaming) {
+showToast('Espera a que termine la respuesta actual', 'error');
+return;
+}
+const textoOriginal = bubble.dataset.originalText || '';
+const mensajeId = bubble.dataset.mensajeId;
+bubble.dataset.backupHTML = bubble.innerHTML;
+bubble.classList.add('editing');
+bubble.innerHTML = `
+<textarea class="edit-textarea">${escapeHtml(textoOriginal)}</textarea>
+<div class="edit-actions">
+<button class="edit-cancel">Cancelar</button>
+<button class="edit-save">Guardar y regenerar</button>
+</div>
+`;
+const textarea = bubble.querySelector('.edit-textarea');
+textarea.focus();
+textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+textarea.style.height = 'auto';
+textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+textarea.addEventListener('input', () => {
+textarea.style.height = 'auto';
+textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+});
+}
+
+function cancelarEdicionMensaje(bubble) {
+bubble.classList.remove('editing');
+bubble.innerHTML = bubble.dataset.backupHTML || '';
+delete bubble.dataset.backupHTML;
+}
+
+async function guardarEdicionMensaje(bubble) {
+if (isStreaming) return;
+const textarea = bubble.querySelector('.edit-textarea');
+const nuevoTexto = textarea.value.trim();
+const mensajeId = bubble.dataset.mensajeId;
+if (!nuevoTexto) {
+showToast('El mensaje no puede estar vacío', 'error');
+return;
+}
+const key = getGeminiKey();
+if (!key) {
+showToast('⚠️ Configura tu API Key en ajustes (⚙️)', 'error');
+return;
+}
+try {
+const { mensajes } = await cargarHistorialChat(currentChatId);
+const idx = mensajes.findIndex(m => m.id === mensajeId);
+if (idx === -1) throw new Error('Mensaje no encontrado');
+if (mensajes[idx].rol !== 'user') throw new Error('Solo se pueden editar mensajes del usuario');
+const historialRecortado = mensajes.slice(0, idx);
+const nuevoMsg = {
+id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+rol: 'user',
+contenido: nuevoTexto
+};
+historialRecortado.push(nuevoMsg);
+await actualizarHistorialChat(currentChatId, historialRecortado);
+bubble.classList.remove('editing');
+bubble.dataset.originalText = nuevoTexto;
+bubble.dataset.mensajeId = nuevoMsg.id;
+bubble.innerHTML = escapeHtml(nuevoTexto);
+agregarBotones(bubble, 'user');
+const allBubbles = Array.from(document.querySelectorAll('.message-bubble'));
+const idxBubble = allBubbles.indexOf(bubble);
+for (let i = idxBubble + 1; i < allBubbles.length; i++) {
+allBubbles[i].remove();
+}
+const historialGemini = historialRecortado
+.filter(m => m.rol === 'user' || m.rol === 'assistant')
+.map(m => ({
+role: m.rol === 'assistant' ? 'model' : 'user',
+parts: [{ text: m.contenido }]
+}));
+const bubbleIA = agregarBubble('', 'assistant', true);
+isStreaming = true;
+const generator = enviarAGeminiStream(
+currentCharacter.system_prompt,
+historialGemini.slice(0, -1),
+nuevoTexto
+);
+let textoCompleto = '';
+for await (const chunk of generator) {
+textoCompleto += chunk;
+const typing = bubbleIA.querySelector('.typing-indicator');
+if (typing) typing.remove();
+bubbleIA.innerHTML = renderMarkdown(textoCompleto);
+document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+if (!textoCompleto.trim()) {
+bubbleIA.innerHTML = '<em style="color:var(--text-3)">Respuesta vacía</em>';
+}
+const mensajeAssistant = await guardarMensaje(currentChatId, 'assistant', textoCompleto);
+bubbleIA.dataset.mensajeId = mensajeAssistant.id;
+bubbleIA.dataset.originalText = textoCompleto;
+bubbleIA.innerHTML = renderMarkdown(textoCompleto);
+agregarBotones(bubbleIA, 'assistant');
+showToast('✅ Mensaje editado y respuesta regenerada');
+} catch (err) {
+console.error('Error al editar:', err);
+showToast(`❌ ${err.message}`, 'error');
+cancelarEdicionMensaje(bubble);
+} finally {
+isStreaming = false;
+}
+}
+
+document.getElementById('chat-messages').addEventListener('click', async (e) => {
+const btnRegen = e.target.closest('.btn-regenerate');
+if (btnRegen) {
+const mensajeId = btnRegen.dataset.mensajeId;
+const bubble = btnRegen.closest('.message-bubble');
+if (mensajeId && bubble) {
+regenerarRespuesta(mensajeId, bubble);
+}
+return;
+}
+const btnCopy = e.target.closest('.btn-copy');
+if (btnCopy) {
+const bubble = btnCopy.closest('.message-bubble');
+const texto = bubble.dataset.originalText || bubble.innerText.replace(/Copiar|Editar|Regenerar/g, '').trim();
+try {
+await navigator.clipboard.writeText(texto);
+showToast('📋 Mensaje copiado');
+} catch (err) {
+showToast('❌ No se pudo copiar', 'error');
+}
+return;
+}
+const btnEdit = e.target.closest('.btn-edit-msg');
+if (btnEdit) {
+const bubble = btnEdit.closest('.message-bubble');
+iniciarEdicionMensaje(bubble);
+return;
+}
+const btnSave = e.target.closest('.edit-save');
+if (btnSave) {
+const bubble = btnSave.closest('.message-bubble');
+await guardarEdicionMensaje(bubble);
+return;
+}
+const btnCancel = e.target.closest('.edit-cancel');
+if (btnCancel) {
+const bubble = btnCancel.closest('.message-bubble');
+cancelarEdicionMensaje(bubble);
+return;
+}
+});
+
+const splash = document.getElementById('splash');
+const authScreen = document.getElementById('auth-screen');
+const dashboard = document.getElementById('dashboard');
+
+setTimeout(() => {
+splash.classList.add('hidden');
+setTimeout(() => {
+splash.style.display = 'none';
+initApp();
+}, 1000);
+}, 3000);
+
+async function initApp() {
+try {
+if (!window.supabase?.createClient) {
+console.error('❌ Supabase no cargó');
+showAuth();
+return;
+}
+sbClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+console.log('✅ Supabase client created');
+const { data: { session } } = await sbClient.auth.getSession();
+if (session) {
+currentUser = session.user;
+await cargarPerfilYRol();
+console.log('✅ User:', session.user.email, '| Username:', userUsername, '| Rol:', userRole);
+showDashboard();
+} else {
+console.log('👤 No session');
+showAuth();
+}
+} catch (err) {
+console.error('❌', err);
+showAuth();
+}
+}
+
+const settingsBtn = document.getElementById('settings-btn');
+
+function showAuth() {
+authScreen.classList.add('visible');
+dashboard.classList.remove('visible');
+settingsBtn.classList.add('hidden');
+}
+
+function showDashboard() {
+authScreen.classList.remove('visible');
+dashboard.classList.add('visible');
+settingsBtn.classList.remove('hidden');
+renderCharacters();
+}
+
+document.querySelectorAll('.auth-tab').forEach(tab => {
+tab.addEventListener('click', () => {
+document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+tab.classList.add('active');
+document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+document.getElementById(`${tab.dataset.tab}-form`).classList.add('active');
+document.querySelectorAll('.form-message').forEach(m => {
+m.className = 'form-message'; m.textContent = '';
+});
+});
+});
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+e.preventDefault();
+const email = document.getElementById('login-email').value;
+const password = document.getElementById('login-password').value;
+const msgEl = document.getElementById('login-message');
+const btn = e.target.querySelector('button');
+btn.disabled = true; btn.textContent = 'Iniciando...';
+msgEl.className = 'form-message';
+try {
+const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+if (error) {
+msgEl.className = 'form-message error';
+msgEl.textContent = error.message.includes('Invalid') ? 'Credenciales inválidas' : error.message;
+btn.disabled = false; btn.textContent = 'Iniciar Sesión';
+} else {
+currentUser = data.user;
+await cargarPerfilYRol();
+msgEl.className = 'form-message success';
+msgEl.textContent = `¡Bienvenido, ${userUsername || 'usuario'}!`;
+setTimeout(showDashboard, 800);
+}
+} catch (err) {
+msgEl.className = 'form-message error';
+msgEl.textContent = 'Error de conexión';
+btn.disabled = false; btn.textContent = 'Iniciar Sesión';
+}
+});
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+e.preventDefault();
+const email = document.getElementById('register-email').value;
+const password = document.getElementById('register-password').value;
+const confirm = document.getElementById('register-confirm').value;
+const msgEl = document.getElementById('register-message');
+const btn = e.target.querySelector('button');
+if (password !== confirm) {
+msgEl.className = 'form-message error';
+msgEl.textContent = 'Las contraseñas no coinciden';
+return;
+}
+btn.disabled = true; btn.textContent = 'Creando...';
+msgEl.className = 'form-message';
+try {
+const { error } = await sbClient.auth.signUp({ email, password });
+if (error) {
+msgEl.className = 'form-message error';
+msgEl.textContent = error.message;
+btn.disabled = false; btn.textContent = 'Crear Cuenta';
+} else {
+msgEl.className = 'form-message success';
+msgEl.textContent = '¡Cuenta creada! Revisa tu correo si es necesario.';
+btn.disabled = false; btn.textContent = 'Crear Cuenta';
+setTimeout(() => document.querySelector('[data-tab="login"]').click(), 2000);
+}
+} catch (err) {
+msgEl.className = 'form-message error';
+msgEl.textContent = 'Error de conexión';
+btn.disabled = false; btn.textContent = 'Crear Cuenta';
+}
+});
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+document.getElementById('settings-modal').classList.remove('visible');
+await sbClient.auth.signOut();
+currentUser = null;
+userRole = null;
+userUsername = null;
+showAuth();
+});
+
+const formUsername = document.getElementById('form-username');
+if (formUsername) {
+const inputUsername = document.getElementById('new-username');
+const hintUsername = document.getElementById('username-hint');
+inputUsername.addEventListener('input', () => {
+const val = inputUsername.value;
+const regex = /^[a-zA-Z0-9_]{3,20}$/;
+if (val.length === 0) {
+hintUsername.textContent = '3-20 caracteres. Solo letras, números y guion bajo (_).';
+hintUsername.className = 'username-hint';
+} else if (!regex.test(val)) {
+let msg = '❌ ';
+if (val.length < 3) msg += 'Mínimo 3 caracteres';
+else if (val.length > 20) msg += 'Máximo 20 caracteres';
+else msg += 'Solo letras, números y _';
+hintUsername.textContent = msg;
+hintUsername.className = 'username-hint error';
+} else {
+hintUsername.textContent = '✅ Nombre válido';
+hintUsername.className = 'username-hint success';
+}
+});
+formUsername.addEventListener('submit', async (e) => {
+e.preventDefault();
+const nuevoUsername = inputUsername.value.trim();
+const btn = e.target.querySelector('button[type="submit"]');
+const originalText = btn.textContent;
+if (!nuevoUsername) return;
+btn.disabled = true;
+btn.textContent = 'Guardando...';
+try {
+await cambiarUsername(nuevoUsername);
+showToast(`✅ Nombre cambiado a @${nuevoUsername}`);
+inputUsername.value = '';
+hintUsername.textContent = '3-20 caracteres. Solo letras, números y guion bajo (_).';
+hintUsername.className = 'username-hint';
+} catch (err) {
+showToast(`❌ ${err.message}`, 'error');
+hintUsername.textContent = '❌ ' + err.message;
+hintUsername.className = 'username-hint error';
+} finally {
+btn.disabled = false;
+btn.textContent = originalText;
+}
+});
+}
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+actualizarUIPerfil();
+});
+
+const hamburgerBtn = document.getElementById('btn-hamburger');
+const sidebar = document.getElementById('chat-sidebar');
+
+hamburgerBtn.addEventListener('click', () => {
+sidebar.classList.toggle('open');
+});
+
+document.addEventListener('click', (e) => {
+if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+sidebar.classList.remove('open');
+}
+}
+});
+
+console.log('✅ SAIR1 cargado correctamente');
+</script>
+</body>
+</html>
