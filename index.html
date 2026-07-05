@@ -306,7 +306,10 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .auth-container{padding:1.5rem 1rem}
 .chat-sidebar{position:absolute;top:0;left:0;bottom:0;z-index:20;transform:translateX(-100%);width:280px;box-shadow:2px 0 20px rgba(0,0,0,.5)}
 .chat-sidebar.open{transform:translateX(0)}
-.btn-hamburger{display:grid}
+/* ✅ CORRECCIÓN: Mover el botón hamburguesa para que no tape el botón de volver */
+.btn-hamburger{display:grid;top:.8rem;left:3.5rem;z-index:102}
+/* ✅ CORRECCIÓN: Ocultar botón inmersivo en móvil para evitar superposición */
+.btn-immersive{display:none}
 .chat-messages{padding:1rem .8rem;gap:.6rem}
 .message-bubble{max-width:90%;font-size:.88rem;padding:.7rem .9rem}
 .chat-input-area{padding:.6rem .8rem .8rem}
@@ -443,10 +446,8 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 </div>
 <div class="form-group" style="margin-top:.75rem;">
 <label class="form-label" for="gemini-model">Modelo de Gemini</label>
-<input type="text" id="gemini-model" class="form-input" list="model-options" placeholder="Ej: gemini-2.0-flash" autocomplete="off" spellcheck="false">
-<datalist id="model-options">
-<option value="gemini-2.0-flash"><option value="gemini-1.5-pro"><option value="gemini-1.5-flash"><option value="gemini-1.5-flash-8b"><option value="gemini-2.0-flash-exp"><option value="gemini-2.0-pro-exp"><option value="gemini-3.5-flash">
-</datalist>
+<input type="text" id="gemini-model" class="form-input" value="gemini-3.5-flash" readonly style="opacity:0.7;cursor:not-allowed;">
+<p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">Modelo fijo: gemini-3.5-flash (no modificable)</p>
 </div>
 <div id="api-key-status" class="api-key-status empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="api-key-status-text">No hay API Key configurada</span></div>
 <div class="api-key-actions"><button class="btn-small primary" id="save-api-key">Guardar</button><button class="btn-small danger" id="clear-api-key">Eliminar</button></div>
@@ -576,7 +577,7 @@ function renderMarkdown(texto){if(!texto)return '';return texto.replace(/&/g,'&a
 function formatDate(dateStr){const d=new Date(dateStr),now=new Date(),diff=now-d;if(diff<6e4)return'ahora';if(diff<36e5)return`hace ${Math.floor(diff/6e4)}m`;if(diff<864e5)return`hace ${Math.floor(diff/36e5)}h`;if(diff<6048e5)return`hace ${Math.floor(diff/864e5)}d`;return d.toLocaleDateString()}
 const _obf_k=(str)=>{if(!str)return '';return btoa(str.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join(''))},_deobf_k=(str)=>{if(!str)return '';try{const decoded=atob(str);return decoded.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join('')}catch{return''}};
 function getGeminiKey(){const stored=localStorage.getItem(CONFIG.LS.GEMINI_KEY);return stored?_deobf_k(stored):''}
-function getGeminiModel(){return localStorage.getItem(CONFIG.LS.GEMINI_MODEL)||'gemini-2.0-flash'}
+function getGeminiModel(){return 'gemini-3.5-flash'}
 function setGeminiModel(model){localStorage.setItem(CONFIG.LS.GEMINI_MODEL,model)}
 async function cargarPerfilYRol(){if(!currentUser){userRole=null;userUsername=null;return}try{const[rolResult,perfilResult]=await Promise.all([sbClient.from('roles').select('rol').eq('user_id',currentUser.id).single(),sbClient.from('perfiles').select('username').eq('user_id',currentUser.id).single()]);userRole=rolResult.data?.rol||'user';userUsername=perfilResult.data?.username||null;console.log('👤 Perfil:',userUsername,'| Rol:',userRole)}catch(err){console.error('Error cargando perfil:',err);userRole='user';userUsername=null}actualizarUIPerfil()}
 function actualizarUIPerfil(){const displayName=userUsername||currentUser?.email?.split('@')[0]||'Usuario',initial=displayName.charAt(0).toUpperCase();const badgeName=document.getElementById('user-badge-name'),badgeAvatar=document.getElementById('user-badge-avatar'),badgeRole=document.getElementById('user-badge-role');if(badgeName)badgeName.textContent=displayName;if(badgeAvatar)badgeAvatar.textContent=initial;if(badgeRole){badgeRole.textContent=userRole;badgeRole.className=`role-tag ${userRole}`}const usernameDisplay=document.getElementById('username-display'),usernameEmail=document.getElementById('username-email'),usernameAvatar=document.getElementById('username-avatar'),newUsernameInput=document.getElementById('new-username');if(usernameDisplay)usernameDisplay.textContent=displayName;if(usernameEmail&&currentUser)usernameEmail.textContent=currentUser.email;if(usernameAvatar)usernameAvatar.textContent=initial;if(newUsernameInput)newUsernameInput.value=''}
@@ -595,9 +596,9 @@ document.querySelectorAll('[data-close-modal]').forEach(btn=>{btn.addEventListen
 document.querySelectorAll('.modal-overlay').forEach(overlay=>{overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('visible')})});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.visible').forEach(m=>m.classList.remove('visible'))});
 document.querySelectorAll('.theme-option').forEach(opt=>{opt.addEventListener('click',()=>{applyTheme(opt.dataset.themeValue);showToast(`Tema ${opt.dataset.themeValue==='dark'?'oscuro':'claro'} activado`)})});
-function updateApiKeyUI(){const key=getGeminiKey(),model=getGeminiModel(),statusEl=document.getElementById('api-key-status'),input=document.getElementById('gemini-api-key'),modelInput=document.getElementById('gemini-model');if(modelInput)modelInput.value=model;if(key){statusEl.className='api-key-status saved';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>API Key configurada (${key.substring(0,8)}...${key.substring(key.length-4)}) · Modelo: ${model}</span>`;input.value=key}else{statusEl.className='api-key-status empty';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>No hay API Key configurada</span>`;input.value=''}}
+function updateApiKeyUI(){const key=getGeminiKey(),model='gemini-3.5-flash',statusEl=document.getElementById('api-key-status'),input=document.getElementById('gemini-api-key'),modelInput=document.getElementById('gemini-model');if(modelInput)modelInput.value='gemini-3.5-flash';if(key){statusEl.className='api-key-status saved';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>API Key configurada (${key.substring(0,8)}...${key.substring(key.length-4)}) · Modelo: ${model}</span>`;input.value=key}else{statusEl.className='api-key-status empty';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>No hay API Key configurada</span>`;input.value=''}}
 document.getElementById('toggle-api-key').addEventListener('click',()=>{const input=document.getElementById('gemini-api-key');input.type=input.type==='password'?'text':'password'});
-document.getElementById('save-api-key').addEventListener('click',()=>{const key=document.getElementById('gemini-api-key').value.trim(),model=document.getElementById('gemini-model').value.trim()||'gemini-2.0-flash';if(!key||key.length<20){showToast('API Key inválida','error');return}localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));setGeminiModel(model);updateApiKeyUI();showToast('API Key y modelo guardados')});
+document.getElementById('save-api-key').addEventListener('click',()=>{const key=document.getElementById('gemini-api-key').value.trim();if(!key||key.length<20){showToast('API Key inválida','error');return}localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));setGeminiModel('gemini-3.5-flash');updateApiKeyUI();showToast('API Key guardada')});
 document.getElementById('clear-api-key').addEventListener('click',()=>{if(getGeminiKey()&&confirm('¿Eliminar tu API Key y modelo?')){localStorage.removeItem(CONFIG.LS.GEMINI_KEY);localStorage.removeItem(CONFIG.LS.GEMINI_MODEL);updateApiKeyUI();showToast('API Key y modelo eliminados')}});
 const BG_STORAGE_KEY='sair1_chat_bg';
 function aplicarFondoChat(){const bg=localStorage.getItem(BG_STORAGE_KEY),chatMain=document.querySelector('.chat-main'),btnPreview=document.getElementById('btn-bg-preview');if(bg){chatMain.style.backgroundImage=`url(${bg})`;chatMain.classList.add('has-background');if(btnPreview)btnPreview.style.display='inline-flex'}else{chatMain.style.backgroundImage='';chatMain.classList.remove('has-background');if(btnPreview)btnPreview.style.display='none'}}
