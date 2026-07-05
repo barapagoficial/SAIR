@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-<title>SAIR1.2</title>
+<title>SAIR1.3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -304,8 +304,9 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .settings-btn{top:.8rem;right:.8rem;width:40px;height:40px}
 .modal{padding:1rem}
 .auth-container{padding:1.5rem 1rem}
-.chat-sidebar{position:absolute;top:0;left:0;bottom:0;z-index:20;transform:translateX(-100%);width:280px;box-shadow:2px 0 20px rgba(0,0,0,.5)}
+.chat-sidebar{position:absolute;top:0;left:0;bottom:0;z-index:20;transform:translateX(-100%);width:280px;box-shadow:2px 0 20px rgba(0,0,0,.5);padding-top:3.5rem}
 .chat-sidebar.open{transform:translateX(0)}
+.chat-sidebar-header{padding:1rem;padding-top:.5rem}
 /* ✅ CORRECCIÓN: Mover el botón hamburguesa para que no tape el botón de volver */
 .btn-hamburger{display:grid;top:.8rem;left:3.5rem;z-index:102}
 /* ✅ CORRECCIÓN: Ocultar botón inmersivo en móvil para evitar superposición */
@@ -396,8 +397,8 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 
 <div id="splash">
 <div class="splash-developer">Desarrollado por Moon-BaraPag</div>
-<h1 class="splash-title">SAIR1.2</h1>
-<div class="splash-sub">v1.2.0</div>
+<h1 class="splash-title">SAIR1.3</h1>
+<div class="splash-sub">v1.3.0</div>
 </div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
@@ -505,7 +506,7 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 
 <div id="auth-screen">
 <div class="auth-container">
-<div class="auth-header"><h2 class="auth-title">Bienvenido a SAIR1.2</h2><p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p></div>
+<div class="auth-header"><h2 class="auth-title">Bienvenido a SAIR1.3</h2><p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p></div>
 <div class="auth-tabs"><button class="auth-tab active" data-tab="login">Iniciar Sesión</button><button class="auth-tab" data-tab="register">Registrarse</button></div>
 <form id="login-form" class="auth-form active">
 <div class="form-group"><label class="form-label" for="login-email">Correo electrónico</label><input type="email" id="login-email" class="form-input" placeholder="tu@email.com" required></div>
@@ -689,7 +690,7 @@ document.getElementById('settings-btn').addEventListener('click',()=>{actualizar
 const hamburgerBtn=document.getElementById('btn-hamburger'),sidebar=document.getElementById('chat-sidebar');
 hamburgerBtn.addEventListener('click',()=>{sidebar.classList.toggle('open')});
 document.addEventListener('click',e=>{if(window.innerWidth<=768&&sidebar.classList.contains('open')){if(!sidebar.contains(e.target)&&!hamburgerBtn.contains(e.target))sidebar.classList.remove('open')}});
-console.log('✅ SAIR1.2 cargado correctamente');
+console.log('✅ SAIR1.3 cargado correctamente');
 
 // ========== SISTEMA DE NOTIFICACIONES EN TIEMPO REAL ==========
 let channelNotificaciones = null;
