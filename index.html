@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-<title>SAIR1.3</title>
+<title>SAIR1.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -304,8 +304,8 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .settings-btn{top:.8rem;right:.8rem;width:40px;height:40px}
 .modal{padding:1rem}
 .auth-container{padding:1.5rem 1rem}
-.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transition:opacity .3s ease}
-.sidebar-backdrop.visible{display:block;opacity:1}
+.chat-sidebar{position:absolute;top:0;left:0;bottom:0;z-index:20;transform:translateX(-100%);width:280px;box-shadow:2px 0 20px rgba(0,0,0,.5)}
+.chat-sidebar.open{transform:translateX(0)}
 /* ✅ CORRECCIÓN: Mover el botón hamburguesa para que no tape el botón de volver */
 .btn-hamburger{display:grid;top:.8rem;left:3.5rem;z-index:102}
 /* ✅ CORRECCIÓN: Ocultar botón inmersivo en móvil para evitar superposición */
@@ -325,8 +325,6 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .splash-title{font-size:2rem}
 .splash-developer{font-size:.7rem;letter-spacing:.15em}
 .splash-developer::before,.splash-developer::after{width:20px;margin:0 .5rem}
-.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transition:opacity .3s ease}
-.sidebar-backdrop.visible{display:block;opacity:1}
 }
 @media(max-width:480px){
 .characters-grid{grid-template-columns:1fr}
@@ -398,8 +396,8 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 
 <div id="splash">
 <div class="splash-developer">Desarrollado por Moon-BaraPag</div>
-<h1 class="splash-title">SAIR1.3</h1>
-<div class="splash-sub">v1.3.0</div>
+<h1 class="splash-title">SAIR1.2</h1>
+<div class="splash-sub">v1.2.0</div>
 </div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
@@ -543,7 +541,6 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 </div>
 
 <div id="chat-view">
-<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 <div class="chat-layout">
 <aside class="chat-sidebar" id="chat-sidebar">
 <div class="chat-sidebar-header">
@@ -690,11 +687,11 @@ document.getElementById('logout-btn').addEventListener('click',async()=>{documen
 const formUsername=document.getElementById('form-username');if(formUsername){const inputUsername=document.getElementById('new-username'),hintUsername=document.getElementById('username-hint');inputUsername.addEventListener('input',()=>{const val=inputUsername.value,regex=/^[a-zA-Z0-9_]{3,20}$/;if(val.length===0){hintUsername.textContent='3-20 caracteres. Solo letras, números y guion bajo (_).';hintUsername.className='username-hint'}else if(!regex.test(val)){let msg='❌ ';if(val.length<3)msg+='Mínimo 3 caracteres';else if(val.length>20)msg+='Máximo 20 caracteres';else msg+='Solo letras, números y _';hintUsername.textContent=msg;hintUsername.className='username-hint error'}else{hintUsername.textContent='✅ Nombre válido';hintUsername.className='username-hint success'}});formUsername.addEventListener('submit',async e=>{e.preventDefault();const nuevoUsername=inputUsername.value.trim(),btn=e.target.querySelector('button[type="submit"]'),originalText=btn.textContent;if(!nuevoUsername)return;btn.disabled=!0;btn.textContent='Guardando...';try{await cambiarUsername(nuevoUsername);showToast(`✅ Nombre cambiado a @${nuevoUsername}`);inputUsername.value='';hintUsername.textContent='3-20 caracteres. Solo letras, números y guion bajo (_).';hintUsername.className='username-hint'}catch(err){playErrorSound();shakeElement(inputUsername);showToast(`❌ ${err.message}`,'error');hintUsername.textContent='❌ '+err.message;hintUsername.className='username-hint error'}finally{btn.disabled=!1;btn.textContent=originalText}})}
 document.getElementById('settings-btn').addEventListener('click',()=>{actualizarUIPerfil()});
 const hamburgerBtn=document.getElementById('btn-hamburger'),sidebar=document.getElementById('chat-sidebar');
-hamburgerBtn.addEventListener('click',()=>{sidebar.classList.toggle('open');document.getElementById('sidebar-backdrop').classList.toggle('visible')});
-document.addEventListener('click',e=>{if(window.innerWidth<=768&&sidebar.classList.contains('open')){if(!sidebar.contains(e.target)&&!hamburgerBtn.contains(e.target)&&!document.getElementById('sidebar-backdrop').contains(e.target)){sidebar.classList.remove('open');document.getElementById('sidebar-backdrop').classList.remove('visible')}}});
-document.getElementById('sidebar-backdrop').addEventListener('click',()=>{sidebar.classList.remove('open');document.getElementById('sidebar-backdrop').classList.remove('visible')});
+hamburgerBtn.addEventListener('click',()=>{sidebar.classList.toggle('open')});
+document.addEventListener('click',e=>{if(window.innerWidth<=768&&sidebar.classList.contains('open')){if(!sidebar.contains(e.target)&&!hamburgerBtn.contains(e.target))sidebar.classList.remove('open')}});
 console.log('✅ SAIR1.2 cargado correctamente');
 
+// ========== SISTEMA DE NOTIFICACIONES EN TIEMPO REAL ==========
 let channelNotificaciones = null;
 const banner = document.getElementById('update-banner');
 const btnReload = document.getElementById('btn-reload-page');
