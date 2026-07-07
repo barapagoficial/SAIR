@@ -1,0 +1,5 @@
+Changelog v1.7.2
+
+Corrección de errores: Solucionamos el problema que eliminaba la foto de perfil de los personajes al editar su información y guardar los cambios. ¡Ya puedes editar sin preocuparte por perder tus imágenes!
+
+Mejoras visuales: Le dimos un lavado de cara a la plataforma. Implementamos mejoras considerables en la estética general de toda la página para ofrecerte una experiencia más limpia y agradable
