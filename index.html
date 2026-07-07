@@ -596,6 +596,7 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 const CONFIG={SUPABASE_URL:'https://tcnzimhqjyivlrvqzwpb.supabase.co',SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',LS:{THEME:'sair1_theme',GEMINI_KEY:'sair1_gemini_key',GEMINI_MODEL:'sair1_gemini_model'}};
 let sbClient=null,currentUser=null,userRole=null,userUsername=null,currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null;
 const CACHE={personajes:null,personajesComunidad:null,anuncios:null,usernames:{},cacheTime:{personajes:0,personajesComunidad:0,anuncios:0},TTL:30000},LOADING={personajes:!1,personajesComunidad:!1,anuncios:!1};
+function limpiarCacheUsuario(){CACHE.personajes=null;CACHE.personajesComunidad=null;CACHE.anuncios=null;CACHE.cacheTime.personajes=0;CACHE.cacheTime.personajesComunidad=0;CACHE.cacheTime.anuncios=0}
 function isCacheValid(k){return CACHE[k]&&Date.now()-CACHE.cacheTime[k]<CACHE.TTL}
 async function ejecutarConRefresh(fn,maxRetries=1){for(let intent=0;intent<=maxRetries;intent++){try{return await fn()}catch(err){if(err.message&&(err.message.includes('JWT expired')||err.message.includes('jwt expired')||err.message.includes('invalid token')||err.message.includes('token expired'))){if(intent<maxRetries){try{const{data,error}=await sbClient.auth.refreshSession();if(error){console.error('❌ Error al refrescar sesión:',error);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}if(data.session){currentUser=data.session.user;await cargarPerfilYRol();console.log('✅ Sesión refrescada correctamente');continue}}catch(refreshErr){console.error('❌ Falló el refresco de sesión:',refreshErr);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}}}throw err}}}
 function showToast(message,type='success'){const toast=document.getElementById('toast');let safeMessage=message;if(message.includes('violates row-level security')||message.includes('permission denied')||message.includes('relation')||message.includes('column')||message.includes('table'))safeMessage='Error de permisos. Contacta al administrador.';const div=document.createElement('div');div.textContent=safeMessage;toast.innerHTML=div.innerHTML;toast.className=`toast ${type}`;setTimeout(()=>toast.classList.add('visible'),10);setTimeout(()=>toast.classList.remove('visible'),3500)}
@@ -819,7 +820,7 @@ function showAuth(){
   if(loginBtn){loginBtn.disabled=!1;loginBtn.textContent='Iniciar Sesión';}
   void authScreen.offsetWidth;
 }
-function showDashboard(){authScreen.classList.remove('visible');dashboard.classList.add('visible');settingsBtn.classList.remove('hidden');renderCharacters()}
+function showDashboard(){authScreen.classList.remove('visible');dashboard.classList.add('visible');settingsBtn.classList.remove('hidden');limpiarCacheUsuario();renderCharacters()}
 document.querySelectorAll('.auth-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));document.getElementById(`${tab.dataset.tab}-form`).classList.add('active');document.querySelectorAll('.form-message').forEach(m=>{m.className='form-message';m.textContent=''})})});
 document.getElementById('login-form').addEventListener('submit',async e=>{
 e.preventDefault();
@@ -849,7 +850,7 @@ msgEl.className='form-message success';
 msgEl.textContent=`¡Bienvenido, ${userUsername||'usuario'}!`;
 document.querySelectorAll('.modal-overlay.visible').forEach(m=>m.classList.remove('visible'));
 document.getElementById('chat-view').classList.remove('visible');
-setTimeout(showDashboard,800);
+limpiarCacheUsuario();setTimeout(showDashboard,800);
 }
 }catch(err){
 console.error('Error login:',err);
@@ -873,13 +874,14 @@ document.getElementById('confirm-logout').addEventListener('click',async()=>{
   try{
     await sbClient.auth.signOut();
     currentUser=null;userRole=null;userUsername=null;
+    limpiarCacheUsuario(); // <--- Limpia caché al cerrar sesión
     document.querySelectorAll('.modal-overlay.visible').forEach(m=>m.classList.remove('visible'));
     document.getElementById('chat-view').classList.remove('visible');
     document.getElementById('dashboard').classList.remove('visible');
     document.getElementById('auth-screen').classList.remove('visible');
     settingsBtn.classList.add('hidden');
     await new Promise(r=>setTimeout(r,100));
-    showAuth(); // Esta función ya restaura el botón
+    showAuth();
     showToast('👋 Sesión cerrada correctamente','success');
     document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
     document.querySelector('[data-tab="login"]').classList.add('active');
@@ -889,7 +891,8 @@ document.getElementById('confirm-logout').addEventListener('click',async()=>{
     document.getElementById('login-password').value='';
   }catch(err){
     showToast('❌ Error al cerrar sesión','error');
-    btn.disabled=!1;
+  }finally{
+    btn.disabled=!1;  // <--- Siempre restaura el botón
     btn.textContent=originalText;
   }
 });
