@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-<title>SAIR1.8</title>
+<title>SAIR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -195,10 +195,10 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;background:var(--pi
 .chat-list-delete{background:transparent;border:none;color:var(--text-4);cursor:pointer;padding:.2rem;border-radius:4px;opacity:0;transition:all .2s ease;display:grid;place-items:center}
 .chat-list-item:hover .chat-list-delete{opacity:1}
 .chat-list-delete:hover{color:#fca5a5;background:rgba(239,68,68,.1)}
-.chat-main{flex:1;display:flex;flex-direction:column;background:var(--bg-0);min-width:0;position:relative;background-size:cover;background-position:center;background-repeat:no-repeat}
+.chat-main{flex:1;display:flex;flex-direction:column;background:var(--bg-0);min-width:0;position:relative;background-size:cover;background-position:center;background-repeat:no-repeat;overflow:hidden}
 .chat-main.has-background .chat-messages{background:rgba(0,0,0,.3);backdrop-filter:blur(2px)}
 body[data-theme="light"] .chat-main.has-background .chat-messages{background:rgba(255,255,255,.5)}
-.chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem;background:radial-gradient(circle at 20% 30%,rgba(255,77,143,0.03) 0%,transparent 60%),radial-gradient(circle at 80% 70%,rgba(77,121,255,0.03) 0%,transparent 60%),var(--bg-0)}
+.chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem;background:radial-gradient(circle at 20% 30%,rgba(255,77,143,0.03) 0%,transparent 60%),radial-gradient(circle at 80% 70%,rgba(77,121,255,0.03) 0%,transparent 60%),var(--bg-0);-webkit-overflow-scrolling:touch}
 #chat-view.immersive .chat-messages{max-width:900px;margin:0 auto;padding:2rem 1rem;padding-top:3rem}
 #chat-view.immersive .chat-sidebar{display:none}
 #chat-view.immersive .chat-main{width:100%}
@@ -258,6 +258,101 @@ body[data-theme="dark"] .message-bubble.assistant .btn-message:hover{background:
 .btn-hamburger{display:none;position:absolute;top:.8rem;left:.8rem;width:40px;height:40px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);cursor:pointer;transition:all .25s ease;z-index:101;backdrop-filter:blur(10px)}
 .btn-hamburger:hover{background:var(--bg-card-hover);border-color:var(--pink);color:var(--pink)}
 .btn-hamburger svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+/* ============================================
+   MEJORAS ESTÉTICAS GENERALES
+   ============================================ */
+body[data-theme="dark"]{--neon-pink:#ff4d8f;--neon-purple:#a855f7;--neon-blue:#4d79ff;--glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08)}
+body[data-theme="light"]{--neon-pink:#ff4d8f;--neon-purple:#a855f7;--neon-blue:#4d79ff;--glass-bg:rgba(255,255,255,0.7);--glass-border:rgba(0,0,0,0.08)}
+.splash-title{background:linear-gradient(135deg,#ff4d8f 0%,#ff6ba0 20%,#a855f7 50%,#b86eff 70%,#4d79ff 100%);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:titleGlow 3s ease-in-out infinite,gradientShift 8s ease infinite}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.character-card{background:linear-gradient(135deg,var(--bg-card) 0%,rgba(255,255,255,0.02) 100%);position:relative}
+.character-card::before{height:2px;background:linear-gradient(90deg,transparent,var(--pink),var(--purple),var(--blue),transparent)}
+.message-bubble.user{background:linear-gradient(135deg,#ff4d8f 0%,#d63384 50%,#a855f7 100%);box-shadow:0 10px 30px rgba(255,77,143,.4),0 4px 12px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.25),0 0 0 1px rgba(255,255,255,.1)}
+.message-bubble.assistant{background:linear-gradient(135deg,rgba(77,121,255,.08) 0%,rgba(168,85,247,.06) 50%,rgba(255,77,143,.05) 100%);box-shadow:0 6px 24px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.1),0 0 0 1px rgba(255,255,255,.05)}
+.chat-new-btn{background:linear-gradient(135deg,#ff4d8f 0%,#a855f7 50%,#4d79ff 100%);background-size:200% 200%;animation:gradientShift 6s ease infinite}
+.btn-primary{background:linear-gradient(135deg,#ff4d8f 0%,#a855f7 50%,#4d79ff 100%);background-size:200% 200%;animation:gradientShift 6s ease infinite;position:relative;overflow:hidden}
+.btn-primary::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);transition:left .6s ease}
+.btn-primary:hover::before{left:100%}
+/* ============================================
+   BOTÓN RECAPITULACIÓN
+   ============================================ */
+.chat-recap-btn{width:52px;height:52px;border-radius:var(--radius-md);background:linear-gradient(135deg,rgba(168,85,247,.15) 0%,rgba(77,121,255,.15) 100%);border:1px solid rgba(168,85,247,.3);color:var(--purple);cursor:pointer;display:grid;place-items:center;transition:all .4s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+.chat-recap-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,77,143,.2) 0%,rgba(168,85,247,.2) 50%,rgba(77,121,255,.2) 100%);opacity:0;transition:opacity .4s ease}
+.chat-recap-btn::after{content:'';position:absolute;inset:-2px;border-radius:var(--radius-md);background:linear-gradient(135deg,var(--pink),var(--purple),var(--blue));opacity:0;z-index:-1;filter:blur(8px);transition:opacity .4s ease}
+.chat-recap-btn:hover{transform:translateY(-2px) scale(1.05);border-color:var(--purple);color:var(--pink);box-shadow:0 8px 25px var(--purple-glow)}
+.chat-recap-btn:hover::before{opacity:1}
+.chat-recap-btn:hover::after{opacity:.6}
+.chat-recap-btn:hover svg{transform:rotate(360deg)}
+.chat-recap-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .6s cubic-bezier(0.4,0,0.2,1);position:relative;z-index:1}
+.chat-recap-btn.pulse{animation:recapPulse 2s ease-in-out infinite}
+@keyframes recapPulse{0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,.4)}50%{box-shadow:0 0 0 10px rgba(168,85,247,0)}}
+/* ============================================
+   MODAL RECAPITULACIÓN
+   ============================================ */
+.recap-modal{max-width:640px;max-height:85vh;background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 100%);border:1px solid var(--border-strong);border-radius:var(--radius-xl);position:relative;overflow-y:auto;overflow-x:hidden}
+.recap-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));z-index:2}
+.recap-modal::after{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(168,85,247,.15) 0%,transparent 70%);pointer-events:none;animation:floatRecap 10s ease-in-out infinite}
+@keyframes floatRecap{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-20px,20px) rotate(180deg)}}
+.recap-confirm{text-align:center;padding:2.5rem 2rem;position:relative;z-index:1}
+.recap-icon-wrapper{width:90px;height:90px;margin:0 auto 1.5rem;border-radius:50%;background:linear-gradient(135deg,rgba(255,77,143,.15),rgba(168,85,247,.15),rgba(77,121,255,.15));display:grid;place-items:center;position:relative;animation:iconFloat 3s ease-in-out infinite}
+.recap-icon-wrapper::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--purple),var(--blue));opacity:.3;filter:blur(12px);animation:iconGlow 3s ease-in-out infinite}
+@keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes iconGlow{0%,100%{opacity:.3}50%{opacity:.6}}
+.recap-icon-wrapper svg{width:42px;height:42px;stroke:url(#recapGradient);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:1}
+.recap-title{font-family:var(--font-display);font-size:1.6rem;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple),var(--blue));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.6rem}
+.recap-subtitle{color:var(--text-2);font-size:.95rem;line-height:1.6;margin-bottom:.5rem}
+.recap-features{display:flex;flex-direction:column;gap:.6rem;margin:1.5rem 0;text-align:left;padding:1rem;background:var(--bg-input);border-radius:12px;border:1px solid var(--border)}
+.recap-feature{display:flex;align-items:center;gap:.7rem;color:var(--text-2);font-size:.88rem}
+.recap-feature-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(255,77,143,.15),rgba(168,85,247,.15));display:grid;place-items:center;flex-shrink:0}
+.recap-feature-icon svg{width:14px;height:14px;stroke:var(--pink);fill:none;stroke-width:2.5}
+.recap-actions{display:flex;gap:.75rem;margin-top:1.5rem}
+.recap-actions .btn{flex:1;padding:1rem}
+/* LOADING STATE */
+.recap-loading{text-align:center;padding:3rem 2rem;position:relative;z-index:1}
+.recap-spinner{width:80px;height:80px;margin:0 auto 1.5rem;position:relative}
+.recap-spinner::before,.recap-spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid transparent}
+.recap-spinner::before{border-top-color:var(--pink);border-right-color:var(--pink);animation:spinRecap 1.2s linear infinite}
+.recap-spinner::after{border-bottom-color:var(--blue);border-left-color:var(--blue);animation:spinRecap 1.8s linear infinite reverse;inset:8px}
+.recap-spinner-core{position:absolute;inset:20px;border-radius:50%;background:linear-gradient(135deg,rgba(255,77,143,.2),rgba(168,85,247,.2));animation:pulseCore 1.5s ease-in-out infinite}
+@keyframes spinRecap{to{transform:rotate(360deg)}}
+@keyframes pulseCore{0%,100%{transform:scale(.8);opacity:.5}50%{transform:scale(1.1);opacity:1}}
+.recap-loading-text{font-family:var(--font-display);font-size:1.1rem;font-weight:600;color:var(--text-1);margin-bottom:.4rem}
+.recap-loading-sub{font-size:.85rem;color:var(--text-3)}
+.recap-progress{width:100%;height:4px;background:var(--bg-input);border-radius:2px;overflow:hidden;margin-top:1.5rem}
+.recap-progress-bar{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));background-size:200% 100%;animation:progressMove 2s ease-in-out infinite,gradientShift 3s ease infinite;width:30%;border-radius:2px}
+@keyframes progressMove{0%{margin-left:-30%}100%{margin-left:100%}}
+/* RESULT STATE */
+.recap-result{padding:2rem;position:relative;z-index:1;max-height:60vh;overflow-y:auto}
+.recap-result-header{text-align:center;margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border)}
+.recap-result-title{font-family:var(--font-display);font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.3rem}
+.recap-result-sub{font-size:.82rem;color:var(--text-3)}
+.recap-section{margin-bottom:1.2rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:all .3s ease}
+.recap-section:hover{border-color:rgba(168,85,247,.3);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.recap-section-header{padding:1rem 1.2rem;display:flex;align-items:center;gap:.7rem;border-bottom:1px solid var(--border)}
+.recap-section-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.recap-section-icon.history{background:linear-gradient(135deg,rgba(255,77,143,.2),rgba(168,85,247,.15))}
+.recap-section-icon.current{background:linear-gradient(135deg,rgba(77,121,255,.2),rgba(168,85,247,.15))}
+.recap-section-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.recap-section-title{font-family:var(--font-display);font-weight:700;font-size:1.05rem;color:var(--text-1)}
+.recap-section-label{font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.recap-section-body{padding:1.2rem;color:var(--text-2);font-size:.92rem;line-height:1.7;white-space:pre-wrap;word-wrap:break-word}
+.recap-section-body strong{color:var(--pink);font-weight:600}
+.recap-section-body em{color:var(--purple);font-style:italic}
+.recap-close-row{display:flex;justify-content:center;margin-top:1.2rem}
+.recap-close-row .btn{min-width:140px}
+@media(max-width:768px){
+.chat-recap-btn{width:44px;height:44px}
+.chat-role-btn{width:44px;height:44px}
+.chat-send-btn{width:44px;height:44px}
+.recap-modal{margin:0 .5rem}
+.recap-confirm,.recap-loading{padding:1.8rem 1.2rem}
+.recap-result{padding:1.2rem}
+.recap-title{font-size:1.3rem}
+}
+@media(max-width:480px){
+.recap-actions{flex-direction:column}
+.recap-features{padding:.8rem}
+}
 .message-bubble.editing{background:var(--bg-card)!important;border:2px solid var(--pink)!important;color:var(--text-1)!important}
 .edit-textarea{width:100%;min-height:60px;background:transparent;border:none;color:var(--text-1);font-family:var(--font-sans);font-size:.95rem;line-height:1.6;resize:vertical;outline:none}
 .edit-actions{display:flex;gap:.5rem;margin-top:.6rem;justify-content:flex-end}
@@ -418,14 +513,54 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* Botón para bajar al final del chat */
+.scroll-to-bottom {
+  position: absolute;
+  bottom: 90px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--grad-main);
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 20px var(--pink-glow);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all .3s ease;
+  z-index: 50;
+}
+.scroll-to-bottom:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px var(--pink-glow);
+}
+@media(max-width:768px){
+  .scroll-to-bottom {
+    bottom: 80px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+  }
+}
+/* Estilos para el modal de resumen automático */
+#summary-modal .modal {
+  user-select: none;
+}
+#summary-modal .modal .recap-spinner {
+  margin: 0 auto 1.5rem;
+}
+#summary-modal .btn-retry-summary {
+  margin-top: 1rem;
+}
 </style>
 </head>
 <body data-theme="dark">
 
 <div id="splash">
 <div class="splash-developer">Desarrollado por Moon-BaraPag</div>
-<h1 class="splash-title">SAIR1.8</h1>
-<div class="splash-sub">v1.8.0</div>
+<h1 class="splash-title">SAIR1.9</h1>
+<div class="splash-sub">v1.9.0</div>
 </div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
@@ -571,9 +706,25 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 </div>
 </div>
 
+<!-- Modal de Recapitulación -->
+<div class="modal-overlay" id="recap-modal">
+<div class="modal recap-modal">
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="recapGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff4d8f"/><stop offset="50%" stop-color="#a855f7"/><stop offset="100%" stop-color="#4d79ff"/></linearGradient></defs></svg>
+<button class="modal-close" data-close-modal="recap-modal" style="position:absolute;top:1rem;right:1rem;z-index:10">✕</button>
+<div id="recap-content"></div>
+</div>
+</div>
+<!-- Modal de Resumen automático -->
+<div class="modal-overlay" id="summary-modal" style="z-index:3000;backdrop-filter:blur(12px);">
+  <div class="modal" style="max-width:500px;text-align:center;overflow:hidden;position:relative;">
+    <div id="summary-content">
+      <!-- El contenido se inyectará desde JS -->
+    </div>
+  </div>
+</div>
 <div id="auth-screen">
 <div class="auth-container">
-<div class="auth-header"><h2 class="auth-title">Bienvenido a SAIR1.8</h2><p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p></div>
+<div class="auth-header"><h2 class="auth-title">Bienvenido a SAIR</h2><p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p></div>
 <div class="auth-tabs"><button class="auth-tab active" data-tab="login">Iniciar Sesión</button><button class="auth-tab" data-tab="register">Registrarse</button></div>
 <form id="login-form" class="auth-form active">
 <div class="form-group"><label class="form-label" for="login-email">Correo electrónico</label><input type="email" id="login-email" class="form-input" placeholder="tu@email.com" required></div>
@@ -626,7 +777,8 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 <button class="btn-hamburger" id="btn-hamburger" title="Mostrar/ocultar sidebar"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 <button class="btn-immersive" id="btn-immersive" title="Modo inmersivo"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
 <div class="chat-messages" id="chat-messages"><div class="chat-empty" id="chat-empty"><div class="chat-empty-icon">💬</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Comienza una conversación</h3><p>Selecciona un chat o crea uno nuevo</p></div></div>
-<div class="chat-input-area"><div class="chat-input-wrapper"><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><button class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button><button class="chat-send-btn" id="chat-send-btn" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>
+<button id="scroll-to-bottom-btn" class="scroll-to-bottom" style="display:none;" title="Ir al final"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+<div class="chat-input-area"><div class="chat-input-wrapper"><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><button class="chat-recap-btn pulse" id="chat-recap-btn" title="Recapitulación de la historia"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></path><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></svg></button><button class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button><button class="chat-send-btn" id="chat-send-btn" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>
 </main>
 </div>
 </div>
@@ -654,7 +806,7 @@ function contarTokensHistorial(historial){return historial.reduce((t,m)=>t+estim
 async function resumirHistorialConGemini(texto){
   const apiKey=getGeminiKey();
   if(!apiKey)throw new Error('No hay API Key configurada');
-  const model='gemini-3.1-flash-lite';
+  const model='gemini-3.5-flash';
   const systemPrompt=`Eres un asistente experto en resumir conversaciones de roleplay. Tu tarea es crear un resumen conciso pero completo. Debes incluir:
 - Puntos clave de la trama y eventos importantes
 - Promesas, compromisos o acuerdos hechos por los personajes
@@ -685,26 +837,104 @@ async function procesarHistorialSiEsNecesario(historial){
   const LIMITE_TOKENS=80000,TOKENS_RESERVA=20000;
   const tokensTotal=contarTokensHistorial(historial);
   if(tokensTotal<=LIMITE_TOKENS)return{historialProcesado:historial,necesitaActualizacion:!1};
-  console.log(`📊 Historial excede ${LIMITE_TOKENS} tokens (${tokensTotal}). Procesando resumen...`);
-  let tokensAcumulados=0,indiceCorte=0;
-  for(let i=historial.length-1;i>=0;i--){
-    if(historial[i].rol==='summary')continue;
-    tokensAcumulados+=estimarTokens(historial[i].contenido||'');
-    if(tokensAcumulados>=TOKENS_RESERVA){indiceCorte=i;break}
+  
+  const modal = document.getElementById('summary-modal');
+  const content = document.getElementById('summary-content');
+  
+  function setSummaryUI(estado, mensaje, mostrarReintentar = false) {
+    if (estado === 'loading') {
+      content.innerHTML = `
+        <div class="recap-loading" style="padding:2rem 1.5rem;">
+          <div class="recap-spinner"><div class="recap-spinner-core"></div></div>
+          <div class="recap-loading-text">Resumiendo conversación...</div>
+          <div class="recap-loading-sub">Esto puede tardar unos segundos según la longitud del chat</div>
+          <div class="recap-progress"><div class="recap-progress-bar"></div></div>
+        </div>
+      `;
+    } else if (estado === 'error') {
+      content.innerHTML = `
+        <div class="recap-confirm" style="padding:2rem 1.5rem;">
+          <div class="recap-icon-wrapper" style="background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.1));margin-bottom:1rem;">
+            <svg viewBox="0 0 24 24" style="stroke:#fca5a5;width:42px;height:42px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="recap-title" style="background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;background-clip:text;font-size:1.3rem;">Error al resumir</div>
+          <div class="recap-subtitle" style="color:#fca5a5;font-size:.9rem;">${escapeHtml(mensaje)}</div>
+          ${mostrarReintentar ? `<button class="btn btn-primary" id="btn-retry-summary" style="margin-top:1.5rem;width:100%;">🔄 Reintentar</button>` : ''}
+        </div>
+      `;
+    }
   }
-  const mensajesRecientes=historial.slice(indiceCorte);
-  let mensajesAntiguos=historial.slice(0,indiceCorte);
-  let resumenPrevio='';
-  if(mensajesAntiguos.length>0&&mensajesAntiguos[0].rol==='summary'){resumenPrevio=mensajesAntiguos[0].contenido;mensajesAntiguos=mensajesAntiguos.slice(1)}
-  if(mensajesAntiguos.length===0)return{historialProcesado:historial,necesitaActualizacion:!1};
-  const textoAResumir=mensajesAntiguos.map(m=>{const autor=m.rol==='user'?'Usuario':(m.rol==='assistant'?'Asistente':m.rol);return`[${autor}]: ${m.contenido}`}).join('\n\n');
-  const textoCompletoAResumir=resumenPrevio?`Resumen anterior:\n${resumenPrevio}\n\n---\n\nNuevos mensajes a incorporar al resumen:\n${textoAResumir}`:textoAResumir;
-  showToast('🔄 Resumiendo conversación anterior...','success');
-  const nuevoResumen=await resumirHistorialConGemini(textoCompletoAResumir);
-  const mensajeResumen={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol:'summary',contenido:nuevoResumen};
-  const nuevoHistorial=[mensajeResumen,...mensajesRecientes];
-  console.log(`✅ Resumen creado. Nuevo historial: ${nuevoHistorial.length} mensajes`);
-  return{historialProcesado:nuevoHistorial,necesitaActualizacion:!0};
+  
+  modal.classList.add('visible');
+  setSummaryUI('loading');
+  
+  const ejecutarResumen = async () => {
+    try {
+      let tokensAcumulados=0, indiceCorte=0;
+      for(let i=historial.length-1;i>=0;i--){
+        if(historial[i].rol==='summary') continue;
+        tokensAcumulados += estimarTokens(historial[i].contenido||'');
+        if(tokensAcumulados >= TOKENS_RESERVA){ indiceCorte = i; break; }
+      }
+      const mensajesRecientes = historial.slice(indiceCorte);
+      let mensajesAntiguos = historial.slice(0, indiceCorte);
+      let resumenPrevio = '';
+      if(mensajesAntiguos.length>0 && mensajesAntiguos[0].rol==='summary'){
+        resumenPrevio = mensajesAntiguos[0].contenido;
+        mensajesAntiguos = mensajesAntiguos.slice(1);
+      }
+      if(mensajesAntiguos.length===0) {
+        modal.classList.remove('visible');
+        return { historialProcesado: historial, necesitaActualizacion: false };
+      }
+      const textoAResumir = mensajesAntiguos.map(m=>{
+        const autor = m.rol==='user'?'Usuario':(m.rol==='assistant'?'Asistente':m.rol);
+        return `[${autor}]: ${m.contenido}`;
+      }).join('\n\n');
+      const textoCompletoAResumir = resumenPrevio ? `Resumen anterior:\n${resumenPrevio}\n\n---\n\nNuevos mensajes a incorporar al resumen:\n${textoAResumir}` : textoAResumir;
+      
+      const nuevoResumen = await resumirHistorialConGemini(textoCompletoAResumir);
+      
+      const mensajeResumen = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).substr(2,5),
+        rol: 'summary',
+        contenido: nuevoResumen
+      };
+      const nuevoHistorial = [mensajeResumen, ...mensajesRecientes];
+      
+      modal.classList.remove('visible');
+      return { historialProcesado: nuevoHistorial, necesitaActualizacion: true };
+    } catch (err) {
+      const isRateLimit = err.message && (err.message.includes('429') || err.message.toLowerCase().includes('rate limit') || err.message.toLowerCase().includes('quota') || err.message.toLowerCase().includes('too many requests'));
+      const errorMsg = isRateLimit ? 'Límite de peticiones excedido. Espera unos segundos y reintenta.' : err.message;
+      setSummaryUI('error', errorMsg, true);
+      
+      return new Promise((resolve, reject) => {
+        const btn = document.getElementById('btn-retry-summary');
+        if (btn) {
+          btn.addEventListener('click', async () => {
+            setSummaryUI('loading');
+            try {
+              const resultado = await ejecutarResumen();
+              resolve(resultado);
+            } catch (e) {
+              reject(e);
+            }
+          }, { once: true });
+        } else {
+          reject(new Error('No se pudo reintentar'));
+        }
+      });
+    }
+  };
+  
+  try {
+    const resultado = await ejecutarResumen();
+    return resultado;
+  } catch (err) {
+    modal.classList.remove('visible');
+    throw new Error('No se pudo completar el resumen: ' + err.message);
+  }
 }
 
 async function cargarPerfilYRol(){
@@ -777,8 +1007,20 @@ function openModal(id){document.getElementById(id).classList.add('visible')}
 function closeModal(id){document.getElementById(id).classList.remove('visible')}
 document.getElementById('settings-btn').addEventListener('click',()=>{updateApiKeyUI();openModal('settings-modal')});
 document.querySelectorAll('[data-close-modal]').forEach(btn=>{btn.addEventListener('click',()=>closeModal(btn.dataset.closeModal))});
-document.querySelectorAll('.modal-overlay').forEach(overlay=>{overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('visible')})});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.visible').forEach(m=>m.classList.remove('visible'))});
+document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay && overlay.id !== 'summary-modal') {
+      overlay.classList.remove('visible');
+    }
+  })
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.visible').forEach(m=>{
+      if(m.id !== 'summary-modal') m.classList.remove('visible');
+    });
+  }
+});
 document.querySelectorAll('.theme-option').forEach(opt=>{opt.addEventListener('click',()=>{applyTheme(opt.dataset.themeValue);showToast(`Tema ${opt.dataset.themeValue==='dark'?'oscuro':'claro'} activado`)})});
 function updateApiKeyUI(){const key=getGeminiKey(),model='gemini-3.5-flash',statusEl=document.getElementById('api-key-status'),input=document.getElementById('gemini-api-key'),modelInput=document.getElementById('gemini-model');if(modelInput)modelInput.value='gemini-3.5-flash';if(key){statusEl.className='api-key-status saved';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>API Key configurada (${key.substring(0,8)}...${key.substring(key.length-4)}) · Modelo: ${model}</span>`;input.value=key}else{statusEl.className='api-key-status empty';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>No hay API Key configurada</span>`;input.value=''}}
 document.getElementById('toggle-api-key').addEventListener('click',()=>{const input=document.getElementById('gemini-api-key');input.type=input.type==='password'?'text':'password'});
@@ -808,19 +1050,19 @@ async function crearPersonaje(datos){if(!currentUser)throw new Error('No hay ses
 async function actualizarPersonaje(id,datos){if(!currentUser)throw new Error('No hay sesión');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();const updates={nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,publico:!!datos.publico};if(avatar_url!==undefined){updates.avatar_url=avatar_url;}return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').update(updates).eq('id',id).eq('user_id',currentUser.id).select().single();if(error)throw new Error(error.message);return data})}
 async function listarPersonajes(){if(!currentUser)return[];return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').eq('user_id',currentUser.id).order('creado_en',{ascending:!1});if(error)throw new Error(error.message);return data||[]})}
 async function listarPersonajesComunidad(){if(!currentUser)return[];return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('id,nombre,descripcion_corta,avatar_url,publico,user_id,creado_en').eq('publico',!0).order('creado_en',{ascending:!1}).limit(50);if(error)throw new Error(error.message);return data||[]})}
-async function obtenerPersonaje(id){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').eq('id',id).single();if(error)throw new Error('Personaje no encontrado');return data})}
+async function obtenerPersonaje(id){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').or(`publico.eq.true,user_id.eq.${currentUser.id}`).eq('id',id).single();if(error)throw new Error('Personaje no encontrado');return data})}
 async function eliminarPersonaje(id){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('personajes').delete().eq('id',id).eq('user_id',currentUser.id);if(error)throw new Error(error.message);return!0})}
 async function listarAnuncios(){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('anuncios').select('*').order('creado_en',{ascending:!1}).limit(50);if(error)throw new Error(error.message);return data||[]})}
 async function crearAnuncio(titulo,contenido){if(!isOwner())throw new Error('Solo el Owner puede publicar anuncios');return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('anuncios').insert({user_id:currentUser.id,titulo:titulo.trim(),contenido:contenido.trim()}).select().single();if(error)throw new Error(error.message);return data})}
 async function eliminarAnuncio(id){if(!isOwner())throw new Error('No autorizado');return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('anuncios').delete().eq('id',id);if(error)throw new Error(error.message);return!0})}
-async function crearNuevoChat(personajeId){if(!currentUser)throw new Error('No hay sesión');return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('chats').insert({user_id:currentUser.id,personaje_id:personajeId,historial:[]}).select().single();if(error)throw new Error(error.message);return data})}
+async function crearNuevoChat(personajeId){if(!currentUser)throw new Error('No hay sesión');return ejecutarConRefresh(async()=>{const{data:personaje,error:pError}=await sbClient.from('personajes').select('id').or(`publico.eq.true,user_id.eq.${currentUser.id}`).eq('id',personajeId).single();if(pError||!personaje)throw new Error('No tienes permiso para chatear con este personaje');const{data,error}=await sbClient.from('chats').insert({user_id:currentUser.id,personaje_id:personajeId,historial:[]}).select().single();if(error)throw new Error(error.message);return data})}
 async function listarChats(personajeId){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('chats').select('*').eq('user_id',currentUser.id).eq('personaje_id',personajeId).order('actualizado_en',{ascending:!1});if(error)throw new Error(error.message);return data||[]})}
 async function eliminarChat(chatId){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('chats').delete().eq('id',chatId).eq('user_id',currentUser.id);if(error)throw new Error(error.message);return!0})}
-async function cargarHistorialChat(chatId){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).single();if(error)throw new Error(error.message);let historial=chat?.historial||[];if(historial.length===0){const{data:oldMessages,error:errOld}=await sbClient.from('mensajes').select('id,rol,contenido,creado_en').eq('chat_id',chatId).order('creado_en',{ascending:!0});if(!errOld&&oldMessages&&oldMessages.length>0){historial=oldMessages.map(m=>({id:m.id,rol:m.rol,contenido:m.contenido}));await sbClient.from('chats').update({historial}).eq('id',chatId)}}const historialGemini=historial.filter(m=>m.rol==='user'||m.rol==='assistant').map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));return{mensajes:historial,historialGemini}})}
-async function guardarMensaje(chatId,rol,contenido){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).single();if(error)throw new Error(error.message);const historial=chat.historial||[],nuevoMsg={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol,contenido};historial.push(nuevoMsg);const{error:updateError}=await sbClient.from('chats').update({historial}).eq('id',chatId);if(updateError)throw new Error(updateError.message);return nuevoMsg})}
-async function eliminarMensajeDeChat(chatId,mensajeId){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).single();if(error)throw new Error(error.message);let historial=chat.historial||[],nuevoHistorial=historial.filter(m=>m.id!==mensajeId);if(nuevoHistorial.length===historial.length)throw new Error('Mensaje no encontrado');const{error:updateError}=await sbClient.from('chats').update({historial:nuevoHistorial}).eq('id',chatId);if(updateError)throw new Error(updateError.message);return!0})}
-async function actualizarHistorialChat(chatId,nuevoHistorial){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('chats').update({historial:nuevoHistorial}).eq('id',chatId);if(error)throw new Error(error.message);return!0})}
-async function* enviarAGeminiStream(systemPrompt,mensajes,nuevoMensaje){const apiKey=getGeminiKey();if(!apiKey)throw new Error('⚠️ Configura tu API Key de Gemini en los ajustes (⚙️)');let resumen='',mensajesSinResumen=mensajes;if(mensajes.length>0&&mensajes[0].rol==='summary'){resumen=mensajes[0].contenido;mensajesSinResumen=mensajes.slice(1)}const systemPromptFinal=resumen?`${systemPrompt}\n\n[RESUMEN DE CONVERSACIONES ANTERIORES - CONTEXTO IMPORTANTE]:\n${resumen}\n\n[FIN DEL RESUMEN - Continúa con el roleplay normal manteniendo toda la información del resumen]`:systemPrompt;const model=getGeminiModel(),contents=[...mensajesSinResumen.map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]})),{role:'user',parts:[{text:nuevoMensaje}]}],body={system_instruction:{parts:[{text:systemPromptFinal}]},contents,generationConfig:{temperature:.9,topP:.95,topK:40,maxOutputTokens:2048}},url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!response.ok){const errText=await response.text();let msg=`Error de Gemini (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(msg)}const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='';for(;;){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:!0});const lines=buffer.split('\n');buffer=lines.pop();for(const line of lines){if(line.startsWith('data: ')){const data=line.slice(6).trim();if(data==='[DONE]')return;try{const json=JSON.parse(data),text=json.candidates?.[0]?.content?.parts?.[0]?.text;if(text)yield text}catch{}}}}}
+async function cargarHistorialChat(chatId){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).eq('user_id',currentUser.id).single();if(error)throw new Error(error.message);let historial=chat?.historial||[];const historialGemini=historial.filter(m=>m.rol==='user'||m.rol==='assistant').map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));return{mensajes:historial,historialGemini}})}
+async function guardarMensaje(chatId,rol,contenido){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).eq('user_id',currentUser.id).single();if(error)throw new Error(error.message);const historial=chat.historial||[],nuevoMsg={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol,contenido};historial.push(nuevoMsg);const{error:updateError}=await sbClient.from('chats').update({historial}).eq('id',chatId).eq('user_id',currentUser.id);if(updateError)throw new Error(updateError.message);return nuevoMsg})}
+async function eliminarMensajeDeChat(chatId,mensajeId){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).eq('user_id',currentUser.id).single();if(error)throw new Error(error.message);let historial=chat.historial||[],nuevoHistorial=historial.filter(m=>m.id!==mensajeId);if(nuevoHistorial.length===historial.length)throw new Error('Mensaje no encontrado');const{error:updateError}=await sbClient.from('chats').update({historial:nuevoHistorial}).eq('id',chatId).eq('user_id',currentUser.id);if(updateError)throw new Error(updateError.message);return!0})}
+async function actualizarHistorialChat(chatId,nuevoHistorial){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('chats').update({historial:nuevoHistorial}).eq('id',chatId).eq('user_id',currentUser.id);if(error)throw new Error(error.message);return!0})}
+async function* enviarAGeminiStream(systemPrompt,mensajes,nuevoMensaje){const apiKey=getGeminiKey();if(!apiKey)throw new Error('⚠️ Configura tu API Key de Gemini en los ajustes (⚙️)');let resumen='',mensajesSinResumen=mensajes;const summaries=mensajes.filter(m=>m.rol==='summary');if(summaries.length>0){resumen=summaries.map(s=>s.contenido).join('\n\n');mensajesSinResumen=mensajes.filter(m=>m.rol!=='summary')}const systemPromptFinal=resumen?`${systemPrompt}\n\n[RESUMEN DE CONVERSACIONES ANTERIORES - CONTEXTO IMPORTANTE]:\n${resumen}\n\n[FIN DEL RESUMEN - Continúa con el roleplay normal manteniendo toda la información del resumen]`:systemPrompt;const model=getGeminiModel(),contents=[...mensajesSinResumen.map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]})),{role:'user',parts:[{text:nuevoMensaje}]}],body={system_instruction:{parts:[{text:systemPromptFinal}]},contents,generationConfig:{temperature:.9,topP:.95,topK:40,maxOutputTokens:4096}},url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!response.ok){const errText=await response.text();let msg=`Error de Gemini (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(msg)}const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='';for(;;){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:!0});const lines=buffer.split('\n');buffer=lines.pop();for(const line of lines){if(line.startsWith('data: ')){const data=line.slice(6).trim();if(data==='[DONE]')return;try{const json=JSON.parse(data),text=json.candidates?.[0]?.content?.parts?.[0]?.text;if(text)yield text}catch{}}}}}
 async function fetchWithRetry(fn,retries=2,delay=1e3){for(let i=0;i<=retries;i++){try{return await fn()}catch(err){if(err.message&&(err.message.includes('JWT expired')||err.message.includes('jwt expired')||err.message.includes('invalid token')||err.message.includes('token expired'))){try{const{data,error}=await sbClient.auth.refreshSession();if(error){console.error('❌ Error al refrescar sesión:',error);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}if(data.session){currentUser=data.session.user;await cargarPerfilYRol();console.log('✅ Sesión refrescada correctamente');return await fn()}}catch(refreshErr){console.error('❌ Falló el refresco de sesión:',refreshErr);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}}if(i===retries)throw err;await new Promise(r=>setTimeout(r,delay*(i+1)))}}}
 async function renderCharacters(){const container=document.getElementById('characters-container'),cacheKey=currentView==='my-characters'?'personajes':'personajesComunidad';if(LOADING[cacheKey])return;if(isCacheValid(cacheKey)&&CACHE[cacheKey]){renderCharactersGrid(CACHE[cacheKey],currentView!=='my-characters');return}LOADING[cacheKey]=!0;container.innerHTML=`<div style="max-width:1280px;margin:0 auto"><div style="margin-bottom:1.5rem;"><div class="skeleton-line short" style="height:24px;"></div></div><div class="characters-grid">${Array(6).fill(0).map(()=>`<div class="skeleton-card"><div class="skeleton-avatar"></div><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line"></div></div>`).join('')}</div></div>`;try{let personajes,esComunidad=!1;if(currentView==='my-characters')personajes=await fetchWithRetry(()=>listarPersonajes());else{personajes=await fetchWithRetry(()=>listarPersonajesComunidad());esComunidad=!0}CACHE[cacheKey]=personajes;CACHE.cacheTime[cacheKey]=Date.now();renderCharactersGrid(personajes,esComunidad)}catch(err){console.error('Error en renderCharacters:',err);container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Error al cargar</h3><p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p><button class="btn btn-primary" onclick="renderCharacters()">🔄 Reintentar</button></div>`}finally{LOADING[cacheKey]=!1}}
 function renderCharactersGrid(personajes,esComunidad){const container=document.getElementById('characters-container');if(!personajes||personajes.length===0){if(esComunidad){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🌍</div><h3>Aún no hay personajes públicos</h3><p>Sé el primero en compartir un personaje con la comunidad</p></div>`}else{container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">✨</div><h3>Aún no tienes personajes</h3><p>Crea tu primer personaje para empezar a chatear</p><button class="btn btn-primary" onclick="document.getElementById('btn-nuevo-personaje').click()">Crear mi primer personaje</button></div>`}return}const titulo=esComunidad?`🌍 Personajes de la Comunidad (${personajes.length})`:`🎭 Mis Personajes (${personajes.length})`;container.innerHTML=`<div style="max-width:1280px;margin:0 auto 1.5rem"><h2 class="section-title">${titulo}</h2></div><div class="characters-grid" id="characters-grid-content"></div>`;const grid=document.getElementById('characters-grid-content');grid.innerHTML=personajes.map(p=>{const avatarContent=p.avatar_url?`<img src="${p.avatar_url}" alt="${escapeHtml(p.nombre)}">`:p.nombre.charAt(0).toUpperCase();const badge=esComunidad?'':(p.publico?'<span class="badge-public">Público</span>':'<span class="badge-private">Privado</span>');let authorLine='';if(esComunidad)authorLine=`<div class="character-author" data-user-id="${p.user_id}">Cargando...</div>`;const actionsHtml=esComunidad?`<button class="btn btn-primary btn-small btn-chat" data-id="${p.id}">💬 Chatear</button>`:`<button class="btn btn-primary btn-small btn-chat" data-id="${p.id}">💬 Chatear</button><button class="btn btn-ghost btn-small btn-edit" data-id="${p.id}" title="Editar">✏️</button><button class="btn btn-danger btn-small btn-delete" data-id="${p.id}" title="Eliminar">🗑️</button>`;return`<div class="character-card" data-id="${p.id}"><div class="character-avatar">${avatarContent}</div><div class="character-name">${escapeHtml(p.nombre)}${badge}</div>${authorLine}<div class="character-desc">${escapeHtml(p.descripcion_corta||'Sin descripción')}</div><div class="character-actions">${actionsHtml}</div></div>`}).join('');if(esComunidad){const userIds=[...new Set(personajes.map(p=>p.user_id))];obtenerUsernamesBatch(userIds).then(usernamesMap=>{personajes.forEach(p=>{const authorEl=grid.querySelector(`[data-user-id="${p.user_id}"]`);if(authorEl){if(p.user_id===currentUser.id)authorEl.innerHTML='👤 Tú';else authorEl.innerHTML=`por @${escapeHtml(usernamesMap[p.user_id]||'anónimo')}`}})})}grid.querySelectorAll('.btn-delete').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();if(confirm('¿Eliminar este personaje? Se borrarán también sus chats.')){try{await fetchWithRetry(()=>eliminarPersonaje(btn.dataset.id));showToast('Personaje eliminado');CACHE.personajes=null;CACHE.cacheTime.personajes=0;renderCharacters()}catch(err){showToast(err.message,'error')}}})});grid.querySelectorAll('.btn-edit').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();await abrirEditorPersonaje(btn.dataset.id)})});grid.querySelectorAll('.btn-chat').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();await abrirChatConPersonaje(btn.dataset.id)})})}
@@ -878,11 +1120,11 @@ function agregarBubble(texto,rol,conTyping=!1,mensajeId=null){const messages=doc
 function agregarBotones(bubble,rol){const oldActions=bubble.querySelector('.message-actions');if(oldActions)oldActions.remove();const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';let buttonsHTML='';buttonsHTML+=`<button class="btn-message btn-copy" title="Copiar mensaje"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copiar</button>`;if(rol==='user'){buttonsHTML+=`<button class="btn-message btn-edit-msg" title="Editar mensaje"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Editar</button>`}else if(rol==='assistant'){buttonsHTML+=`<button class="btn-message btn-regenerate" data-mensaje-id="${bubble.dataset.mensajeId||''}" title="Regenerar respuesta"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Regenerar</button>`}actionsDiv.innerHTML=buttonsHTML;bubble.appendChild(actionsDiv)}
 function mostrarErrorRateLimit(bubble,errorMessage,actionType,actionData){if(rateLimitTimer){clearInterval(rateLimitTimer);rateLimitTimer=null}let segundos=60;const match=errorMessage.match(/(\d+)\s*seconds?/i);if(match)segundos=parseInt(match[1])||60;rateLimitCountdown=segundos;pendingAction=actionType;pendingData=actionData;const messages=document.getElementById('chat-messages');const div=document.createElement('div');div.className='message-bubble error';div.style.maxWidth='90%';const updateContent=()=>{div.innerHTML=`<div style="display:flex;flex-direction:column;gap:.5rem;"><span style="color:#fca5a5;">⏳ Límite de peticiones excedido. Espera <strong>${rateLimitCountdown}s</strong> para reintentar.</span><div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.3rem;"><button class="btn-message btn-retry" style="${rateLimitCountdown>0?'opacity:.5;pointer-events:none;':''}"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button></div></div>`};updateContent();if(bubble){bubble.innerHTML=div.innerHTML;bubble.className='message-bubble error';bubble._rateLimitDiv=div}else{messages.appendChild(div);window._rateLimitBubble=div}rateLimitTimer=setInterval(()=>{rateLimitCountdown--;if(rateLimitCountdown<=0){clearInterval(rateLimitTimer);rateLimitTimer=null;const targetBubble=bubble||window._rateLimitBubble;if(targetBubble){const btn=targetBubble.querySelector('.btn-retry');if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto'}const span=targetBubble.querySelector('span');if(span)span.innerHTML='⏳ Límite de peticiones excedido. <strong>¡Ya puedes reintentar!</strong>'}}else{const targetBubble=bubble||window._rateLimitBubble;if(targetBubble){const span=targetBubble.querySelector('span');if(span)span.innerHTML=`⏳ Límite de peticiones excedido. Espera <strong>${rateLimitCountdown}s</strong> para reintentar.`}}},1e3);const retryHandler=e=>{const btn=e.target.closest('.btn-retry');if(!btn)return;if(rateLimitCountdown>0)return;if(rateLimitTimer){clearInterval(rateLimitTimer);rateLimitTimer=null}const targetBubble=bubble||window._rateLimitBubble;if(targetBubble)targetBubble.remove();if(window._rateLimitBubble)delete window._rateLimitBubble;if(pendingAction==='send')enviarMensaje();else if(pendingAction==='regenerate'){const{mensajeId,bubbleElement}=pendingData;regenerarRespuesta(mensajeId,bubbleElement)}pendingAction=null;pendingData=null};document.removeEventListener('click',retryHandler);document.addEventListener('click',retryHandler)}
 let ultimoMensajeEnviado='';
-async function enviarMensaje(){if(!currentChatId||isStreaming)return;const texto=chatInput.value.trim();if(!texto)return;const MAX_MSG_LENGTH=8000;if(texto.length>MAX_MSG_LENGTH){showToast(`Mensaje demasiado largo (máx. ${MAX_MSG_LENGTH} caracteres)`,'error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en ajustes (⚙️)','error');return}const empty=document.getElementById('chat-empty');if(empty)empty.remove();ultimoMensajeEnviado=texto;const userBubble=agregarBubble(texto,'user');chatInput.value='';chatInput.style.height='auto';chatSendBtn.disabled=!0;isStreaming=!0;const bubbleIA=agregarBubble('','assistant',!0);try{const{mensajes}=await cargarHistorialChat(currentChatId);const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(mensajes);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado,texto);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();bubbleIA.innerHTML=renderMarkdown(textoCompleto);document.getElementById('chat-messages').scrollTop=document.getElementById('chat-messages').scrollHeight}if(!textoCompleto.trim())bubbleIA.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const mensajeUser=await guardarMensaje(currentChatId,'user',texto),mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);userBubble.dataset.mensajeId=mensajeUser.id;bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant')}catch(err){const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();const isRateLimit=err.message&&(err.message.includes('429')||err.message.toLowerCase().includes('rate limit')||err.message.toLowerCase().includes('quota')||err.message.toLowerCase().includes('too many requests'));if(isRateLimit)mostrarErrorRateLimit(bubbleIA,err.message,'send',{text:texto,historialGemini:null,systemPrompt:currentCharacter.system_prompt});else{bubbleIA.className='message-bubble error';bubbleIA.innerHTML=`⚠️ ${escapeHtml(err.message)}`;const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';actionsDiv.innerHTML=`<button class="btn-message btn-retry" onclick="enviarMensaje()" style="background:rgba(255,77,143,.15);border-color:var(--pink);color:var(--pink);"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button>`;bubbleIA.appendChild(actionsDiv)}}finally{isStreaming=!1;chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId}}
-async function regenerarRespuesta(mensajeId,bubbleElement){if(isStreaming){showToast('Espera a que termine la respuesta actual','error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en ajustes (⚙️)','error');return}const btnRegenerate=bubbleElement.querySelector('.btn-regenerate');if(btnRegenerate){btnRegenerate.disabled=!0;btnRegenerate.classList.add('spinning');btnRegenerate.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Regenerando...`}try{const{mensajes}=await cargarHistorialChat(currentChatId),idx=mensajes.findIndex(m=>m.id===mensajeId);if(idx===-1)throw new Error('Mensaje no encontrado');if(mensajes[idx].rol!=='assistant')throw new Error('Solo se pueden regenerar respuestas del asistente');const historialRecortado=mensajes.slice(0,idx),ultimoUser=historialRecortado.length>0&&historialRecortado[historialRecortado.length-1].rol==='user'?historialRecortado[historialRecortado.length-1]:null;if(!ultimoUser)throw new Error('No se encontró el mensaje del usuario correspondiente');await actualizarHistorialChat(currentChatId,historialRecortado);bubbleElement.innerHTML=`<div class="typing-indicator"><span></span><span></span><span></span></div>`;const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(historialRecortado);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado.slice(0,-1),ultimoUser.contenido);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleElement.querySelector('.typing-indicator');if(typing)typing.remove();bubbleElement.innerHTML=renderMarkdown(textoCompleto);document.getElementById('chat-messages').scrollTop=document.getElementById('chat-messages').scrollHeight}if(!textoCompleto.trim())bubbleElement.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const nuevoMensaje=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleElement.dataset.mensajeId=nuevoMensaje.id;bubbleElement.dataset.originalText=textoCompleto;bubbleElement.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleElement,'assistant');showToast('✅ Respuesta regenerada')}catch(err){console.error('Error al regenerar:',err);const isRateLimit=err.message&&(err.message.includes('429')||err.message.toLowerCase().includes('rate limit')||err.message.toLowerCase().includes('quota')||err.message.toLowerCase().includes('too many requests'));if(isRateLimit)mostrarErrorRateLimit(bubbleElement,err.message,'regenerate',{mensajeId,bubbleElement});else{bubbleElement.innerHTML=`<span style="color:#fca5a5">⚠️ ${escapeHtml(err.message)}</span>`;agregarBotones(bubbleElement,'assistant');showToast(`❌ ${err.message}`,'error')}}}
+async function enviarMensaje(){if(!currentChatId||isStreaming)return;const texto=chatInput.value.trim();if(!texto)return;const MAX_MSG_LENGTH=8000;if(texto.length>MAX_MSG_LENGTH){showToast(`Mensaje demasiado largo (máx. ${MAX_MSG_LENGTH} caracteres)`,'error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en ajustes (⚙️)','error');return}const empty=document.getElementById('chat-empty');if(empty)empty.remove();const userBubble=agregarBubble(texto,'user');let mensajeUser;try{mensajeUser=await guardarMensaje(currentChatId,'user',texto);userBubble.dataset.mensajeId=mensajeUser.id;}catch(err){showToast('Error al guardar mensaje: '+err.message,'error');userBubble.remove();isStreaming=!1;chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId;return}chatInput.value='';chatInput.style.height='auto';chatSendBtn.disabled=!0;isStreaming=!0;const bubbleIA=agregarBubble('','assistant',!0);try{const{mensajes}=await cargarHistorialChat(currentChatId);const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(mensajes);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado,texto);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();bubbleIA.innerHTML=renderMarkdown(textoCompleto);document.getElementById('chat-messages').scrollTop=document.getElementById('chat-messages').scrollHeight}if(!textoCompleto.trim())bubbleIA.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant')}catch(err){const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();const isRateLimit=err.message&&(err.message.includes('429')||err.message.toLowerCase().includes('rate limit')||err.message.toLowerCase().includes('quota')||err.message.toLowerCase().includes('too many requests'));if(isRateLimit)mostrarErrorRateLimit(bubbleIA,err.message,'send',{text:texto,historialGemini:null,systemPrompt:currentCharacter.system_prompt});else{bubbleIA.className='message-bubble error';bubbleIA.innerHTML=`⚠️ ${escapeHtml(err.message)}`;const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';actionsDiv.innerHTML=`<button class="btn-message btn-retry" onclick="enviarMensaje()" style="background:rgba(255,77,143,.15);border-color:var(--pink);color:var(--pink);"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button>`;bubbleIA.appendChild(actionsDiv)}}finally{isStreaming=!1;chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId}}
+async function regenerarRespuesta(mensajeId,bubbleElement){if(isStreaming){showToast('Espera a que termine la respuesta actual','error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en ajustes (⚙️)','error');return}const btnRegenerate=bubbleElement.querySelector('.btn-regenerate');if(btnRegenerate){btnRegenerate.disabled=!0;btnRegenerate.classList.add('spinning');btnRegenerate.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Regenerando...`}try{const{mensajes}=await cargarHistorialChat(currentChatId),idx=mensajes.findIndex(m=>m.id===mensajeId);if(idx===-1)throw new Error('Mensaje no encontrado');if(mensajes[idx].rol!=='assistant')throw new Error('Solo se pueden regenerar respuestas del asistente');const historialRecortado=mensajes.slice(0,idx),ultimoUser=historialRecortado.length>0&&historialRecortado[historialRecortado.length-1].rol==='user'?historialRecortado[historialRecortado.length-1]:null;if(!ultimoUser)throw new Error('No se encontró el mensaje del usuario correspondiente');const historialOriginal=mensajes.slice();await actualizarHistorialChat(currentChatId,historialRecortado);bubbleElement.innerHTML=`<div class="typing-indicator"><span></span><span></span><span></span></div>`;const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(historialRecortado);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado.slice(0,-1),ultimoUser.contenido);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleElement.querySelector('.typing-indicator');if(typing)typing.remove();bubbleElement.innerHTML=renderMarkdown(textoCompleto);document.getElementById('chat-messages').scrollTop=document.getElementById('chat-messages').scrollHeight}if(!textoCompleto.trim())bubbleElement.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const nuevoMensaje=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleElement.dataset.mensajeId=nuevoMensaje.id;bubbleElement.dataset.originalText=textoCompleto;bubbleElement.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleElement,'assistant');showToast('✅ Respuesta regenerada')}catch(err){console.error('Error al regenerar:',err);await actualizarHistorialChat(currentChatId,historialOriginal);const isRateLimit=err.message&&(err.message.includes('429')||err.message.toLowerCase().includes('rate limit')||err.message.toLowerCase().includes('quota')||err.message.toLowerCase().includes('too many requests'));if(isRateLimit)mostrarErrorRateLimit(bubbleElement,err.message,'regenerate',{mensajeId,bubbleElement});else{bubbleElement.innerHTML=`<span style="color:#fca5a5">⚠️ ${escapeHtml(err.message)}</span>`;agregarBotones(bubbleElement,'assistant');showToast(`❌ ${err.message}`,'error')}}}
 function iniciarEdicionMensaje(bubble){if(isStreaming){showToast('Espera a que termine la respuesta actual','error');return}const textoOriginal=bubble.dataset.originalText||'',mensajeId=bubble.dataset.mensajeId;bubble.dataset.backupHTML=bubble.innerHTML;bubble.classList.add('editing');bubble.innerHTML=`<textarea class="edit-textarea">${escapeHtml(textoOriginal)}</textarea><div class="edit-actions"><button class="edit-cancel">Cancelar</button><button class="edit-save">Guardar y regenerar</button></div>`;const textarea=bubble.querySelector('.edit-textarea');textarea.focus();textarea.setSelectionRange(textarea.value.length,textarea.value.length);textarea.style.height='auto';textarea.style.height=Math.min(textarea.scrollHeight,200)+'px';textarea.addEventListener('input',()=>{textarea.style.height='auto';textarea.style.height=Math.min(textarea.scrollHeight,200)+'px'})}
 function cancelarEdicionMensaje(bubble){bubble.classList.remove('editing');bubble.innerHTML=bubble.dataset.backupHTML||'';delete bubble.dataset.backupHTML}
-async function guardarEdicionMensaje(bubble){if(isStreaming)return;const textarea=bubble.querySelector('.edit-textarea'),nuevoTexto=textarea.value.trim(),mensajeId=bubble.dataset.mensajeId;if(!nuevoTexto){showToast('El mensaje no puede estar vacío','error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en ajustes (⚙️)','error');return}try{const{mensajes}=await cargarHistorialChat(currentChatId),idx=mensajes.findIndex(m=>m.id===mensajeId);if(idx===-1)throw new Error('Mensaje no encontrado');if(mensajes[idx].rol!=='user')throw new Error('Solo se pueden editar mensajes del usuario');const historialRecortado=mensajes.slice(0,idx),nuevoMsg={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol:'user',contenido:nuevoTexto};historialRecortado.push(nuevoMsg);await actualizarHistorialChat(currentChatId,historialRecortado);bubble.classList.remove('editing');bubble.dataset.originalText=nuevoTexto;bubble.dataset.mensajeId=nuevoMsg.id;bubble.innerHTML=escapeHtml(nuevoTexto);agregarBotones(bubble,'user');const allBubbles=Array.from(document.querySelectorAll('.message-bubble')),idxBubble=allBubbles.indexOf(bubble);for(let i=idxBubble+1;i<allBubbles.length;i++)allBubbles[i].remove();const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(historialRecortado);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const bubbleIA=agregarBubble('','assistant',!0);isStreaming=!0;const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado.slice(0,-1),nuevoTexto);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();bubbleIA.innerHTML=renderMarkdown(textoCompleto);document.getElementById('chat-messages').scrollTop=document.getElementById('chat-messages').scrollHeight}if(!textoCompleto.trim())bubbleIA.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant');showToast('✅ Mensaje editado y respuesta regenerada')}catch(err){console.error('Error al editar:',err);showToast(`❌ ${err.message}`,'error');cancelarEdicionMensaje(bubble)}finally{isStreaming=!1}}
+async function guardarEdicionMensaje(bubble){if(isStreaming)return;const textarea=bubble.querySelector('.edit-textarea'),nuevoTexto=textarea.value.trim(),mensajeId=bubble.dataset.mensajeId;if(!nuevoTexto){showToast('El mensaje no puede estar vacío','error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en ajustes (⚙️)','error');return}try{const{mensajes}=await cargarHistorialChat(currentChatId),idx=mensajes.findIndex(m=>m.id===mensajeId);if(idx===-1)throw new Error('Mensaje no encontrado');if(mensajes[idx].rol!=='user')throw new Error('Solo se pueden editar mensajes del usuario');const historialRecortado=mensajes.slice(0,idx),nuevoMsg={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol:'user',contenido:nuevoTexto};historialRecortado.push(nuevoMsg);const historialOriginal=mensajes.slice();await actualizarHistorialChat(currentChatId,historialRecortado);bubble.classList.remove('editing');bubble.dataset.originalText=nuevoTexto;bubble.dataset.mensajeId=nuevoMsg.id;bubble.innerHTML=escapeHtml(nuevoTexto);agregarBotones(bubble,'user');const allBubbles=Array.from(document.querySelectorAll('.message-bubble')),idxBubble=allBubbles.indexOf(bubble);for(let i=idxBubble+1;i<allBubbles.length;i++)allBubbles[i].remove();const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(historialRecortado);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const bubbleIA=agregarBubble('','assistant',!0);isStreaming=!0;const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado.slice(0,-1),nuevoTexto);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();bubbleIA.innerHTML=renderMarkdown(textoCompleto);document.getElementById('chat-messages').scrollTop=document.getElementById('chat-messages').scrollHeight}if(!textoCompleto.trim())bubbleIA.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant');showToast('✅ Mensaje editado y respuesta regenerada')}catch(err){console.error('Error al editar:',err);await actualizarHistorialChat(currentChatId,historialOriginal);showToast(`❌ ${err.message}`,'error');cancelarEdicionMensaje(bubble)}finally{isStreaming=!1}}
 document.getElementById('chat-messages').addEventListener('click',async e=>{const btnRegen=e.target.closest('.btn-regenerate');if(btnRegen){const mensajeId=btnRegen.dataset.mensajeId,bubble=btnRegen.closest('.message-bubble');if(mensajeId&&bubble)regenerarRespuesta(mensajeId,bubble);return}const btnCopy=e.target.closest('.btn-copy');if(btnCopy){const bubble=btnCopy.closest('.message-bubble'),texto=bubble.dataset.originalText||bubble.innerText.replace(/Copiar|Editar|Regenerar/g,'').trim();try{await navigator.clipboard.writeText(texto);showToast('📋 Mensaje copiado')}catch(err){showToast('❌ No se pudo copiar','error')}return}const btnEdit=e.target.closest('.btn-edit-msg');if(btnEdit){const bubble=btnEdit.closest('.message-bubble');iniciarEdicionMensaje(bubble);return}const btnSave=e.target.closest('.edit-save');if(btnSave){const bubble=btnSave.closest('.message-bubble');await guardarEdicionMensaje(bubble);return}const btnCancel=e.target.closest('.edit-cancel');if(btnCancel){const bubble=btnCancel.closest('.message-bubble');cancelarEdicionMensaje(bubble)}});
 const splash=document.getElementById('splash'),authScreen=document.getElementById('auth-screen'),dashboard=document.getElementById('dashboard');
 setTimeout(()=>{splash.classList.add('hidden');setTimeout(()=>{splash.style.display='none';initApp()},1e3)},3e3);
@@ -1016,7 +1258,258 @@ const hamburgerBtn=document.getElementById('btn-hamburger'),sidebar=document.get
 hamburgerBtn.addEventListener('click',(e)=>{e.stopPropagation();sidebar.classList.toggle('open')});
 document.addEventListener('click',e=>{if(window.innerWidth<=768&&sidebar.classList.contains('open')){if(!sidebar.contains(e.target)&&!hamburgerBtn.contains(e.target))sidebar.classList.remove('open')}});
 document.getElementById('chat-list').addEventListener('click',()=>{if(window.innerWidth<=768)setTimeout(()=>sidebar.classList.remove('open'),300)});
-console.log('✅ SAIR1.8 cargado correctamente');
+const scrollBtn = document.getElementById('scroll-to-bottom-btn');
+const messagesContainer = document.getElementById('chat-messages');
+
+function toggleScrollButton() {
+  if (!messagesContainer) return;
+  const scrollTop = messagesContainer.scrollTop;
+  const scrollHeight = messagesContainer.scrollHeight;
+  const clientHeight = messagesContainer.clientHeight;
+  if (scrollHeight - clientHeight - scrollTop > 100) {
+    scrollBtn.style.display = 'grid';
+  } else {
+    scrollBtn.style.display = 'none';
+  }
+}
+
+if (messagesContainer) {
+  messagesContainer.addEventListener('scroll', toggleScrollButton);
+  const observer = new MutationObserver(toggleScrollButton);
+  observer.observe(messagesContainer, { childList: true, subtree: true, attributes: false });
+  setTimeout(toggleScrollButton, 100);
+}
+
+if (scrollBtn) {
+  scrollBtn.addEventListener('click', () => {
+    messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
+  });
+}
+console.log('✅ SAIR1.9 cargado correctamente');
+/* ============================================
+   SISTEMA DE RECAPITULACIÓN
+   ============================================ */
+const recapContent=document.getElementById('recap-content');
+const recapModal=document.getElementById('recap-modal');
+function mostrarRecapConfirm(){
+if(!currentChatId){showToast('⚠️ Selecciona un chat primero','error');return}
+recapContent.innerHTML=`
+<div class="recap-confirm">
+<div class="recap-icon-wrapper">
+<svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"/></svg>
+</div>
+<div class="recap-title">¿Generar Recapitulación?</div>
+<div class="recap-subtitle">Analizaré toda la conversación para darte un resumen completo de la historia y el estado actual del roleplay.</div>
+<div class="recap-features">
+<div class="recap-feature">
+<div class="recap-feature-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+<span><strong style="color:var(--pink)">La Historia:</strong> Todo lo que ha sucedido, resaltando momentos clave</span>
+</div>
+<div class="recap-feature">
+<div class="recap-feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+<span><strong style="color:var(--blue)">Actualmente:</strong> Qué está pasando ahora en la conversación</span>
+</div>
+<div class="recap-feature">
+<div class="recap-feature-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+<span>Powered by <strong style="color:var(--purple)">Gemini 3.5 Flash</strong></span>
+</div>
+</div>
+<div class="recap-actions">
+<button class="btn btn-ghost" data-close-modal="recap-modal">Cancelar</button>
+<button class="btn btn-primary" id="btn-confirm-recap">✨ Sí, generar</button>
+</div>
+</div>`;
+openModal('recap-modal');
+document.getElementById('btn-confirm-recap').addEventListener('click',ejecutarRecapitulacion);
+recapContent.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal('recap-modal')));
+}
+function mostrarRecapLoading(){
+recapContent.innerHTML=`
+<div class="recap-loading">
+<div class="recap-spinner"><div class="recap-spinner-core"></div></div>
+<div class="recap-loading-text">Analizando la conversación...</div>
+<div class="recap-loading-sub">Esto puede tardar unos segundos según la longitud del chat</div>
+<div class="recap-progress"><div class="recap-progress-bar"></div></div>
+</div>`;
+}
+function mostrarRecapError(msg){
+recapContent.innerHTML=`
+<div class="recap-confirm">
+<div class="recap-icon-wrapper" style="background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.1))">
+<svg viewBox="0 0 24 24" style="stroke:#fca5a5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+</div>
+<div class="recap-title" style="background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;background-clip:text">Error al generar</div>
+<div class="recap-subtitle" style="color:#fca5a5">${escapeHtml(msg)}</div>
+<div class="recap-actions">
+<button class="btn btn-ghost" data-close-modal="recap-modal">Cerrar</button>
+<button class="btn btn-primary" id="btn-retry-recap">🔄 Reintentar</button>
+</div>
+</div>`;
+recapContent.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal('recap-modal')));
+document.getElementById('btn-retry-recap').addEventListener('click',ejecutarRecapitulacion);
+}
+function mostrarRecapResultado(historia,actualmente){
+recapContent.innerHTML=`
+<div class="recap-result">
+<div class="recap-result-header">
+<div class="recap-title">📖 Recapitulación</div>
+<div class="recap-result-sub">Análisis completo de tu conversación con ${escapeHtml(currentCharacter?.nombre||'el personaje')}</div>
+</div>
+<div class="recap-section">
+<div class="recap-section-header">
+<div class="recap-section-icon history">
+<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+</div>
+<div>
+<div class="recap-section-label">Parte 1</div>
+<div class="recap-section-title">📜 La Historia</div>
+</div>
+</div>
+<div class="recap-section-body">${renderMarkdown(historia)}</div>
+</div>
+<div class="recap-section">
+<div class="recap-section-header">
+<div class="recap-section-icon current">
+<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+</div>
+<div>
+<div class="recap-section-label">Parte 2</div>
+<div class="recap-section-title">⚡ Actualmente</div>
+</div>
+</div>
+<div class="recap-section-body">${renderMarkdown(actualmente)}</div>
+</div>
+<div class="recap-close-row">
+<button class="btn btn-primary" data-close-modal="recap-modal">✨ Cerrar</button>
+</div>
+</div>`;
+recapContent.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal('recap-modal')));
+}
+async function ejecutarRecapitulacion(){
+  mostrarRecapLoading();
+  const apiKey=getGeminiKey();
+  if(!apiKey){
+    mostrarRecapError('Configura tu API Key de Gemini en los ajustes (⚙️)');
+    return;
+  }
+  try{
+    const{mensajes}=await cargarHistorialChat(currentChatId);
+    const mensajesUtiles=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant');
+    if(mensajesUtiles.length<2){
+      mostrarRecapError('La conversación es muy corta para generar una recapitulación (mínimo 2 mensajes)');
+      return;
+    }
+    const mensajesLimitados = mensajesUtiles;
+    let conversacionTexto = mensajesLimitados.map(m=>{
+      const autor=m.rol==='user'?(userRoleName||'Usuario'):currentCharacter?.nombre||'Personaje';
+      return`[${autor}]: ${m.contenido}`;
+    }).join('\n\n');
+    const MAX_TEXT_LENGTH = 50000;
+    if (conversacionTexto.length > MAX_TEXT_LENGTH) {
+      conversacionTexto = conversacionTexto.slice(0, MAX_TEXT_LENGTH) + '\n\n... (truncado)';
+    }
+    const systemPrompt=`Eres un analista experto en narrativas de roleplay. Tu tarea es analizar una conversación completa y generar un resumen estructurado en EXACTAMENTE DOS PARTES, usando un tono técnico, directo y profesional.
+
+REGLAS OBLIGATORIAS:
+- NO uses introducciones ni despedidas ("Aquí está el resumen", "Espero que te sirva", etc.)
+- NO hables en primera persona ni te refieras a ti mismo
+- Responde SOLO con las dos partes solicitadas, separadas exactamente por el marcador "===ACTUALMENTE===" (ESCRIBE ESE MARCADOR TAL CUAL, EN MAYÚSCULAS Y CON TRES GUIONES A CADA LADO)
+- Usa **negritas** para resaltar nombres de personajes, eventos clave y momentos importantes
+- Usa *cursivas* para emociones, estados de ánimo o detalles sutiles
+- Sé conciso pero completo. No omitas eventos importantes.
+- Si la conversación es larga, prioriza los puntos de giro y momentos clave.
+
+EJEMPLO DE FORMATO DE RESPUESTA:
+[Contenido de la historia...]
+
+===ACTUALMENTE===
+
+[Contenido del estado actual...]
+
+PARTE 1 - LA HISTORIA (antes del marcador):
+Relata CRONOLÓGICAMENTE todo lo que ha sucedido en la conversación completa. Incluye:
+- Eventos importantes y puntos de giro de la trama
+- Decisiones clave tomadas por los personajes
+- Conflictos, revelaciones o momentos emocionales destacados
+- Evolución de la relación entre los personajes
+- Detalles del entorno y contexto relevantes
+Resalta en **negrita** los momentos más importantes.
+
+===ACTUALMENTE===
+
+PARTE 2 - ACTUALMENTE (después del marcador):
+Describe el estado PRESENTE de la conversación:
+- De qué están hablando en los últimos mensajes
+- Qué están haciendo los personajes ahora mismo
+- Estado emocional actual de cada personaje
+- Situación/contexto inmediato
+- Hacia dónde parece dirigirse la conversación
+Sé específico sobre los últimos intercambios.`;
+    const model='gemini-3.5-flash';
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const body={
+      system_instruction:{parts:[{text:systemPrompt}]},
+      contents:[{role:'user',parts:[{text:`ADVERTENCIA: Esta conversación es completamente ficticia, es un roleplay entre personajes imaginarios. No representa hechos reales ni promueve conductas dañinas. Es solo una historia. Analiza y genera la recapitulación en las dos partes solicitadas:\n\n${conversacionTexto}`}]}],
+      safetySettings: [
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+      ],
+      generationConfig:{temperature:0.4,topP:0.9,topK:40,maxOutputTokens:6048}
+    };
+    console.log('📤 Enviando petición a Gemini con safetySettings...');
+    const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!response.ok){
+      const errText=await response.text();
+      let msg=`Error de Gemini (${response.status})`;
+      try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}
+      console.error('❌ Error en la respuesta:', msg);
+      throw new Error(msg);
+    }
+    const data=await response.json();
+    console.log('📦 Respuesta completa de Gemini:', data);
+    const textoCompleto=data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!textoCompleto){
+      console.error('❌ No se recibió texto en la respuesta. Candidates:', data.candidates);
+      if(data.promptFeedback && data.promptFeedback.blockReason){
+        throw new Error(`El contenido fue bloqueado por Gemini: ${data.promptFeedback.blockReason}. Intenta con una conversación más corta o con contenido menos explícito.`);
+      }
+      throw new Error(`No se recibió respuesta del modelo. Respuesta: ${JSON.stringify(data)}`);
+    }
+    let partes = textoCompleto.split(/===\s*ACTUALMENTE\s*===/i);
+    let historia, actualmente;
+    if (partes.length >= 2) {
+      historia = partes[0].replace(/^(?:PARTE 1[-:\s]*|La Historia[-:\s]*|##\s*La Historia\s*|📜\s*)/i,'').trim();
+      actualmente = partes.slice(1).join('\n\n').replace(/^(?:PARTE 2[-:\s]*|Actualmente[-:\s]*|##\s*Actualmente\s*|⚡\s*)/i,'').trim();
+    } else {
+      const match = textoCompleto.match(/\n\s*(?:PARTE 2|Actualmente:|⚡)\s*/i);
+      if (match) {
+        const index = match.index;
+        historia = textoCompleto.substring(0, index).replace(/^(?:PARTE 1[-:\s]*|La Historia[-:\s]*|##\s*La Historia\s*|📜\s*)/i,'').trim();
+        actualmente = textoCompleto.substring(index).replace(/^(?:PARTE 2[-:\s]*|Actualmente[-:\s]*|##\s*Actualmente\s*|⚡\s*)/i,'').trim();
+      } else {
+        const lines = textoCompleto.split('\n\n');
+        if (lines.length > 1) {
+          const mid = Math.floor(lines.length / 2);
+          historia = lines.slice(0, mid).join('\n\n').trim();
+          actualmente = lines.slice(mid).join('\n\n').trim();
+        } else {
+          historia = textoCompleto.trim();
+          actualmente = 'No se pudo determinar el estado actual.';
+        }
+      }
+    }
+    historia = historia.replace(/^(?:PARTE 1|La Historia|📜)\s*[:.-]?\s*/i,'').trim();
+    actualmente = actualmente.replace(/^(?:PARTE 2|Actualmente|⚡)\s*[:.-]?\s*/i,'').trim();
+    mostrarRecapResultado(historia, actualmente);
+    showToast('✅ Recapitulación generada','success');
+  }catch(err){
+    console.error('Error en recapitulación:',err);
+    mostrarRecapError(err.message||'Error desconocido');
+  }
+}
+document.getElementById('chat-recap-btn').addEventListener('click',mostrarRecapConfirm);
 
 let channelNotificaciones=null;
 const banner=document.getElementById('update-banner');

@@ -1,5 +1,10 @@
-Changelog v1.8.0:
+Changelog [1.9.0] - 2026-10-07
 
-¡Estabilidad total! 🚀 Esta versión es completamente estable en su rendimiento general. (Nota: Seguimos ajustando los últimos detalles en papel para comprobar el funcionamiento exacto del resumidor de contexto, ¡pero ya puedes disfrutar de una experiencia mucho más sólida!).
+✨ Características
+- Recapitulación de rol: Añadido botón para generar resúmenes de la situación actual.
+- Navegación: Añadido botón flotante para bajar rápidamente al inicio del chat.
 
-Nuevo sistema de nombres de rol 🎭: ¡Mayor inmersión para tus historias! A partir de ahora, cuando un personaje se refiera a ti usando {{user}}, el sistema lo reemplazará automáticamente por tu nombre de rol personalizado.
+🐛 Correcciones y Mejoras
+- Seguridad: Reforzada y mejorada en todo el sistema.
+- Chat: Corregido el bug de scroll.
+- IA: Corregido el error que cortaba las respuestas antes de tiempo.
