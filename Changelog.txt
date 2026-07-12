@@ -1,10 +1,34 @@
-Changelog [1.9.0] - 2026-10-07
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SAIR2 — Changelog
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✨ Características
-- Recapitulación de rol: Añadido botón para generar resúmenes de la situación actual.
-- Navegación: Añadido botón flotante para bajar rápidamente al inicio del chat.
+[2.0.0] — 2026-12-07
+
+✨ Novedades
+- SAIR ahora se puede instalar como app en tu celular o PC
+  (usalo sin navegador, como una app normal)
+- Botón de instalación en Ajustes ⚙️
+- Cada personaje tiene ahora su propio color de aura
+  que cambia todo el tema del chat cuando lo abres
+- Cursor parpadeante mientras la IA escribe, más inmersivo
+- Soporte offline básico: la app carga aunque no tengas internet
 
 🐛 Correcciones y Mejoras
-- Seguridad: Reforzada y mejorada en todo el sistema.
-- Chat: Corregido el bug de scroll.
-- IA: Corregido el error que cortaba las respuestas antes de tiempo.
+- Rendimiento mejorado: recursos se cargan más rápido
+- Correcciones menores de interfaz y estabilidad
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[1.9.0] — 2026-10-07
+
+✨ Características
+- Recapitulación de rol: botón para generar resúmenes del chat
+- Navegación: botón flotante para bajar rápido al final del chat
+
+🐛 Correcciones y Mejoras
+- Seguridad: reforzada en todo el sistema
+- Chat: corregido el bug de scroll
+- IA: corregido el error que cortaba las respuestas antes de tiempo
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
