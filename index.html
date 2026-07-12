@@ -671,42 +671,109 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
   animation: none !important;
 }
 @media (max-width: 768px) {
+  /* === ELIMINAR TODOS LOS EFECTOS CAROS DE GPU === */
   .message-bubble,
   .message-bubble.assistant,
   .message-bubble.user,
   .chat-sidebar,
-  .settings-btn,
   .modal,
   .chat-input,
   .btn-immersive,
   .btn-hamburger,
-  .toast {
+  .btn-message,
+  .chat-recap-btn,
+  .chat-send-btn,
+  .chat-new-btn,
+  .toast,
+  .load-more-btn {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
+
+  /* Simplificar sombras de burbujas para evitar repaints */
+  .message-bubble.user {
+    box-shadow: 0 4px 12px rgba(255,77,143,.25) !important;
+    /* Acelerar con GPU compositing */
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  .message-bubble.assistant {
+    box-shadow: 0 2px 8px rgba(0,0,0,.12) !important;
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  /* Colores planos en burbujas (sin gradiente caro) */
   body[data-theme="dark"] .message-bubble.assistant {
-    background: #111118 !important;
+    background: #141420 !important;
   }
   body[data-theme="light"] .message-bubble.assistant {
-    background: #ebebeb !important;
+    background: #ececf2 !important;
   }
+
+  /* Fondo del chat sólido (sin radial-gradient) */
+  .chat-messages {
+    background: var(--bg-0) !important;
+  }
+
+  /* Desactivar animaciones de entrada de burbujas en móvil */
+  .message-bubble,
+  .message-bubble.user,
+  .message-bubble.assistant {
+    animation: none !important;
+  }
+
+  /* Hover de burbujas desactivado (no existe en touch) */
+  .message-bubble:hover {
+    transform: translateZ(0) !important;
+    box-shadow: inherit !important;
+  }
+
+  /* Scroll suave nativo */
+  .chat-messages {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Sidebar colores sólidos */
   body[data-theme="dark"] .chat-sidebar {
     background: #0a0a0f !important;
   }
   body[data-theme="light"] .chat-sidebar {
     background: #ffffff !important;
   }
+
+  /* Input sólido */
   body[data-theme="dark"] .chat-input {
     background: #0d0d14 !important;
   }
   body[data-theme="light"] .chat-input {
     background: #f0f0f5 !important;
   }
+
+  /* Modal sólido */
   body[data-theme="dark"] .modal {
     background: #0c0c12 !important;
   }
   body[data-theme="light"] .modal {
     background: #ffffff !important;
+  }
+
+  /* Gradiente animado del botón primario: pausar en móvil */
+  .btn-primary, .chat-new-btn {
+    animation: none !important;
+    background-position: 0% 50% !important;
+  }
+
+  /* Input area sin gradiente costoso */
+  .chat-input-area {
+    background: var(--bg-1) !important;
+  }
+  body[data-theme="dark"] .chat-input-area {
+    background: #0a0a0f !important;
+  }
+  body[data-theme="light"] .chat-input-area {
+    background: #f5f5fa !important;
   }
 }
 </style>
@@ -1029,7 +1096,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <script>
 const CONFIG={SUPABASE_URL:'https://tcnzimhqjyivlrvqzwpb.supabase.co',SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',LS:{THEME:'sair1_theme',GEMINI_KEY:'sair1_gemini_key',GEMINI_MODEL:'sair1_gemini_model'}};
 let sbClient=null,currentUser=null,userRole=null,userUsername=null,userRoleName=null,currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null;
@@ -1493,11 +1560,11 @@ const datos = {
 };
 const id = document.getElementById('char-id').value;if(id){await actualizarPersonaje(id,datos);showToast('✅ Personaje actualizado')}else{await crearPersonaje(datos);showToast('✅ Personaje creado')}closeModal('character-modal');CACHE.personajes=null;CACHE.cacheTime.personajes=0;CACHE.personajesComunidad=null;CACHE.cacheTime.personajesComunidad=0;renderCharacters()}catch(err){showToast(`❌ ${err.message}`,'error')}finally{btn.disabled=!1;btn.textContent=originalText}});
 document.querySelectorAll('.dashboard-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.dashboard-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');currentView=tab.dataset.view;const title=document.getElementById('dashboard-title'),subtitle=document.getElementById('dashboard-subtitle'),btnNuevo=document.getElementById('btn-nuevo-personaje');if(currentView==='my-characters'){title.textContent='Tus personajes';subtitle.textContent='Crea, edita y chatea con tus personajes de IA';btnNuevo.style.display='inline-flex';renderCharacters()}else if(currentView==='community'){title.textContent='Comunidad';subtitle.textContent='Descubre personajes creados por otros usuarios';btnNuevo.style.display='none';renderCharacters()}else if(currentView==='announcements'){title.textContent='Anuncios';subtitle.textContent=isOwner()?'Publica anuncios para toda la comunidad':'Anuncios oficiales del Owner';btnNuevo.style.display='none';renderAnuncios()}})});
-async function abrirChatConPersonaje(personajeId){try{currentCharacter=await obtenerPersonaje(personajeId);currentChatId=null;await verificarYMostrarModalRol();const avatarEl=document.getElementById('chat-char-avatar');const safeAvatar=sanitizeImageUrl(currentCharacter.avatar_url);if(safeAvatar)avatarEl.innerHTML=`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`;else avatarEl.textContent=currentCharacter.nombre.charAt(0).toUpperCase();document.getElementById('chat-char-name').textContent=currentCharacter.nombre;document.getElementById('chat-char-sub').textContent='Chats';document.getElementById('chat-view').classList.add('visible');document.getElementById('dashboard').style.display='none';
+async function abrirChatConPersonaje(personajeId){try{currentCharacter=await obtenerPersonaje(personajeId);currentChatId=null;await verificarYMostrarModalRol();const avatarEl=document.getElementById('chat-char-avatar');const safeAvatar=sanitizeImageUrl(currentCharacter.avatar_url);if(safeAvatar)avatarEl.innerHTML=`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`;else avatarEl.textContent=currentCharacter.nombre.charAt(0).toUpperCase();document.getElementById('chat-char-name').textContent=currentCharacter.nombre;document.getElementById('chat-char-sub').textContent='Chats';document.getElementById('chat-view').classList.add('visible');document.getElementById('dashboard').style.display='none';document.body.style.overflow='hidden';
 
 // Aplicar tema dinámico de aura
 const parsed = parsearSystemPrompt(currentCharacter.system_prompt);
-const themeColor = parsed.themeColor || '#ff4d8f';
+const themeColor = currentCharacter.theme_color || parsed.themeColor || '#ff4d8f';
 const glowColor = hexToRgba(themeColor, 0.35);
 const hoverColor = lightenColor(themeColor, 15);
 const chatViewEl = document.getElementById('chat-view');
@@ -1552,6 +1619,7 @@ document.getElementById('chat-back-btn').addEventListener('click',()=>{
   chatViewEl.style.removeProperty('--grad-main-hover');
   document.getElementById('chat-view').classList.remove('visible');
   document.getElementById('dashboard').style.display='block';
+  document.body.style.overflow='';
   currentCharacter=null;
   currentChatId=null;
   renderCharacters()
@@ -1798,14 +1866,25 @@ document.getElementById('chat-list').addEventListener('click',()=>{if(window.inn
 const scrollBtn = document.getElementById('scroll-to-bottom-btn');
 const messagesContainer = document.getElementById('chat-messages');
 
+let scrollTimeout = null;
 function toggleScrollButton() {
   if (!messagesContainer || !scrollBtn) return;
-  const scrollTop = messagesContainer.scrollTop;
-  const scrollHeight = messagesContainer.scrollHeight;
-  const clientHeight = messagesContainer.clientHeight;
-  const awayFromBottom = scrollHeight - clientHeight - scrollTop > 100;
-  scrollBtn.style.display = awayFromBottom ? 'grid' : 'none';
-  scrollBtn.classList.toggle('has-new', awayFromBottom);
+  if (scrollTimeout) return;
+  scrollTimeout = requestAnimationFrame(() => {
+    const scrollTop = messagesContainer.scrollTop;
+    const scrollHeight = messagesContainer.scrollHeight;
+    const clientHeight = messagesContainer.clientHeight;
+    const awayFromBottom = scrollHeight - clientHeight - scrollTop > 100;
+    const targetDisplay = awayFromBottom ? 'grid' : 'none';
+    if (scrollBtn.style.display !== targetDisplay) {
+      scrollBtn.style.display = targetDisplay;
+    }
+    const hasNew = scrollBtn.classList.contains('has-new');
+    if (awayFromBottom !== hasNew) {
+      scrollBtn.classList.toggle('has-new', awayFromBottom);
+    }
+    scrollTimeout = null;
+  });
 }
 
 if (messagesContainer) {
