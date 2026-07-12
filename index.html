@@ -216,7 +216,7 @@ body[data-theme="light"] .chat-main.has-background .chat-messages{background:rgb
 #chat-view.immersive .chat-input{background:var(--bg-card);backdrop-filter:blur(20px);border:1px solid var(--border)}
 .chat-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-3);text-align:center;padding:2rem}
 .chat-empty-icon{font-size:3rem;margin-bottom:1rem;opacity:.4}
-.message-bubble{max-width:85%;padding:1rem 1.4rem;border-radius:var(--radius-lg);line-height:1.7;font-size:.95rem;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;word-break:break-word;animation:fadeInUp .5s cubic-bezier(.16,1,.3,1);position:relative;transition:all .4s cubic-bezier(0.4,0,0.2,1);backdrop-filter:blur(10px);min-height:auto;height:auto;overflow:visible !important;margin-bottom:0.3rem}
+.message-bubble{max-width:85%;padding:1rem 1.4rem;border-radius:var(--radius-lg);line-height:1.7;font-size:.95rem;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;word-break:break-word;animation:fadeInUp .5s cubic-bezier(.16,1,.3,1);position:relative;transition:transform .3s ease,box-shadow .3s ease,background-color .3s ease,border-color .3s ease,color .3s ease;backdrop-filter:blur(10px);min-height:auto;height:auto;overflow:visible !important;margin-bottom:0.3rem}
 .message-bubble:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.2)}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(15px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes slideInLeft{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
@@ -665,6 +665,49 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 .btn-install-pwa:hover{
   transform:translateY(-2px) !important;
   box-shadow:0 10px 35px rgba(255,77,143,.5) !important;
+}
+.no-transitions, .no-transitions *, .no-transitions *::before, .no-transitions *::after {
+  transition: none !important;
+  animation: none !important;
+}
+@media (max-width: 768px) {
+  .message-bubble,
+  .message-bubble.assistant,
+  .message-bubble.user,
+  .chat-sidebar,
+  .settings-btn,
+  .modal,
+  .chat-input,
+  .btn-immersive,
+  .btn-hamburger,
+  .toast {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  body[data-theme="dark"] .message-bubble.assistant {
+    background: #111118 !important;
+  }
+  body[data-theme="light"] .message-bubble.assistant {
+    background: #ebebeb !important;
+  }
+  body[data-theme="dark"] .chat-sidebar {
+    background: #0a0a0f !important;
+  }
+  body[data-theme="light"] .chat-sidebar {
+    background: #ffffff !important;
+  }
+  body[data-theme="dark"] .chat-input {
+    background: #0d0d14 !important;
+  }
+  body[data-theme="light"] .chat-input {
+    background: #f0f0f5 !important;
+  }
+  body[data-theme="dark"] .modal {
+    background: #0c0c12 !important;
+  }
+  body[data-theme="light"] .modal {
+    background: #ffffff !important;
+  }
 }
 </style>
 </head>
@@ -1278,7 +1321,7 @@ async function cambiarUsername(nuevoUsername){if(!currentUser)throw new Error('N
 function isOwner(){return userRole==='owner'}
 async function obtenerUsername(userId){if(!userId)return'anónimo';if(CACHE.usernames[userId])return CACHE.usernames[userId];try{const{data,error}=await sbClient.from('perfiles').select('username').eq('user_id',userId).single();if(error||!data)return userId.substring(0,8)+'...';CACHE.usernames[userId]=data.username;return data.username}catch(err){return userId.substring(0,8)+'...'}}
 async function obtenerUsernamesBatch(userIds){if(!userIds||userIds.length===0)return{};const map={},idsSinCaché=userIds.filter(id=>!CACHE.usernames[id]);if(idsSinCaché.length===0){userIds.forEach(id=>{map[id]=CACHE.usernames[id]});return map}try{const{data,error}=await sbClient.from('perfiles').select('user_id, username').in('user_id',idsSinCaché);if(data&&!error){data.forEach(p=>{CACHE.usernames[p.user_id]=p.username;map[p.user_id]=p.username})}}catch(err){console.error('Error obteniendo usernames batch:',err)}userIds.forEach(id=>{if(!map[id])map[id]=CACHE.usernames[id]||id.substring(0,8)+'...'});return map}
-function applyTheme(theme){document.body.setAttribute('data-theme',theme);localStorage.setItem(CONFIG.LS.THEME,theme);document.querySelectorAll('.theme-option').forEach(opt=>{opt.classList.toggle('active',opt.dataset.themeValue===theme)})}
+function applyTheme(theme){document.documentElement.classList.add('no-transitions');document.body.setAttribute('data-theme',theme);localStorage.setItem(CONFIG.LS.THEME,theme);document.querySelectorAll('.theme-option').forEach(opt=>{opt.classList.toggle('active',opt.dataset.themeValue===theme)});const x=document.body.offsetHeight;requestAnimationFrame(()=>{document.documentElement.classList.remove('no-transitions')})}
 applyTheme(localStorage.getItem(CONFIG.LS.THEME)||'dark');
 function openModal(id){document.getElementById(id).classList.add('visible')}
 function closeModal(id){if(id==='politicas-modal'){const modal=document.getElementById('politicas-modal');if(modal&&modal._preventClose)return}const el=document.getElementById(id);if(el)el.classList.remove('visible')}
