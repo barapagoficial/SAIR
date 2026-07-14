@@ -2,6 +2,19 @@
  SAIR2 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[2.0.5] — 2026-07-13
+
+🐛 Correcciones
+- Chat: el campo de escritura ahora se vacía de forma instantánea
+  al enviar un mensaje (antes tardaba 1-2 segundos)
+- Móvil: corregido el bug que impedía tocar el campo de escritura
+  y el botón de recapitulación en zonas centrales de la pantalla
+- Móvil: corregido el sidebar que bloqueaba silenciosamente los
+  toques en la pantalla cuando estaba cerrado
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [2.0.0] — 2026-12-07
 
 ✨ Novedades
