@@ -2,7 +2,24 @@
  SAIR2 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[2.0.5] — 2026-07-13
+[2.1.0] — 2026-24-07
+
+✨ Novedades
+- Selector de Intensidad de Personaje (Suave, Mediana, Máxima) para
+  controlar los filtros de seguridad de IA en cada bot
+- Los filtros ajustados aplican automáticamente al chat, al resumidor
+  de contexto y a la recapitulación del usuario
+
+🐛 Correcciones y Mejoras
+- Fondos de Chat: corregido el error de carga y sanitización de imágenes
+- Regenerar Respuestas: corregido el desorden de mensajes al regenerar
+  manteniendo sincronizada la base de datos y la interfaz
+- Interfaz: diseño personalizado y legible para el selector de intensidad
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2.0.5] — 2026-13-07
 
 🐛 Correcciones
 - Chat: el campo de escritura ahora se vacía de forma instantánea
