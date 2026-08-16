@@ -197,7 +197,11 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;background:var(--pi
 .chat-char-avatar img{width:100%;height:100%;object-fit:cover}
 .chat-char-info{flex:1;min-width:0}
 .chat-char-name{font-family:var(--font-display);font-weight:600;color:var(--text-1);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-char-sub{font-size:.75rem;color:var(--text-3)}
+.chat-char-sub{font-size:.75rem;color:var(--text-3);display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
+.chat-status-badge{display:inline-flex;align-items:center;gap:.25rem;padding:.16rem .42rem;border-radius:999px;background:var(--bg-input);border:1px solid var(--border);font-size:.65rem;line-height:1.2;color:var(--text-2);white-space:nowrap}
+.chat-status-badge.intensity-suave{color:#4ade80;border-color:rgba(74,222,128,.3)}
+.chat-status-badge.intensity-mediana{color:#facc15;border-color:rgba(250,204,21,.3)}
+.chat-status-badge.intensity-maxima{color:#fb7185;border-color:rgba(251,113,133,.3)}
 .chat-back-btn{width:36px;height:36px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text-2);cursor:pointer;display:grid;place-items:center;transition:all .2s ease;flex-shrink:0}
 .chat-back-btn:hover{background:var(--bg-card-hover);border-color:var(--border-strong)}
 .chat-new-btn{margin:.8rem 1rem;padding:.85rem;background:var(--grad-main);color:#fff;border:none;border-radius:var(--radius-md);font-family:var(--font-sans);font-weight:600;font-size:.88rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 6px 20px var(--pink-glow),0 0 0 2px rgba(255,77,143,.1);transition:all .4s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden}
@@ -402,8 +406,13 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .announcement-form .form-textarea{min-height:80px}
 .announcement-form-actions{display:flex;gap:.75rem;margin-top:1rem;justify-content:flex-end}
 .no-announcements{max-width:900px;margin:2rem auto;text-align:center;padding:3rem 1.5rem;background:var(--bg-card);border:1px dashed var(--border);border-radius:20px}
-.user-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .8rem;background:var(--bg-card);border:1px solid var(--border);border-radius:100px;font-size:.8rem;color:var(--text-1);font-weight:500}
-.user-badge .user-avatar-mini{width:24px;height:24px;border-radius:50%;background:var(--grad-main);display:grid;place-items:center;font-size:.7rem;font-weight:700;color:#fff}
+.user-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .8rem;background:var(--bg-card);border:1px solid var(--border);border-radius:100px;font-size:.8rem;color:var(--text-1);font-weight:500;position:relative;cursor:pointer;transition:all .25s ease}
+.user-badge:hover,.user-badge:focus-visible{border-color:var(--pink);box-shadow:0 0 20px var(--pink-glow);outline:none}
+.user-badge-edit{position:absolute;right:-.35rem;top:-.35rem;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;background:var(--grad-main);color:#fff;border:2px solid var(--bg-0);opacity:0;transform:scale(.7);transition:all .2s ease;pointer-events:none}
+.user-badge:hover .user-badge-edit,.user-badge:focus-visible .user-badge-edit{opacity:1;transform:scale(1)}
+.user-badge-edit svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.user-badge .user-avatar-mini{width:24px;height:24px;border-radius:50%;background:var(--grad-main);display:grid;place-items:center;font-size:.7rem;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.user-badge .user-avatar-mini img,.profile-avatar-preview img{width:100%;height:100%;object-fit:cover}
 .user-badge .role-tag{font-size:.6rem;padding:.1rem .4rem;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
 .user-badge .role-tag.owner{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a2e}
 .user-badge .role-tag.admin{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff}
@@ -418,6 +427,12 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .username-current-info{flex:1;min-width:0}
 .username-current-name{font-weight:600;color:var(--text-1);font-size:.95rem}
 .username-current-email{font-size:.78rem;color:var(--text-4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-avatar-editor{text-align:center;margin:.25rem 0 1.5rem}
+.profile-avatar-preview{width:112px;height:112px;border-radius:50%;margin:0 auto .8rem;background:var(--grad-main);display:grid;place-items:center;overflow:hidden;color:#fff;font-family:var(--font-display);font-size:2.4rem;font-weight:700;border:3px solid rgba(255,255,255,.12);box-shadow:0 10px 30px var(--pink-glow)}
+.profile-avatar-preview img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.profile-avatar-editor input[type=file]{display:none}
+.profile-avatar-actions{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap}
+.profile-avatar-note{font-size:.75rem;color:var(--text-4);margin-top:.6rem}
 .announcement-author{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--text-3);margin-left:.5rem}
 .announcement-author-avatar{width:22px;height:22px;border-radius:50%;background:var(--grad-main);display:grid;place-items:center;font-size:.6rem;font-weight:700;color:#fff}
 ::selection{background:var(--pink);color:#fff}
@@ -791,7 +806,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <div id="splash">
 <div class="splash-developer">Desarrollado por Moon-BaraPag</div>
 <h1 class="splash-title">SAIR2</h1>
-<div class="splash-sub">v2.1.0</div>
+<div class="splash-sub">v2.2.2</div>
 </div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
@@ -831,21 +846,29 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <input type="file" id="chat-bg-file" accept="image/*" style="display:none;">
 <p style="font-size:.75rem;color:var(--text-4);margin-top:.5rem;">La imagen se guarda localmente en tu navegador</p>
 </div>
-<div class="settings-section">
-<label class="section-label">API Key de Gemini</label>
+<div class="settings-section" style="padding:.85rem 1rem;border:1px solid var(--border);border-radius:12px;background:var(--bg-input);">
+<div style="font-size:.8rem;color:var(--text-2);">🎭 La API Key y el modelo se configuran dentro de cada chat, en <strong>Ajustes de Rol</strong>.</div>
+</div>
+<!-- La configuración del motor vive dentro de Ajustes de Rol -->
+<!--
 <div class="api-key-wrapper">
 <input type="password" id="gemini-api-key" class="api-key-input" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
 <button class="api-key-toggle" id="toggle-api-key" title="Mostrar/Ocultar"><svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>
 <div class="form-group" style="margin-top:.75rem;">
 <label class="form-label" for="gemini-model">Modelo de Gemini</label>
-<input type="text" id="gemini-model" class="form-input" value="gemini-3.5-flash" readonly style="opacity:0.7;cursor:not-allowed;">
-<p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">Modelo fijo: gemini-3.5-flash (no modificable)</p>
+<select id="gemini-model" class="form-input">
+  <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+  <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option>
+  <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
+  <option value="gemini-3.7-flash">Gemini 3.7 Flash</option>
+</select>
+<p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">El modelo elegido se usará en el chat, resúmenes y recapitulaciones.</p>
 </div>
 <div id="api-key-status" class="api-key-status empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="api-key-status-text">No hay API Key configurada</span></div>
 <div class="api-key-actions"><button class="btn-small primary" id="save-api-key">Guardar</button><button class="btn-small danger" id="clear-api-key">Eliminar</button></div>
 <div class="api-key-info">🔒 Tu API Key se guarda <strong>localmente</strong> en tu navegador. Obtén tu key en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.</div>
-</div>
+</div>-->
 <div class="settings-section" id="pwa-install-section">
   <label class="section-label">Aplicación</label>
   <button class="btn btn-primary btn-small" id="btn-install-pwa" style="width:100%; text-align:center;">
@@ -859,23 +882,23 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
     📜 Ver Política de Privacidad
   </button>
 </div>
-<div class="settings-section">
-<label class="section-label">Perfil de Usuario</label>
-<div class="username-current" id="username-current">
-<div class="username-current-avatar" id="username-avatar">?</div>
-<div class="username-current-info"><div class="username-current-name" id="username-display">Cargando...</div><div class="username-current-email" id="username-email"></div></div>
 </div>
-<form id="form-username">
-<div class="form-group" style="margin-bottom:.5rem">
-<label class="form-label" for="new-username">Nombre de usuario</label>
-<div class="username-form">
-<input type="text" id="new-username" class="form-input" placeholder="ej: shizu_fan_29" maxlength="20" pattern="^[a-zA-Z0-9_]{3,20}$" autocomplete="off" spellcheck="false">
-<button type="submit" class="btn btn-primary" style="padding:.85rem 1.2rem">Guardar</button>
 </div>
-<div class="username-hint" id="username-hint">3-20 caracteres. Solo letras, números y guion bajo (_).</div>
+
+<!-- Modal de perfil -->
+<div class="modal-overlay" id="profile-modal">
+<div class="modal" style="max-width:480px;">
+<div class="modal-header"><h2 class="modal-title">✏️ Editar perfil</h2><button class="modal-close" data-close-modal="profile-modal">✕</button></div>
+<form id="form-profile">
+<div class="profile-avatar-editor">
+<div class="profile-avatar-preview" id="profile-avatar-preview">?</div>
+<div class="profile-avatar-actions"><button type="button" class="btn btn-ghost btn-small" id="profile-avatar-change">📷 Cambiar foto</button><button type="button" class="btn btn-danger btn-small" id="profile-avatar-remove">Quitar</button></div>
+<input type="file" id="profile-avatar-file" accept="image/*">
+<div class="profile-avatar-note">JPG, PNG o WEBP. Máximo 5 MB.</div>
 </div>
+<div class="form-group"><label class="form-label" for="profile-username">Nombre de usuario</label><input type="text" id="profile-username" class="form-input" maxlength="20" pattern="^[a-zA-Z0-9_]{3,20}$" autocomplete="off" spellcheck="false" required><div class="username-hint" id="profile-username-hint">3-20 caracteres. Solo letras, números y guion bajo (_).</div></div>
+<div style="display:flex;justify-content:flex-end;gap:.6rem"><button type="button" class="btn btn-ghost" data-close-modal="profile-modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar cambios</button></div>
 </form>
-</div>
 </div>
 </div>
 
@@ -900,16 +923,26 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 </div>
 </div>
 
-<!-- Modal de nombre de rol -->
+<!-- Ajustes de Rol: identidad, API y modelo del roleplay -->
 <div class="modal-overlay" id="role-modal">
 <div class="modal" style="max-width:480px">
-<div class="modal-header"><h2 class="modal-title">🎭 Tu Nombre de Rol</h2><button class="modal-close" data-close-modal="role-modal">✕</button></div>
+<div class="modal-header"><h2 class="modal-title">🎭 Ajustes de Rol</h2><button class="modal-close" data-close-modal="role-modal">✕</button></div>
 <p style="color:var(--text-3);font-size:.9rem;margin-bottom:1.5rem;line-height:1.6">Este nombre se usará cuando el personaje se refiera a ti como <code style="background:var(--bg-input);padding:.2rem .5rem;border-radius:4px;font-family:var(--font-mono);font-size:.85rem">{{user}}</code> en sus respuestas.</p>
 <form id="form-role">
 <div class="form-group">
 <label class="form-label" for="role-name">Nombre de rol</label>
 <input type="text" id="role-name" class="form-input" placeholder="Ej: Shizu_fan_29" maxlength="30" pattern="^[a-zA-Z0-9_]{3,30}$" autocomplete="off" spellcheck="false" required>
 <div class="username-hint" id="role-hint">3-30 caracteres. Solo letras, números y guion bajo (_).</div>
+</div>
+<div class="settings-section" style="margin-top:1.4rem;padding:1rem;border:1px solid rgba(168,85,247,.28);border-radius:16px;background:linear-gradient(135deg,rgba(255,77,143,.08),rgba(77,121,255,.08));">
+<div style="font-family:var(--font-display);font-weight:700;color:var(--text-1);margin-bottom:.35rem;">🤖 Motor del roleplay</div>
+<p style="font-size:.75rem;color:var(--text-3);line-height:1.5;margin-bottom:.85rem;">Estos ajustes se usan únicamente para las respuestas del personaje en este chat.</p>
+<label class="form-label" for="gemini-api-key">API Key de Gemini</label>
+<div class="api-key-wrapper"><input type="password" id="gemini-api-key" class="api-key-input" placeholder="AIzaSy..." autocomplete="off" spellcheck="false"><button type="button" class="api-key-toggle" id="toggle-api-key" title="Mostrar/Ocultar"><svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+<div class="form-group" style="margin-top:.75rem;"><label class="form-label" for="gemini-model">Modelo para roleplay</label><select id="gemini-model" class="form-input"><option value="gemini-3.5-flash">Gemini 3.5 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.7-flash">Gemini 3.7 Flash</option></select><p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">La recapitulación y los resúmenes usan siempre Gemini 3.7 Flash.</p></div>
+<div id="api-key-status" class="api-key-status empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="api-key-status-text">No hay API Key configurada</span></div>
+<div class="api-key-actions"><button type="button" class="btn-small primary" id="save-api-key">Guardar motor</button><button type="button" class="btn-small danger" id="clear-api-key">Eliminar key</button></div>
+<div class="api-key-info">🔒 La API Key se guarda localmente en tu navegador. Obténla en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.</div>
 </div>
 <div style="display:flex;gap:.75rem;margin-top:1.5rem">
 <button type="button" class="btn btn-ghost" data-close-modal="role-modal" style="flex:1">Cancelar</button>
@@ -1035,7 +1068,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <div class="dashboard-header">
 <div class="dashboard-welcome"><h1 id="dashboard-title">Tus personajes</h1><p id="dashboard-subtitle">Crea, edita y chatea con tus personajes de IA</p></div>
 <div class="dashboard-actions">
-<div class="user-badge" id="user-badge" title="Tu perfil"><div class="user-avatar-mini" id="user-badge-avatar">?</div><span id="user-badge-name">Cargando...</span><span class="role-tag user" id="user-badge-role">user</span></div>
+<div class="user-badge" id="user-badge" title="Editar tu perfil" role="button" tabindex="0" aria-label="Editar tu perfil"><div class="user-avatar-mini" id="user-badge-avatar">?</div><span id="user-badge-name">Cargando...</span><span class="role-tag user" id="user-badge-role">user</span><span class="user-badge-edit" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></span></div>
 <button class="btn btn-primary" id="btn-nuevo-personaje"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Crear personaje</button>
 <button class="btn btn-ghost" id="logout-btn">Salir</button>
 </div>
@@ -1054,7 +1087,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <div class="chat-sidebar-header">
 <button class="chat-back-btn" id="chat-back-btn" title="Volver"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
 <div class="chat-char-avatar" id="chat-char-avatar"></div>
-<div class="chat-char-info"><div class="chat-char-name" id="chat-char-name">Personaje</div><div class="chat-char-sub" id="chat-char-sub">Chats</div></div>
+<div class="chat-char-info"><div class="chat-char-name" id="chat-char-name">Personaje</div><div class="chat-char-sub" id="chat-char-sub"><span id="chat-count-label">Chats</span><span id="chat-intensity-indicator" class="chat-status-badge">Intensidad: —</span><span id="chat-model-indicator" class="chat-status-badge">Modelo: —</span></div></div>
 </div>
 <button class="chat-new-btn" id="chat-new-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo chat</button>
 <button class="chat-new-btn" id="chat-export-btn" style="background:var(--bg-card);color:var(--text-2);border:1px solid var(--border);box-shadow:none;margin-top:.5rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar chat</button>
@@ -1127,7 +1160,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <script src="supabase.js"></script>
 <script>
 const CONFIG={SUPABASE_URL:'https://tcnzimhqjyivlrvqzwpb.supabase.co',SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',LS:{THEME:'sair1_theme',GEMINI_KEY:'sair1_gemini_key',GEMINI_MODEL:'sair1_gemini_model'}};
-let sbClient=null,currentUser=null,userRole=null,userUsername=null,userRoleName=null,currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null;
+let sbClient=null,currentUser=null,userRole=null,userUsername=null,userAvatarUrl=null,userRoleName=null,currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null;
 
 // Crear el cliente Supabase inmediatamente al cargar el script
 // para que los tokens de sesión en localStorage estén disponibles desde el inicio
@@ -1183,16 +1216,20 @@ function sanitizeImageUrl(url){if(!url||typeof url!=='string')return '';const tr
 function renderMarkdown(texto){if(!texto)return '';let textoProcesado=reemplazarUserEnTexto(texto);const escaped=textoProcesado.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return escaped.replace(/\*([^*\n]+)\*/g,(m,p1)=>`<em class="accion">*${p1}*</em>`).replace(/\n/g,'<br>')}function formatDate(dateStr){const d=new Date(dateStr),now=new Date(),diff=now-d;if(diff<6e4)return'ahora';if(diff<36e5)return`hace ${Math.floor(diff/6e4)}m`;if(diff<864e5)return`hace ${Math.floor(diff/36e5)}h`;if(diff<6048e5)return`hace ${Math.floor(diff/864e5)}d`;return d.toLocaleDateString()}
 const _obf_k=(str)=>{if(!str)return '';return btoa(str.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join(''))},_deobf_k=(str)=>{if(!str)return '';try{const decoded=atob(str);return decoded.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join('')}catch{return''}};
 function getGeminiKey(){const stored=localStorage.getItem(CONFIG.LS.GEMINI_KEY);return stored?_deobf_k(stored):''}
-function getGeminiModel(){return 'gemini-3.5-flash'}
-function setGeminiModel(model){localStorage.setItem(CONFIG.LS.GEMINI_MODEL,model)}
+const GEMINI_MODELS=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.6-flash','gemini-3.7-flash'];
+function getGeminiModel(){const saved=localStorage.getItem(CONFIG.LS.GEMINI_MODEL);return GEMINI_MODELS.includes(saved)?saved:'gemini-3.5-flash'}
+function setGeminiModel(model){const safe=GEMINI_MODELS.includes(model)?model:'gemini-3.5-flash';localStorage.setItem(CONFIG.LS.GEMINI_MODEL,safe);return safe}
+function normalizarIntensidad(value){const clean=String(value||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');return ['suave','mediana','maxima'].includes(clean)?clean:'suave'}
+function obtenerIntensidadPersonaje(personaje=currentCharacter){if(!personaje)return'suave';const parsed=parsearSystemPrompt(personaje.system_prompt||'');return normalizarIntensidad(personaje.intensidad||parsed.intensidad||'suave')}
+function etiquetaIntensidad(value){return{suave:'🟢 Suave',mediana:'🟡 Mediana',maxima:'🔥 Máxima'}[normalizarIntensidad(value)]}
 function estimarTokens(texto){return Math.ceil((texto||'').length/3.5)}
 function contarTokensHistorial(historial){return historial.reduce((t,m)=>t+estimarTokens(m.contenido||''),0)}
 
 function getSafetySettings(intensidad='suave'){
   let threshold='BLOCK_MEDIUM_AND_ABOVE';
-  const clean=(intensidad||'').toLowerCase().trim();
+  const clean=normalizarIntensidad(intensidad);
   if(clean==='mediana')threshold='BLOCK_ONLY_HIGH';
-  if(clean==='maxima'||clean==='máxima')threshold='BLOCK_NONE';
+  if(clean==='maxima')threshold='BLOCK_NONE';
   return[
     {category:"HARM_CATEGORY_HARASSMENT",threshold:threshold},
     {category:"HARM_CATEGORY_HATE_SPEECH",threshold:threshold},
@@ -1204,9 +1241,9 @@ function getSafetySettings(intensidad='suave'){
 async function resumirHistorialConGemini(texto, intensidad = null){
   const apiKey=getGeminiKey();
   if(!apiKey)throw new Error('No hay API Key configurada');
-  const model='gemini-3.5-flash';
+  const model='gemini-3.7-flash';
   const parsed = parsearSystemPrompt(currentCharacter?.system_prompt);
-  const intensidadFinal = intensidad || currentCharacter?.intensidad || parsed.intensidad || 'maxima';
+  const intensidadFinal = normalizarIntensidad(intensidad || currentCharacter?.intensidad || parsed.intensidad || 'suave');
   const systemPrompt=`Eres un asistente experto en resumir conversaciones de roleplay. Tu tarea es crear un resumen conciso pero completo. Debes incluir:
 - Puntos clave de la trama y eventos importantes
 - Promesas, compromisos o acuerdos hechos por los personajes
@@ -1378,12 +1415,15 @@ function guardarInfoUsuarioLocal(){
 async function cargarPerfilYRol(){
 if(!currentUser){userRole=null;userUsername=null;return}
 try{
-const[rolResult,perfilResult]=await Promise.all([
+const[rolResult,perfilResultInicial]=await Promise.all([
 sbClient.from('roles').select('rol').eq('user_id',currentUser.id).single(),
-sbClient.from('perfiles').select('username').eq('user_id',currentUser.id).single()
+sbClient.from('perfiles').select('username, avatar_url').eq('user_id',currentUser.id).single()
 ]);
+let perfilResult=perfilResultInicial;
+if(perfilResult.error?.code==='42703')perfilResult=await sbClient.from('perfiles').select('username').eq('user_id',currentUser.id).single();
 userRole=rolResult.data?.rol||'user';
 userUsername=perfilResult.data?.username||null;
+userAvatarUrl=sanitizeImageUrl(perfilResult.data?.avatar_url||'');
 console.log('👤 Perfil:',userUsername,'| Rol:',userRole)
 guardarInfoUsuarioLocal();
 }catch(err){
@@ -1434,10 +1474,11 @@ openModal('role-modal');
 showToast('🎭 Configura tu nombre de rol para continuar','success')
 }
 }
-function actualizarUIPerfil(){const displayName=userUsername||currentUser?.email?.split('@')[0]||'Usuario',initial=displayName.charAt(0).toUpperCase();const badgeName=document.getElementById('user-badge-name'),badgeAvatar=document.getElementById('user-badge-avatar'),badgeRole=document.getElementById('user-badge-role');if(badgeName)badgeName.textContent=displayName;if(badgeAvatar)badgeAvatar.textContent=initial;if(badgeRole){badgeRole.textContent=userRole;badgeRole.className=`role-tag ${userRole}`}const usernameDisplay=document.getElementById('username-display'),usernameEmail=document.getElementById('username-email'),usernameAvatar=document.getElementById('username-avatar'),newUsernameInput=document.getElementById('new-username');if(usernameDisplay)usernameDisplay.textContent=displayName;if(usernameEmail&&currentUser)usernameEmail.textContent=currentUser.email;if(usernameAvatar)usernameAvatar.textContent=initial;if(newUsernameInput)newUsernameInput.value=''}
+function actualizarUIPerfil(){const displayName=userUsername||currentUser?.email?.split('@')[0]||'Usuario',initial=displayName.charAt(0).toUpperCase(),safeAvatar=sanitizeImageUrl(userAvatarUrl);const badgeName=document.getElementById('user-badge-name'),badgeAvatar=document.getElementById('user-badge-avatar'),badgeRole=document.getElementById('user-badge-role'),profilePreview=document.getElementById('profile-avatar-preview'),profileUsername=document.getElementById('profile-username');if(badgeName)badgeName.textContent=displayName;if(badgeAvatar)badgeAvatar.innerHTML=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`:initial;if(badgeRole){badgeRole.textContent=userRole;badgeRole.className=`role-tag ${userRole}`}if(profilePreview)profilePreview.innerHTML=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="Foto de perfil">`:initial;if(profileUsername)profileUsername.value=userUsername||''}
 function playErrorSound(){try{document.getElementById('error-sound').play().catch(()=>{})}catch(e){}}
 function shakeElement(el){if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),500)}
 async function cambiarUsername(nuevoUsername){if(!currentUser)throw new Error('No hay sesión');const regex=/^[a-zA-Z0-9_]{3,20}$/;if(!regex.test(nuevoUsername))throw new Error('Username inválido. Usa 3-20 caracteres: letras, números o _');const{error}=await sbClient.from('perfiles').update({username:nuevoUsername}).eq('user_id',currentUser.id);if(error){if(error.code==='23505'||error.message.includes('unique'))throw new Error('Ese nombre de usuario ya está en uso');throw new Error(error.message)}userUsername=nuevoUsername;actualizarUIPerfil()}
+async function guardarAvatarPerfil(avatarUrl){if(!currentUser)throw new Error('No hay sesión');const{error}=await sbClient.from('perfiles').update({avatar_url:avatarUrl||null}).eq('user_id',currentUser.id);if(error)throw new Error(error.message);userAvatarUrl=avatarUrl||null}
 function isOwner(){return userRole==='owner'}
 async function obtenerUsername(userId){if(!userId)return'anónimo';if(CACHE.usernames[userId])return CACHE.usernames[userId];try{const{data,error}=await sbClient.from('perfiles').select('username').eq('user_id',userId).single();if(error||!data)return userId.substring(0,8)+'...';CACHE.usernames[userId]=data.username;return data.username}catch(err){return userId.substring(0,8)+'...'}}
 async function obtenerUsernamesBatch(userIds){if(!userIds||userIds.length===0)return{};const map={},idsSinCaché=userIds.filter(id=>!CACHE.usernames[id]);if(idsSinCaché.length===0){userIds.forEach(id=>{map[id]=CACHE.usernames[id]});return map}try{const{data,error}=await sbClient.from('perfiles').select('user_id, username').in('user_id',idsSinCaché);if(data&&!error){data.forEach(p=>{CACHE.usernames[p.user_id]=p.username;map[p.user_id]=p.username})}}catch(err){console.error('Error obteniendo usernames batch:',err)}userIds.forEach(id=>{if(!map[id])map[id]=CACHE.usernames[id]||id.substring(0,8)+'...'});return map}
@@ -1484,12 +1525,35 @@ document.getElementById('toggle-api-key').addEventListener('click',()=>{const in
 document.getElementById('save-api-key').addEventListener('click',()=>{const key=document.getElementById('gemini-api-key').value.trim();if(!key||key.length<20){showToast('API Key inválida','error');return}localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));setGeminiModel('gemini-3.5-flash');updateApiKeyUI();showToast('API Key guardada')});
 document.getElementById('clear-api-key').addEventListener('click',()=>{if(getGeminiKey()&&confirm('¿Eliminar tu API Key y modelo?')){localStorage.removeItem(CONFIG.LS.GEMINI_KEY);localStorage.removeItem(CONFIG.LS.GEMINI_MODEL);updateApiKeyUI();showToast('API Key y modelo eliminados')}});
 const BG_STORAGE_KEY='sair1_chat_bg';
+function actualizarIndicadoresChat(){const sub=document.getElementById('chat-char-sub');if(!sub)return;const intensidad=obtenerIntensidadPersonaje(currentCharacter),modelo=getGeminiModel(),count=document.getElementById('chat-count-label')?.textContent||'Chats';sub.innerHTML=`<span id="chat-count-label">${escapeHtml(count)}</span><span id="chat-intensity-indicator" class="chat-status-badge intensity-${intensidad}">${etiquetaIntensidad(intensidad)}</span><span id="chat-model-indicator" class="chat-status-badge">🤖 ${escapeHtml(modelo.replace('gemini-','Gemini '))}</span>`}
+const chatSubObserver=new MutationObserver(()=>{if(!document.getElementById('chat-intensity-indicator'))actualizarIndicadoresChat()});
+chatSubObserver.observe(document.getElementById('chat-char-sub'),{childList:true});
+const modelSelector=document.getElementById('gemini-model');
+if(modelSelector){modelSelector.value=getGeminiModel();modelSelector.addEventListener('change',()=>{setGeminiModel(modelSelector.value);actualizarIndicadoresChat();showToast(`✅ Modelo seleccionado: ${modelSelector.options[modelSelector.selectedIndex].text}`)})}
+document.getElementById('save-api-key').addEventListener('click',()=>{const selected=modelSelector?.value||getGeminiModel();setTimeout(()=>{setGeminiModel(selected);if(modelSelector)modelSelector.value=selected;updateApiKeyUI();actualizarIndicadoresChat()},0)}, {capture:true});
+function updateApiKeyUI(){const key=getGeminiKey(),model=getGeminiModel(),statusEl=document.getElementById('api-key-status'),input=document.getElementById('gemini-api-key'),modelInput=document.getElementById('gemini-model');if(modelInput)modelInput.value=model;if(key){statusEl.className='api-key-status saved';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>API Key configurada (${key.substring(0,8)}...${key.substring(key.length-4)}) · Modelo: ${model}</span>`;input.value=key}else{statusEl.className='api-key-status empty';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>No hay API Key configurada</span>`;input.value=''}}
 function aplicarFondoChat(){const raw=localStorage.getItem(BG_STORAGE_KEY),bg=sanitizeImageUrl(raw),chatMain=document.querySelector('.chat-main'),btnPreview=document.getElementById('btn-bg-preview');if(bg&&chatMain){chatMain.style.backgroundImage=`url("${bg.replace(/"/g,'\\"')}")`;chatMain.classList.add('has-background');if(btnPreview)btnPreview.style.display='inline-flex'}else{if(chatMain){chatMain.style.backgroundImage='';chatMain.classList.remove('has-background')}if(btnPreview)btnPreview.style.display='none'}}
 const observer=new MutationObserver(()=>{if(document.getElementById('chat-view').classList.contains('visible'))aplicarFondoChat()});observer.observe(document.getElementById('chat-view'),{attributes:!0,attributeFilter:['class']});
 document.getElementById('btn-bg-none').addEventListener('click',()=>{localStorage.removeItem(BG_STORAGE_KEY);aplicarFondoChat();showToast('Fondo eliminado')});
 document.getElementById('btn-bg-upload').addEventListener('click',()=>{document.getElementById('chat-bg-file').click()});
 document.getElementById('chat-bg-file').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){showToast('❌ Solo se permiten imágenes','error');e.target.value='';return}if(file.size>5*1024*1024){showToast('❌ Imagen muy grande (máx 5MB)','error');e.target.value='';return}const reader=new FileReader();reader.onload=ev=>{localStorage.setItem(BG_STORAGE_KEY,ev.target.result);aplicarFondoChat();showToast('✅ Fondo aplicado')};reader.readAsDataURL(file);e.target.value=''});
 document.getElementById('btn-bg-preview')?.addEventListener('click',()=>{const bg=sanitizeImageUrl(localStorage.getItem(BG_STORAGE_KEY));if(bg){const win=window.open('','_blank','noopener,noreferrer');if(win){win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Vista previa</title></head><body style="margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh"><img src="'+bg.replace(/"/g,'&quot;')+'" style="max-width:100%;height:auto" alt="Fondo"></body></html>');win.document.close()}}});
+/* Reaplica el fondo también sobre la capa de mensajes, que tiene su propio
+   background y podía ocultar por completo la imagen del chat. */
+function aplicarFondoChat(){
+  const raw=localStorage.getItem(BG_STORAGE_KEY),bg=sanitizeImageUrl(raw),chatMain=document.querySelector('.chat-main'),chatMessages=document.getElementById('chat-messages'),btnPreview=document.getElementById('btn-bg-preview');
+  if(bg&&chatMain){
+    chatMain.style.backgroundImage=`url("${bg.replace(/"/g,'\\"')}")`;
+    chatMain.style.backgroundColor='transparent';
+    chatMain.classList.add('has-background');
+    if(chatMessages)chatMessages.style.background='rgba(0,0,0,.3)';
+    if(btnPreview)btnPreview.style.display='inline-flex';
+  }else{
+    if(chatMain){chatMain.style.backgroundImage='';chatMain.style.backgroundColor='';chatMain.classList.remove('has-background')}
+    if(chatMessages)chatMessages.style.background='';
+    if(btnPreview)btnPreview.style.display='none';
+  }
+}
 let avatarData={original:null,final:null,zoom:100,x:0,y:0,sourceIsRaw:false};let avatarModificado=false;
 const avatarContainer=document.getElementById('avatar-preview-container'),avatarPreview=document.getElementById('avatar-preview'),avatarPlaceholder=document.getElementById('avatar-placeholder'),avatarControls=document.getElementById('avatar-controls'),avatarFile=document.getElementById('avatar-file');
 function resetAvatarSliders(){avatarData.zoom=100;avatarData.x=0;avatarData.y=0;document.getElementById('avatar-zoom').value=100;document.getElementById('avatar-x').value=0;document.getElementById('avatar-y').value=0}
@@ -1550,7 +1614,7 @@ async function abrirEditorPersonaje(id=null){
       document.getElementById('char-ejemplos').value=parsed.ejemplos;
       document.getElementById('char-saludo').value=p.saludo||'';
       document.getElementById('char-max-tokens').value=p.max_tokens||4096;
-      const intensidadVal = (p.intensidad||parsed.intensidad||'suave').toLowerCase();
+      const intensidadVal = normalizarIntensidad(p.intensidad||parsed.intensidad||'suave');
       document.getElementById('char-intensidad').value=intensidadVal;
       document.querySelectorAll('#intensity-picker .intensity-card').forEach(card=>{
         card.classList.toggle('active',card.dataset.value===intensidadVal);
@@ -1633,7 +1697,7 @@ const datos = {
   publico: document.getElementById('char-publico').checked,
   max_tokens: Math.min(8192, Math.max(256, parseInt(document.getElementById('char-max-tokens').value) || 4096)),
   themeColor: sanitizeThemeColor(document.getElementById('char-color').value || '#ff4d8f'),
-  intensidad: document.getElementById('char-intensidad').value || 'suave'
+  intensidad: normalizarIntensidad(document.getElementById('char-intensidad').value)
 };
 const id = document.getElementById('char-id').value;if(id){const updated=await actualizarPersonaje(id,datos);actualizarAvatarEnUI(updated);showToast('✅ Personaje actualizado')}else{const created=await crearPersonaje(datos);showToast('✅ Personaje creado')}closeModal('character-modal');CACHE.personajes=null;CACHE.cacheTime.personajes=0;CACHE.personajesComunidad=null;CACHE.cacheTime.personajesComunidad=0;renderCharacters()}catch(err){showToast(`❌ ${err.message}`,'error')}finally{btn.disabled=!1;btn.textContent=originalText}});
 document.querySelectorAll('.dashboard-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.dashboard-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');currentView=tab.dataset.view;const title=document.getElementById('dashboard-title'),subtitle=document.getElementById('dashboard-subtitle'),btnNuevo=document.getElementById('btn-nuevo-personaje');if(currentView==='my-characters'){title.textContent='Tus personajes';subtitle.textContent='Crea, edita y chatea con tus personajes de IA';btnNuevo.style.display='inline-flex';renderCharacters()}else if(currentView==='community'){title.textContent='Comunidad';subtitle.textContent='Descubre personajes creados por otros usuarios';btnNuevo.style.display='none';renderCharacters()}else if(currentView==='announcements'){title.textContent='Anuncios';subtitle.textContent=isOwner()?'Publica anuncios para toda la comunidad':'Anuncios oficiales del Owner';btnNuevo.style.display='none';renderAnuncios()}})});
@@ -1722,6 +1786,108 @@ function iniciarEdicionMensaje(bubble){if(isStreaming){showToast('Espera a que t
 function cancelarEdicionMensaje(bubble){bubble.classList.remove('editing');bubble.innerHTML=bubble.dataset.backupHTML||'';delete bubble.dataset.backupHTML}
 async function guardarEdicionMensaje(bubble){if(isStreaming)return;const textarea=bubble.querySelector('.edit-textarea'),nuevoTexto=textarea.value.trim(),mensajeId=bubble.dataset.mensajeId;if(!nuevoTexto){showToast('El mensaje no puede estar vacío','error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en ajustes (⚙️)','error');return}isStreaming=true;let historialOriginal=null,bubbleIA=null;try{const{mensajes}=await cargarHistorialChat(currentChatId),idx=mensajes.findIndex(m=>m.id===mensajeId);if(idx===-1)throw new Error('Mensaje no encontrado');if(mensajes[idx].rol!=='user')throw new Error('Solo se pueden editar mensajes del usuario');const historialRecortado=mensajes.slice(0,idx),nuevoMsg={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol:'user',contenido:nuevoTexto};historialRecortado.push(nuevoMsg);historialOriginal=mensajes.slice();await actualizarHistorialChat(currentChatId,historialRecortado);bubble.classList.remove('editing');bubble.dataset.originalText=nuevoTexto;bubble.dataset.mensajeId=nuevoMsg.id;bubble.innerHTML=escapeHtml(nuevoTexto);agregarBotones(bubble,'user');const allBubbles=Array.from(document.querySelectorAll('.message-bubble')),idxBubble=allBubbles.indexOf(bubble);for(let i=idxBubble+1;i<allBubbles.length;i++)allBubbles[i].remove();historialCompleto=historialRecortado.slice();const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(historialRecortado);if(necesitaActualizacion){await actualizarHistorialChat(currentChatId,historialProcesado);historialCompleto=historialProcesado.slice()}bubbleIA=agregarBubble('','assistant',true);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado,nuevoTexto,currentCharacter.max_tokens||4096);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();bubbleIA.innerHTML=renderMarkdown(textoCompleto)+'<span class="streaming-cursor"></span>';scrollChatToBottom()}if(!textoCompleto.trim())throw new Error('Gemini no generó ninguna respuesta');const mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant');historialCompleto.push(mensajeAssistant);renderizarChatPaginado();showToast('✅ Mensaje editado y respuesta regenerada')}catch(err){console.error('Error al editar:',err);if(historialOriginal)await actualizarHistorialChat(currentChatId,historialOriginal).catch(()=>{});if(bubbleIA){const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();bubbleIA.className='message-bubble error';bubbleIA.innerHTML=`<span style="color:#fca5a5">⚠️ ${escapeHtml(err.message)}</span>`}showToast(`❌ ${err.message}`,'error');cancelarEdicionMensaje(bubble)}finally{isStreaming=false;chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId}}
 document.getElementById('chat-messages').addEventListener('click',async e=>{const btnRetrySend=e.target.closest('.btn-retry-send');if(btnRetrySend){const bubble=btnRetrySend.closest('.message-bubble');if(bubble)reintentarRespuestaAsistente(bubble,ultimoMensajeEnviado);return}const btnRegen=e.target.closest('.btn-regenerate');if(btnRegen){const mensajeId=btnRegen.dataset.mensajeId,bubble=btnRegen.closest('.message-bubble');if(mensajeId&&bubble)regenerarRespuesta(mensajeId,bubble);return}const btnCopy=e.target.closest('.btn-copy');if(btnCopy){const bubble=btnCopy.closest('.message-bubble'),texto=bubble.dataset.originalText||bubble.innerText.replace(/Copiar|Editar|Regenerar/g,'').trim();try{await navigator.clipboard.writeText(texto);showToast('📋 Mensaje copiado')}catch(err){showToast('❌ No se pudo copiar','error')}return}const btnEdit=e.target.closest('.btn-edit-msg');if(btnEdit){const bubble=btnEdit.closest('.message-bubble');iniciarEdicionMensaje(bubble);return}const btnSave=e.target.closest('.edit-save');if(btnSave){const bubble=btnSave.closest('.message-bubble');await guardarEdicionMensaje(bubble);return}const btnCancel=e.target.closest('.edit-cancel');if(btnCancel){const bubble=btnCancel.closest('.message-bubble');cancelarEdicionMensaje(bubble)}});
+/* Mantiene una única fuente de verdad después de operaciones que reemplazan una
+   rama del chat. Las burbujas existentes no deben usarse para reconstruir el
+   historial porque la paginación puede haber ocultado parte de la conversación. */
+function establecerHistorialChat(historial, opciones = {}) {
+  historialCompleto = Array.isArray(historial) ? historial.slice() : [];
+  chatOffset = Math.min(Math.max(chatOffset, CHAT_LIMITE), historialCompleto.length);
+  renderizarChatPaginado({ scrollToBottom: opciones.scrollToBottom !== false });
+}
+
+/* Versiones atómicas: generan usando una copia y persisten el historial final
+   completo una sola vez. Esto evita duplicados y carreras entre el DOM y Supabase. */
+async function regenerarRespuesta(mensajeId, bubbleElement) {
+  if (isStreaming) { showToast('Espera a que termine la respuesta actual', 'error'); return; }
+  if (!getGeminiKey()) { showToast('⚠️ Configura tu API Key en ajustes (⚙️)', 'error'); return; }
+  isStreaming = true;
+  let historialOriginal = null;
+  try {
+    const { mensajes } = await cargarHistorialChat(currentChatId);
+    const idx = mensajes.findIndex(m => m.id === mensajeId);
+    if (idx < 0 || mensajes[idx].rol !== 'assistant') throw new Error('Mensaje no encontrado o inválido');
+    const historialBase = mensajes.slice(0, idx);
+    const ultimoUser = historialBase[historialBase.length - 1];
+    if (!ultimoUser || ultimoUser.rol !== 'user') throw new Error('No se encontró el mensaje del usuario correspondiente');
+    historialOriginal = mensajes.slice();
+    if (bubbleElement) {
+      bubbleElement.className = 'message-bubble assistant';
+      bubbleElement.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    }
+    const { historialProcesado } = await procesarHistorialSiEsNecesario(historialBase);
+    const generator = enviarAGeminiStream(currentCharacter.system_prompt, historialProcesado, ultimoUser.contenido, currentCharacter.max_tokens || 4096);
+    let textoCompleto = '';
+    for await (const chunk of generator) {
+      textoCompleto += chunk;
+      if (bubbleElement) {
+        const typing = bubbleElement.querySelector('.typing-indicator');
+        if (typing) typing.remove();
+        bubbleElement.innerHTML = renderMarkdown(textoCompleto) + '<span class="streaming-cursor"></span>';
+      }
+      scrollChatToBottom();
+    }
+    if (!textoCompleto.trim()) throw new Error('Gemini no generó ninguna respuesta');
+    const nuevoMensaje = { id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5), rol: 'assistant', contenido: textoCompleto };
+    const historialFinal = [...historialProcesado, nuevoMensaje];
+    await actualizarHistorialChat(currentChatId, historialFinal);
+    establecerHistorialChat(historialFinal);
+    showToast('✅ Respuesta regenerada');
+  } catch (err) {
+    console.error('Error al regenerar:', err);
+    if (historialOriginal) establecerHistorialChat(historialOriginal);
+    const isRateLimit = err.message && (err.message.includes('429') || /rate limit|quota|too many requests/i.test(err.message));
+    if (isRateLimit) mostrarErrorRateLimit(null, err.message, 'regenerate', { mensajeId, bubbleElement: document.querySelector(`[data-mensaje-id="${mensajeId}"]`) });
+    else showToast(`❌ ${err.message}`, 'error');
+  } finally {
+    isStreaming = false;
+    chatSendBtn.disabled = !chatInput.value.trim() || !currentChatId;
+  }
+}
+
+async function guardarEdicionMensaje(bubble) {
+  if (isStreaming) return;
+  const textarea = bubble.querySelector('.edit-textarea');
+  const nuevoTexto = textarea?.value.trim();
+  const mensajeId = bubble.dataset.mensajeId;
+  if (!nuevoTexto) { showToast('El mensaje no puede estar vacío', 'error'); return; }
+  if (!getGeminiKey()) { showToast('⚠️ Configura tu API Key en ajustes (⚙️)', 'error'); return; }
+  isStreaming = true;
+  let historialOriginal = null;
+  try {
+    const { mensajes } = await cargarHistorialChat(currentChatId);
+    const idx = mensajes.findIndex(m => m.id === mensajeId);
+    if (idx < 0 || mensajes[idx].rol !== 'user') throw new Error('Mensaje no encontrado o inválido');
+    historialOriginal = mensajes.slice();
+    const nuevoMsg = { id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5), rol: 'user', contenido: nuevoTexto };
+    const historialBase = [...mensajes.slice(0, idx), nuevoMsg];
+    bubble.classList.remove('editing');
+    const { historialProcesado } = await procesarHistorialSiEsNecesario(historialBase);
+    const bubbleIA = agregarBubble('', 'assistant', true);
+    const generator = enviarAGeminiStream(currentCharacter.system_prompt, historialProcesado, nuevoTexto, currentCharacter.max_tokens || 4096);
+    let textoCompleto = '';
+    for await (const chunk of generator) {
+      textoCompleto += chunk;
+      const typing = bubbleIA.querySelector('.typing-indicator');
+      if (typing) typing.remove();
+      bubbleIA.innerHTML = renderMarkdown(textoCompleto) + '<span class="streaming-cursor"></span>';
+      scrollChatToBottom();
+    }
+    if (!textoCompleto.trim()) throw new Error('Gemini no generó ninguna respuesta');
+    const mensajeAssistant = { id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5), rol: 'assistant', contenido: textoCompleto };
+    const historialFinal = [...historialProcesado, mensajeAssistant];
+    await actualizarHistorialChat(currentChatId, historialFinal);
+    establecerHistorialChat(historialFinal);
+    showToast('✅ Mensaje editado y respuesta regenerada');
+  } catch (err) {
+    console.error('Error al editar:', err);
+    if (historialOriginal) establecerHistorialChat(historialOriginal);
+    showToast(`❌ ${err.message}`, 'error');
+  } finally {
+    isStreaming = false;
+    chatSendBtn.disabled = !chatInput.value.trim() || !currentChatId;
+  }
+}
+
 const splash=document.getElementById('splash'),authScreen=document.getElementById('auth-screen'),dashboard=document.getElementById('dashboard');
 
 // Iniciar comprobación de sesión inmediatamente
@@ -1774,7 +1940,7 @@ async function initApp(){
     // Escuchar cambios de autenticación reactivamente
     sbClient.auth.onAuthStateChange((event,session)=>{
       if(event==='SIGNED_OUT'){
-        currentUser=null;userRole=null;userUsername=null;userRoleName=null;
+ currentUser=null;userRole=null;userUsername=null;userAvatarUrl=null;userRoleName=null;
         limpiarCacheUsuario();
         try { localStorage.removeItem('sair_cached_user_info'); } catch(e){}
         showAuth();
@@ -1865,7 +2031,7 @@ document.getElementById('confirm-logout').addEventListener('click',async()=>{
   btn.textContent='Cerrando...';
   try{
     await sbClient.auth.signOut();
-currentUser=null;userRole=null;userUsername=null;userRoleName=null;
+currentUser=null;userRole=null;userUsername=null;userAvatarUrl=null;userRoleName=null;
 limpiarCacheUsuario();
     document.querySelectorAll('.modal-overlay.visible').forEach(m=>m.classList.remove('visible'));
     document.getElementById('chat-view').classList.remove('visible');
@@ -1889,7 +2055,16 @@ limpiarCacheUsuario();
   }
 });
 document.getElementById('logout-modal').addEventListener('click',e=>{if(e.target===document.getElementById('logout-modal'))document.getElementById('logout-modal').classList.remove('visible')});
-const formUsername=document.getElementById('form-username');if(formUsername){const inputUsername=document.getElementById('new-username'),hintUsername=document.getElementById('username-hint');inputUsername.addEventListener('input',()=>{const val=inputUsername.value,regex=/^[a-zA-Z0-9_]{3,20}$/;if(val.length===0){hintUsername.textContent='3-20 caracteres. Solo letras, números y guion bajo (_).';hintUsername.className='username-hint'}else if(!regex.test(val)){let msg='❌ ';if(val.length<3)msg+='Mínimo 3 caracteres';else if(val.length>20)msg+='Máximo 20 caracteres';else msg+='Solo letras, números y _';hintUsername.textContent=msg;hintUsername.className='username-hint error'}else{hintUsername.textContent='✅ Nombre válido';hintUsername.className='username-hint success'}});formUsername.addEventListener('submit',async e=>{e.preventDefault();const nuevoUsername=inputUsername.value.trim(),btn=e.target.querySelector('button[type="submit"]'),originalText=btn.textContent;if(!nuevoUsername)return;btn.disabled=!0;btn.textContent='Guardando...';try{await cambiarUsername(nuevoUsername);showToast(`✅ Nombre cambiado a @${nuevoUsername}`);inputUsername.value='';hintUsername.textContent='3-20 caracteres. Solo letras, números y guion bajo (_).';hintUsername.className='username-hint'}catch(err){playErrorSound();shakeElement(inputUsername);showToast(`❌ ${err.message}`,'error');hintUsername.textContent='❌ '+err.message;hintUsername.className='username-hint error'}finally{btn.disabled=!1;btn.textContent=originalText}})}
+let perfilAvatarPendiente=null;
+function actualizarPreviewAvatarPerfil(url){const preview=document.getElementById('profile-avatar-preview'),displayName=userUsername||currentUser?.email?.split('@')[0]||'Usuario';if(!preview)return;const safe=sanitizeImageUrl(url);preview.innerHTML=safe?`<img src="${safe.replace(/"/g,'&quot;')}" alt="Foto de perfil">`:displayName.charAt(0).toUpperCase()}
+function prepararAvatarPerfil(file){return new Promise((resolve,reject)=>{if(!file){resolve(null);return}if(!file.type.startsWith('image/')){reject(new Error('Solo se permiten imágenes'));return}if(file.size>5*1024*1024){reject(new Error('La imagen debe pesar máximo 5 MB'));return}const reader=new FileReader();reader.onerror=()=>reject(new Error('No se pudo leer la imagen'));reader.onload=ev=>{const img=new Image();img.onerror=()=>reject(new Error('Imagen inválida'));img.onload=()=>{const size=256,canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;const ctx=canvas.getContext('2d'),ratio=Math.max(size/img.width,size/img.height),w=img.width*ratio,h=img.height*ratio;ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);resolve(canvas.toDataURL('image/jpeg',.82))};img.src=ev.target.result};reader.readAsDataURL(file)})}
+document.getElementById('user-badge').addEventListener('click',()=>{actualizarUIPerfil();perfilAvatarPendiente=userAvatarUrl;openModal('profile-modal')});
+document.getElementById('user-badge').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();document.getElementById('user-badge').click()}});
+document.getElementById('profile-avatar-change').addEventListener('click',()=>document.getElementById('profile-avatar-file').click());
+document.getElementById('profile-avatar-file').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{perfilAvatarPendiente=await prepararAvatarPerfil(file);actualizarPreviewAvatarPerfil(perfilAvatarPendiente)}catch(err){showToast(`❌ ${err.message}`,'error')}finally{e.target.value=''}});
+document.getElementById('profile-avatar-remove').addEventListener('click',()=>{perfilAvatarPendiente=null;actualizarPreviewAvatarPerfil(null)});
+const formProfile=document.getElementById('form-profile');
+formProfile.addEventListener('submit',async e=>{e.preventDefault();const input=document.getElementById('profile-username'),hint=document.getElementById('profile-username-hint'),btn=e.target.querySelector('button[type="submit"]'),nuevoUsername=input.value.trim(),regex=/^[a-zA-Z0-9_]{3,20}$/;if(!regex.test(nuevoUsername)){hint.textContent='❌ Usa 3-20 caracteres: letras, números o _.';hint.className='username-hint error';shakeElement(input);return}const originalText=btn.textContent;btn.disabled=true;btn.textContent='Guardando...';try{await cambiarUsername(nuevoUsername);await guardarAvatarPerfil(perfilAvatarPendiente);actualizarUIPerfil();closeModal('profile-modal');showToast('✅ Perfil actualizado')}catch(err){playErrorSound();showToast(`❌ ${err.message}`,'error')}finally{btn.disabled=false;btn.textContent=originalText}});
 document.getElementById('settings-btn').addEventListener('click',()=>{actualizarUIPerfil()});
 const formRole=document.getElementById('form-role');
 if(formRole){
@@ -1921,6 +2096,7 @@ btn.disabled=!1;btn.textContent=originalText
 document.getElementById('chat-role-btn').addEventListener('click',()=>{
 const inputRole=document.getElementById('role-name');
 if(userRoleName)inputRole.value=userRoleName;
+updateApiKeyUI();
 openModal('role-modal')
 });
 const hamburgerBtn=document.getElementById('btn-hamburger'),sidebar=document.getElementById('chat-sidebar');
@@ -2223,7 +2399,7 @@ Describe el estado PRESENTE de la conversación:
 Sé específico sobre los últimos intercambios.`;
     const parsedRecap = parsearSystemPrompt(currentCharacter?.system_prompt);
     const intensidadRecap = currentCharacter?.intensidad || parsedRecap.intensidad || 'maxima';
-    const model='gemini-3.5-flash';
+    const model='gemini-3.7-flash';
     const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const body={
       system_instruction:{parts:[{text:systemPrompt}]},

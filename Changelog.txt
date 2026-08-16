@@ -2,7 +2,36 @@
  SAIR2 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[2.1.0] — 2026-24-07
+[2.2.2] — 2026-08-16
+
+✨ Novedades
+- Ajustes de Rol para configurar la API Key y el modelo del roleplay
+- Gemini 3.7 Flash fijado para resúmenes y recapitulaciones
+
+🐛 Correcciones y Mejoras
+- Correcciones en regeneración y edición de mensajes para mantener el orden del chat
+- Corrección de fondos personalizados del chat
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2.2.0] — 2026-08-16
+
+✨ Novedades
+- Perfil accesible desde el nombre de usuario con botón de edición al pasar por encima
+- Edición independiente del nombre de usuario y foto de perfil
+- Fotos de perfil optimizadas y mostradas de forma circular
+- Selector de modelos Gemini: 3.5 Flash, 3.5 Flash Lite, 3.6 Flash y 3.7 Flash
+- Indicadores visibles del modelo y la intensidad activa dentro del chat
+
+🐛 Correcciones y Mejoras
+- Intensidad del personaje normalizada para aplicarse correctamente en chat,
+  resúmenes y recapitulaciones
+- Persistencia del modelo seleccionado en el navegador
+- Versión de la interfaz actualizada a 2.2.0
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2.1.0] — 2026-07-24
 
 ✨ Novedades
 - Selector de Intensidad de Personaje (Suave, Mediana, Máxima) para
@@ -19,7 +48,7 @@
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[2.0.5] — 2026-13-07
+[2.0.5] — 2026-07-13
 
 🐛 Correcciones
 - Chat: el campo de escritura ahora se vacía de forma instantánea
@@ -32,7 +61,7 @@
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[2.0.0] — 2026-12-07
+[2.0.0] — 2026-07-12
 
 ✨ Novedades
 - SAIR ahora se puede instalar como app en tu celular o PC
@@ -50,7 +79,7 @@
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[1.9.0] — 2026-10-07
+[1.9.0] — 2026-07-10
 
 ✨ Características
 - Recapitulación de rol: botón para generar resúmenes del chat
