@@ -2,6 +2,45 @@
  SAIR2 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[2.2.4] — 2026-08-19
+
+✨ Novedades
+- Instalación PWA de un solo toque en cualquier navegador compatible
+  (Android, Chrome, Edge, Brave y otros Chromium)
+- Iconos PNG nativos (192, 512 y maskable) para que Chromium detecte
+  la app como instalable y muestre el botón en la barra de direcciones
+- Guía de instalación paso a paso según el navegador (Brave, Chrome,
+  Edge, Firefox, iOS y otros)
+
+🐛 Correcciones y Mejoras
+- En Brave ya se puede instalar desde el menú ⋮ → “Guardar y compartir”
+  → “Instalar página como app”. Si Brave no reconoce la PWA y solo muestra
+  “Crear acceso directo”, la guía explica el truco oficial: escribir
+  “:> install pwa” en la barra de direcciones (Quick Commands) o activar
+  brave://flags/#web-app-universal-install y reiniciar
+- El manifest y el service worker ya no se sirven desde la caché vieja
+  (network-first): el navegador siempre ve la versión nueva, con los iconos
+  PNG, y por eso ya debería reconocer la app como instalable
+- Manifest con “id” estable (sair2) para identidad de app en Chromium
+- El botón “Instalar” ahora usa el prompt nativo del navegador sin pasos extra
+- El banner de instalación también aparece en escritorio cuando el
+  navegador no ofrece instalación automática
+- Botones del chat: corregida la posición del botón de bajar al final,
+  del hamburger y del modo inmersivo (se apilaban por la capa de fondo)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2.2.3] — 2026-08-19
+
+🐛 Correcciones y Mejoras
+- Autenticación de Gemini: la API Key ya no se corrompe al leerla
+  (el error de OAuth 2 / credenciales inválidas al chatear)
+- La key se envía con la cabecera x-goog-api-key en lugar de ir en la URL
+- Fondos de chat: la imagen se muestra de verdad (capa propia, también en móvil)
+- Las imágenes de fondo se comprimen al guardarlas para que no desaparezcan
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [2.2.2] — 2026-08-16
 
 ✨ Novedades

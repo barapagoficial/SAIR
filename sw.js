@@ -1,9 +1,12 @@
-const CACHE_NAME = 'sair-v2.2.2';
+const CACHE_NAME = 'sair-v2.2.4';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.jpg',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
+  './apple-touch-icon.png',
   './ERROR.mp4',
   './supabase.js'
 ];
@@ -53,6 +56,22 @@ self.addEventListener('fetch', (e) => {
           return response;
         })
         .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Manifest y Service Worker: Network first (nunca servir copias viejas)
+  if (url.pathname.endsWith('/manifest.json') || url.pathname.endsWith('/sw.js')) {
+    e.respondWith(
+      fetch(e.request)
+        .then((response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(e.request))
     );
     return;
   }
