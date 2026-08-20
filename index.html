@@ -900,7 +900,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <!-- La configuración del motor vive dentro de Ajustes de Rol -->
 <!--
 <div class="api-key-wrapper">
-<input type="password" id="gemini-api-key" class="api-key-input" placeholder="AIza… o AQ.…" autocomplete="off" spellcheck="false">
+<input type="password" id="gemini-api-key" class="api-key-input" placeholder="Pega tu clave de Google AI Studio" autocomplete="off" spellcheck="false">
 <button class="api-key-toggle" id="toggle-api-key" title="Mostrar/Ocultar"><svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>
 <div class="form-group" style="margin-top:.75rem;">
@@ -1002,7 +1002,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <div style="font-family:var(--font-display);font-weight:700;color:var(--text-1);margin-bottom:.35rem;">🤖 Motor del roleplay</div>
 <p style="font-size:.75rem;color:var(--text-3);line-height:1.5;margin-bottom:.85rem;">Estos ajustes se usan únicamente para las respuestas del personaje en este chat.</p>
 <label class="form-label" for="gemini-api-key">API Key de Gemini</label>
-<div class="api-key-wrapper"><input type="password" id="gemini-api-key" class="api-key-input" placeholder="AIza… o AQ.…" autocomplete="off" spellcheck="false"><button type="button" class="api-key-toggle" id="toggle-api-key" title="Mostrar/Ocultar"><svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+<div class="api-key-wrapper"><input type="password" id="gemini-api-key" class="api-key-input" placeholder="Pega tu clave de Google AI Studio" autocomplete="off" spellcheck="false"><button type="button" class="api-key-toggle" id="toggle-api-key" title="Mostrar/Ocultar"><svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
 <div class="form-group" style="margin-top:.75rem;"><label class="form-label" for="gemini-model">Modelo para roleplay</label><select id="gemini-model" class="form-input"><option value="gemini-3.5-flash">Gemini 3.5 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.7-flash">Gemini 3.7 Flash</option></select><p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">La recapitulación y los resúmenes usan siempre Gemini 3.7 Flash.</p></div>
 <div id="api-key-status" class="api-key-status empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="api-key-status-text">No hay API Key configurada</span></div>
 <div class="api-key-actions"><button type="button" class="btn-small primary" id="save-api-key">Guardar motor</button><button type="button" class="btn-small danger" id="clear-api-key">Eliminar key</button></div>
@@ -1316,9 +1316,9 @@ function sanitizeImageUrl(url){if(!url||typeof url!=='string')return '';const tr
 function renderMarkdown(texto){if(!texto)return '';let textoProcesado=reemplazarUserEnTexto(texto);const escaped=textoProcesado.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return escaped.replace(/\*([^*\n]+)\*/g,(m,p1)=>`<em class="accion">*${p1}*</em>`).replace(/\n/g,'<br>')}function formatDate(dateStr){const d=new Date(dateStr),now=new Date(),diff=now-d;if(diff<6e4)return'ahora';if(diff<36e5)return`hace ${Math.floor(diff/6e4)}m`;if(diff<864e5)return`hace ${Math.floor(diff/36e5)}h`;if(diff<6048e5)return`hace ${Math.floor(diff/864e5)}d`;return d.toLocaleDateString()}
 const _obf_k=(str)=>{if(!str)return '';return btoa(str.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join(''))},_deobf_k=(str)=>{if(!str)return '';try{const decoded=atob(str);return decoded.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join('')}catch{return''}};
 function isGeminiApiKey(key){if(!key||typeof key!=='string')return false;const k=key.trim().replace(/\s+/g,'');return /^AIza[0-9A-Za-z_-]{20,}$/.test(k)||/^AQ\.[0-9A-Za-z_.-]{20,}$/.test(k)||/^[0-9A-Za-z_-]{32,}$/.test(k)}
-function getGeminiKey(){const stored=(localStorage.getItem(CONFIG.LS.GEMINI_KEY)||'').trim();if(!stored)return '';let candidate=stored;for(let i=0;i<5;i++){const dec=(_deobf_k(candidate)||'').trim();if(!dec||dec===candidate)break;candidate=dec}const decoded=candidate.replace(/\s+/g,'');if(/^AIza/.test(decoded)||decoded.startsWith('AQ.')){const clean=stored.replace(/\s+/g,'');if(decoded!==clean){try{localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(decoded))}catch{}}return decoded}const plain=stored.replace(/\s+/g,'');if(isGeminiApiKey(plain)){try{localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(plain))}catch{}return plain}return ''}
+function getGeminiKey(){const stored=(localStorage.getItem(CONFIG.LS.GEMINI_KEY)||'').trim();if(!stored)return '';let candidate=stored,best=null;for(let i=0;i<5;i++){const dec=(_deobf_k(candidate)||'').trim().replace(/\s+/g,'');if(!dec||dec===candidate)break;if(isGeminiApiKey(dec))best=dec;candidate=dec}const raw=stored.replace(/\s+/g,'');if(best){try{localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(best))}catch{}return best}if(isGeminiApiKey(raw)){try{localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(raw))}catch{}return raw}return ''}
 function mensajeErrorGemini(msg){const m=String(msg||'');if(/invalid authentication credentials|API key not valid|API_KEY_INVALID/.test(m))return 'Tu API Key de Gemini es inválida o fue revocada. Reconfigúrala en Ajustes de Rol (🎭)';return m}
-function saveGeminiKey(raw){const key=(raw||'').trim().replace(/\s+/g,'');if(!isGeminiApiKey(key))throw new Error('API Key inválida. Pega una clave de Google AI Studio (empieza por AIza... o AQ.)');localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));return key}
+function saveGeminiKey(raw){const key=(raw||'').trim().replace(/\s+/g,'');if(!isGeminiApiKey(key))throw new Error('API Key inválida. Pega una clave válida de Google AI Studio.');localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));return key}
 function geminiHeaders(apiKey){return{'Content-Type':'application/json','x-goog-api-key':apiKey}}
 function geminiUrl(model,stream=false){const action=stream?'streamGenerateContent':'generateContent';const qs=stream?'?alt=sse':'';return`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:${action}${qs}`}
 const GEMINI_MODELS=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.6-flash','gemini-3.7-flash'];
@@ -1631,10 +1631,10 @@ document.getElementById('save-api-key').addEventListener('click',()=>{
   const raw=(input?.value||'').trim();
   const model=modelSelector?.value||getGeminiModel();
   if(raw){
-    if(!isGeminiApiKey(raw)){showToast('API Key inválida. Debe empezar por AIza… o AQ.','error');if(input)shakeElement(input);return}
+    if(!isGeminiApiKey(raw)){showToast('API Key inválida. Verificá que pegaste la clave completa.','error');if(input)shakeElement(input);return}
     try{saveGeminiKey(raw)}catch(err){showToast('❌ '+err.message,'error');if(input)shakeElement(input);return}
   }else if(!getGeminiKey()){
-    showToast('Pega tu API Key de Google AI Studio (empieza por AIza… o AQ.)','error');
+    showToast('Pega tu API Key de Google AI Studio','error');
     if(input)input.focus();
     return;
   }
