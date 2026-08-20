@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+html{scrollbar-gutter:stable}html,body{height:100%}
 :root{--pink:#ff4d8f;--blue:#4d79ff;--purple:#a855f7;--pink-glow:rgba(255,77,143,0.35);--blue-glow:rgba(77,121,255,0.35);--purple-glow:rgba(168,85,247,0.35);--grad-main:linear-gradient(135deg,#ff4d8f 0%,#a855f7 50%,#4d79ff 100%);--grad-main-hover:linear-gradient(135deg,#ff6ba0 0%,#b86eff 50%,#6690ff 100%);--grad-subtle:linear-gradient(135deg,rgba(255,77,143,0.08) 0%,rgba(168,85,247,0.08) 50%,rgba(77,121,255,0.08) 100%);--grad-glass:linear-gradient(135deg,rgba(255,255,255,0.05) 0%,rgba(255,255,255,0.02) 100%);--font-sans:'Inter',system-ui,sans-serif;--font-display:'Space Grotesk',sans-serif;--font-mono:'JetBrains Mono',monospace;--transition-theme:background-color 0.4s ease,color 0.4s ease,border-color 0.4s ease;--transition-smooth:all 0.4s cubic-bezier(0.4,0,0.2,1);--transition-bounce:all 0.5s cubic-bezier(0.68,-0.55,0.265,1.55);--shadow-glow:0 0 40px rgba(255,77,143,0.15),0 0 80px rgba(168,85,247,0.1);--shadow-elevated:0 20px 60px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.05);--radius-sm:8px;--radius-md:12px;--radius-lg:18px;--radius-xl:24px}
 body[data-theme="dark"]{--bg-0:#050507;--bg-1:#0a0a0f;--bg-2:#12121a;--bg-card:rgba(255,255,255,0.03);--bg-card-hover:rgba(255,255,255,0.06);--bg-input:rgba(255,255,255,0.02);--border:rgba(255,255,255,0.06);--border-strong:rgba(255,255,255,0.12);--text-1:#ffffff;--text-2:#d0d0e0;--text-3:#9090a8;--text-4:#606078;--overlay:rgba(0,0,0,0.8);--shadow-card:0 25px 70px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.03);--splash-bg:radial-gradient(ellipse at top,#0f0f1a 0%,#050507 70%);--bubble-user:linear-gradient(135deg,#ff4d8f 0%,#a855f7 100%);--bubble-ai:rgba(255,255,255,0.04);--skeleton-bg:rgba(255,255,255,0.03);--skeleton-shine:rgba(255,255,255,0.06)}
 body[data-theme="light"]{--bg-0:#fafafa;--bg-1:#ffffff;--bg-2:#f5f5f7;--bg-card:rgba(255,255,255,0.9);--bg-card-hover:#ffffff;--bg-input:rgba(0,0,0,0.03);--border:rgba(0,0,0,0.08);--border-strong:rgba(0,0,0,0.15);--text-1:#0a0a0f;--text-2:#2a2a3a;--text-3:#5a5a70;--text-4:#8a8aa0;--overlay:rgba(0,0,0,0.5);--shadow-card:0 20px 60px rgba(0,0,0,0.1);--splash-bg:radial-gradient(ellipse at center,#ffffff 0%,#f0f0f5 70%);--pink-glow:rgba(255,77,143,0.2);--blue-glow:rgba(77,121,255,0.2);--bubble-user:linear-gradient(135deg,#ff4d8f,#a855f7);--bubble-ai:rgba(0,0,0,0.05);--skeleton-bg:rgba(0,0,0,0.04);--skeleton-shine:rgba(0,0,0,0.08)}
@@ -32,6 +32,7 @@ body{font-family:var(--font-sans);background:var(--bg-0);color:var(--text-2);ove
 .splash-title{font-family:var(--font-display);font-size:clamp(2.2rem,6vw,4.5rem);font-weight:700;background:var(--grad-main);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;position:relative;animation:titleGlow 3s ease-in-out infinite}
 @keyframes titleGlow{0%,100%{filter:brightness(1) drop-shadow(0 0 20px rgba(255,77,143,0.3))}50%{filter:brightness(1.2) drop-shadow(0 0 40px rgba(255,77,143,0.5))}}
 .splash-sub{margin-top:1rem;font-family:var(--font-mono);font-size:.85rem;color:var(--text-3);letter-spacing:.3em}
+.app-version{position:fixed;bottom:.6rem;right:.8rem;z-index:100;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.15em;color:var(--text-4);background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:.2rem .5rem;pointer-events:none;opacity:.85;backdrop-filter:blur(10px)}
 .settings-btn{position:fixed;top:1.5rem;right:1.5rem;z-index:1000;width:48px;height:48px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);backdrop-filter:blur(20px);cursor:pointer;display:grid;place-items:center;transition:all .3s ease,opacity .3s ease,transform .3s ease;opacity:1;transform:scale(1)}
 .settings-btn.hidden{opacity:0;transform:scale(.8);pointer-events:none}
 .settings-btn:hover{transform:rotate(180deg) scale(1.1);border-color:var(--pink);box-shadow:0 0 30px var(--pink-glow),0 8px 30px var(--pink-glow),inset 0 0 20px rgba(255,77,143,0.1)}
@@ -69,6 +70,30 @@ body[data-theme="light"] .intensity-card.active{background:rgba(255,77,143,0.1)}
 .btn-danger{background:transparent;color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
 .btn-danger:hover{background:rgba(239,68,68,.1)}
 .btn-small{padding:.5rem .9rem;font-size:.8rem;border-radius:8px}
+.hidden{display:none!important}
+#character-modal .modal{max-width:660px}
+.stepper{display:flex;align-items:center;gap:.5rem;margin-bottom:1.4rem}
+.stepper-step{display:flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:600;color:var(--text-3);cursor:pointer;padding:.35rem .6rem;border-radius:8px;transition:all .2s ease;user-select:none;white-space:nowrap}
+.stepper-step:hover{color:var(--text-2)}
+.stepper-step.active{color:var(--text-1);background:linear-gradient(135deg,rgba(255,77,143,.15) 0%,rgba(168,85,247,.15) 100%);border:1px solid var(--pink)}
+.stepper-step.done{color:var(--pink)}
+.stepper-num{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--bg-input);border:1px solid var(--border);font-size:.72rem;font-weight:700;flex-shrink:0}
+.stepper-step.active .stepper-num{background:var(--grad-main);color:#fff;border-color:transparent}
+.stepper-step.done .stepper-num{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:#4ade80}
+.stepper-line{flex:1;height:2px;background:var(--border);border-radius:2px;min-width:16px}
+.char-step{animation:charStepIn .3s ease}
+@keyframes charStepIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stepper-nav{display:flex;gap:.75rem;margin-top:1.5rem}
+.stepper-nav .btn{flex:1}
+.ai-assistant-bar{margin-bottom:1rem}
+.btn-ai{width:100%;padding:.85rem;border-radius:12px;border:1px dashed var(--pink);background:linear-gradient(135deg,rgba(255,77,143,.08),rgba(168,85,247,.08));color:var(--text-1);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .25s ease;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.btn-ai:hover{border-color:var(--pink);box-shadow:0 0 25px var(--pink-glow);transform:translateY(-1px)}
+.btn-ai:disabled{opacity:.6;cursor:wait;transform:none}
+.ai-assistant{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-top:.6rem}
+.ai-assistant label{font-size:.8rem;color:var(--text-3);display:block;margin-bottom:.5rem}
+.ai-assistant .form-textarea{min-height:70px;resize:none}
+.ai-actions{display:flex;gap:.6rem;margin-top:.7rem}
+.ai-status{font-size:.78rem;color:var(--text-3);margin-top:.6rem;line-height:1.5}
 .skeleton-card{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:1.6rem;display:flex;flex-direction:column;gap:.8rem;overflow:hidden;position:relative}
 .skeleton-card::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,var(--skeleton-shine) 50%,transparent 100%);animation:shimmer 1.8s infinite;background-size:200% 100%}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
@@ -827,8 +852,10 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <div id="splash">
 <div class="splash-developer">Desarrollado por Moon-BaraPag</div>
 <h1 class="splash-title">SAIR2</h1>
-<div class="splash-sub">v2.2.4</div>
+<div class="splash-sub">v2.2.8</div>
 </div>
+
+<div class="app-version">v2.2.8</div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
 
@@ -995,6 +1022,26 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <div class="modal-header"><h2 class="modal-title" id="character-modal-title">✨ Crear Personaje</h2><button class="modal-close" data-close-modal="character-modal">✕</button></div>
 <form id="form-personaje">
 <input type="hidden" id="char-id" name="id">
+<div class="ai-assistant-bar">
+<button type="button" class="btn-ai" id="btn-ai-crear"><span>✨</span> Generar personaje con IA</button>
+<div class="ai-assistant hidden" id="ai-assistant">
+<label for="ai-idea">Describí tu personaje en una línea — Gemini 3.7 Flash crea el resto:</label>
+<textarea id="ai-idea" class="form-textarea" maxlength="300" placeholder="Ej: una chica robot que colecciona estrellas y esconde un secreto..."></textarea>
+<div class="ai-actions">
+<button type="button" class="btn btn-primary btn-small" id="btn-ai-generar">⚡ Generar</button>
+<button type="button" class="btn btn-ghost btn-small" id="btn-ai-cancel">Cancelar</button>
+</div>
+<div class="ai-status" id="ai-status"></div>
+</div>
+</div>
+<div class="stepper">
+<div class="stepper-step active" data-step="1"><span class="stepper-num">1</span><span>Identidad</span></div>
+<div class="stepper-line"></div>
+<div class="stepper-step" data-step="2"><span class="stepper-num">2</span><span>Personalidad</span></div>
+<div class="stepper-line"></div>
+<div class="stepper-step" data-step="3"><span class="stepper-num">3</span><span>Avanzado</span></div>
+</div>
+<div class="char-step" data-step="1">
 <div class="avatar-editor">
 <label class="section-label" style="text-align:center;display:block">Avatar del personaje</label>
 <div class="avatar-preview-container" id="avatar-preview-container">
@@ -1011,56 +1058,59 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 </div>
 <div class="form-group"><label class="form-label" for="char-nombre">Nombre del personaje</label><input type="text" id="char-nombre" name="nombre" class="form-input" placeholder="Ej: Shizu" required maxlength="60"></div>
 <div class="form-group"><label class="form-label" for="char-desc">Descripción corta <span class="hint">(para la tarjeta)</span></label><input type="text" id="char-desc" name="descripcion_corta" class="form-input" placeholder="Ej: Una chica tímida que ama los libros" maxlength="200"></div>
-
-<!-- NUEVO CAMPO: Longitud de respuesta -->
 <div class="form-group">
-  <label class="form-label" for="char-max-tokens">Longitud de respuesta <span class="hint">(tokens, 256-8192)</span></label>
-  <input type="number" id="char-max-tokens" name="max_tokens" class="form-input" value="4096" min="256" max="8192" step="256">
+<label class="form-label">Color de aura del personaje <span class="hint">(efecto de brillo y tema)</span></label>
+<div class="aura-color-picker">
+<div class="aura-color-option" data-color="#ff4d8f" style="background:#ff4d8f;" title="Rosa Neón"></div>
+<div class="aura-color-option" data-color="#4d79ff" style="background:#4d79ff;" title="Azul Cyber"></div>
+<div class="aura-color-option" data-color="#a855f7" style="background:#a855f7;" title="Morado Místico"></div>
+<div class="aura-color-option" data-color="#10b981" style="background:#10b981;" title="Verde Esmeralda"></div>
+<div class="aura-color-option" data-color="#f97316" style="background:#f97316;" title="Naranja Ígneo"></div>
+<div class="aura-color-option" data-color="#eab308" style="background:#eab308;" title="Amarillo Eléctrico"></div>
 </div>
-<!-- NUEVO CAMPO: Intensidad / Filtros de Seguridad -->
-<div class="form-group">
-  <label class="form-label">Intensidad del personaje <span class="hint">(Filtro de seguridad de IA)</span></label>
-  <div class="intensity-picker" id="intensity-picker">
-    <div class="intensity-card" data-value="suave">
-      <div class="intensity-badge">🟢 Suave</div>
-      <div class="intensity-desc">Filtro estándar de AI Studio</div>
-    </div>
-    <div class="intensity-card" data-value="mediana">
-      <div class="intensity-badge">🟡 Mediana</div>
-      <div class="intensity-desc">Filtros reducidos al 50%</div>
-    </div>
-    <div class="intensity-card active" data-value="maxima">
-      <div class="intensity-badge">🔥 Máxima</div>
-      <div class="intensity-desc">Mínimo permitido (Sin restricciones)</div>
-    </div>
-  </div>
-  <input type="hidden" id="char-intensidad" name="intensidad" value="maxima">
-  <p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">Aplica para las respuestas del personaje, el resumidor automático y la recapitulación.</p>
+<input type="hidden" id="char-color" name="theme_color" value="#ff4d8f">
 </div>
-<!-- NUEVO CAMPO: Saludo inicial -->
-<div class="form-group">
-  <label class="form-label" for="char-saludo">Saludo inicial <span class="hint">(mensaje del bot al iniciar un nuevo chat)</span></label>
-  <textarea id="char-saludo" name="saludo" class="form-textarea" placeholder="Ej: *Sonríe tímidamente* Hola, soy Shizu, encantada de conocerte..." maxlength="2000"></textarea>
 </div>
-
-<div class="form-group">
-  <label class="form-label">Color de aura del personaje <span class="hint">(efecto de brillo y tema)</span></label>
-  <div class="aura-color-picker">
-    <div class="aura-color-option" data-color="#ff4d8f" style="background:#ff4d8f;" title="Rosa Neón"></div>
-    <div class="aura-color-option" data-color="#4d79ff" style="background:#4d79ff;" title="Azul Cyber"></div>
-    <div class="aura-color-option" data-color="#a855f7" style="background:#a855f7;" title="Morado Místico"></div>
-    <div class="aura-color-option" data-color="#10b981" style="background:#10b981;" title="Verde Esmeralda"></div>
-    <div class="aura-color-option" data-color="#f97316" style="background:#f97316;" title="Naranja Ígneo"></div>
-    <div class="aura-color-option" data-color="#eab308" style="background:#eab308;" title="Amarillo Eléctrico"></div>
-  </div>
-  <input type="hidden" id="char-color" name="theme_color" value="#ff4d8f">
-</div>
-
-<div class="switch-group"><div class="switch-info"><div class="switch-title">🌍 Personaje público</div><div class="switch-desc">Aparecerá en la sección "Comunidad" para que otros usuarios lo descubran</div></div><label class="switch"><input type="checkbox" id="char-publico" name="publico"><span class="switch-slider"></span></label></div>
+<div class="char-step hidden" data-step="2">
 <div class="form-group"><label class="form-label" for="char-personalidad">Personalidad <span class="hint">(rasgos, forma de hablar)</span></label><textarea id="char-personalidad" name="personalidad" class="form-textarea" placeholder="Ej: Tímida, inteligente, sarcástica cuando se siente cómoda..." required></textarea></div>
 <div class="form-group"><label class="form-label" for="char-escenario">Escenario / Contexto</label><textarea id="char-escenario" name="escenario" class="form-textarea" placeholder="Ej: Están en la biblioteca de la escuela, es de tarde..."></textarea></div>
 <div class="form-group"><label class="form-label" for="char-ejemplos">Ejemplos de diálogo <span class="hint">(usa *acciones*)</span></label><textarea id="char-ejemplos" name="ejemplos" class="form-textarea mono" placeholder="{{user}}: Hola, ¿qué lees?&#10;{{char}}: *aprieta el libro contra su pecho* A-ah... nada importante..."></textarea></div>
-<div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button type="button" class="btn btn-ghost" data-close-modal="character-modal" style="flex:1">Cancelar</button><button type="submit" class="btn btn-primary" id="btn-crear-personaje" style="flex:1">Guardar personaje</button></div>
+</div>
+<div class="char-step hidden" data-step="3">
+<div class="form-group">
+<label class="form-label" for="char-saludo">Saludo inicial <span class="hint">(mensaje del bot al iniciar un nuevo chat)</span></label>
+<textarea id="char-saludo" name="saludo" class="form-textarea" placeholder="Ej: *Sonríe tímidamente* Hola, soy Shizu, encantada de conocerte..." maxlength="2000"></textarea>
+</div>
+<div class="form-group">
+<label class="form-label" for="char-max-tokens">Longitud de respuesta <span class="hint">(tokens, 256-8192)</span></label>
+<input type="number" id="char-max-tokens" name="max_tokens" class="form-input" value="4096" min="256" max="8192" step="256">
+</div>
+<div class="form-group">
+<label class="form-label">Intensidad del personaje <span class="hint">(Filtro de seguridad de IA)</span></label>
+<div class="intensity-picker" id="intensity-picker">
+<div class="intensity-card" data-value="suave">
+<div class="intensity-badge">🟢 Suave</div>
+<div class="intensity-desc">Filtro estándar de AI Studio</div>
+</div>
+<div class="intensity-card" data-value="mediana">
+<div class="intensity-badge">🟡 Mediana</div>
+<div class="intensity-desc">Filtros reducidos al 50%</div>
+</div>
+<div class="intensity-card active" data-value="maxima">
+<div class="intensity-badge">🔥 Máxima</div>
+<div class="intensity-desc">Mínimo permitido (Sin restricciones)</div>
+</div>
+</div>
+<input type="hidden" id="char-intensidad" name="intensidad" value="maxima">
+<p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">Aplica para las respuestas del personaje, el resumidor automático y la recapitulación.</p>
+</div>
+<div class="switch-group"><div class="switch-info"><div class="switch-title">🌍 Personaje público</div><div class="switch-desc">Aparecerá en la sección "Comunidad" para que otros usuarios lo descubran</div></div><label class="switch"><input type="checkbox" id="char-publico" name="publico"><span class="switch-slider"></span></label></div>
+</div>
+<div class="stepper-nav">
+<button type="button" class="btn btn-ghost" id="btn-step-back">Cancelar</button>
+<button type="button" class="btn btn-primary" id="btn-step-next">Siguiente →</button>
+<button type="submit" class="btn btn-primary hidden" id="btn-crear-personaje">Crear personaje</button>
+</div>
 </form>
 </div>
 </div>
@@ -1220,7 +1270,19 @@ const AURA_COLORS=['#ff4d8f','#4d79ff','#a855f7','#10b981','#f97316','#eab308'];
 let scrollChatPending=false;
 function sanitizeThemeColor(color){return AURA_COLORS.includes(color)?color:'#ff4d8f'}
 function scrollChatToBottom(force=false){const messages=document.getElementById('chat-messages');if(!messages)return;if(force){messages.scrollTop=messages.scrollHeight;return}if(scrollChatPending)return;scrollChatPending=true;requestAnimationFrame(()=>{messages.scrollTop=messages.scrollHeight;scrollChatPending=false})}
-function registrarServiceWorker(){if(!('serviceWorker' in navigator))return;const register=()=>navigator.serviceWorker.register('./sw.js').then(reg=>console.log('✅ Service Worker registrado:',reg.scope)).catch(err=>console.error('❌ Falló el registro del Service Worker:',err));if(document.readyState==='complete')register();else window.addEventListener('load',register,{once:true})}
+function registrarServiceWorker(){if(!('serviceWorker' in navigator))return;const register=()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{console.log('✅ Service Worker registrado:',reg.scope);reg.addEventListener('updatefound',()=>{const nuevo=reg.installing;if(!nuevo)return;nuevo.addEventListener('statechange',()=>{if(nuevo.state==='installed'&&navigator.serviceWorker.controller){navigator.serviceWorker.addEventListener('controllerchange',()=>{aplicarActualizacionNueva()},{once:true})}})})}).catch(err=>console.error('❌ Falló el registro del Service Worker:',err));if(document.readyState==='complete')register();else window.addEventListener('load',register,{once:true})}
+let actualizacionPendiente=false;
+function aplicarActualizacionNueva(){
+  const ocupado=isStreaming||currentChatId&&(chatInput?.value.trim())||!!document.querySelector('.modal-overlay.visible');
+  if(ocupado){
+    actualizacionPendiente=true;
+    showToast('🔄 Nueva versión disponible. Se actualizará al terminar.');
+    return;
+  }
+  showToast('🔄 Actualizando a la nueva versión...');
+  setTimeout(()=>window.location.reload(),900);
+}
+document.addEventListener('visibilitychange',()=>{if(actualizacionPendiente&&document.visibilityState==='visible'){actualizacionPendiente=false;aplicarActualizacionNueva()}});
 registrarServiceWorker();
 const CACHE={personajes:null,personajesComunidad:null,anuncios:null,usernames:{},cacheTime:{personajes:0,personajesComunidad:0,anuncios:0},TTL:30000},LOADING={personajes:!1,personajesComunidad:!1,anuncios:!1};
 function limpiarCacheUsuario(){CACHE.personajes=null;CACHE.personajesComunidad=null;CACHE.anuncios=null;CACHE.cacheTime.personajes=0;CACHE.cacheTime.personajesComunidad=0;CACHE.cacheTime.anuncios=0}
@@ -1641,6 +1703,7 @@ function renderAnunciosContent(anuncios){const container=document.getElementById
 async function abrirEditorPersonaje(id=null){
   const form=document.getElementById('form-personaje');
   form.reset();
+  irAPasoCharacter(1,false);
   document.getElementById('avatar-remove').click();
   document.getElementById('char-id').value='';
   if(id){
@@ -1730,7 +1793,7 @@ document.querySelectorAll('.aura-color-option').forEach(opt => {
     document.getElementById('char-color').value = opt.dataset.color;
   });
 });
-document.getElementById('form-personaje').addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('btn-crear-personaje'),originalText=btn.textContent;btn.disabled=!0;btn.textContent='Guardando...';try{const fd = new FormData(e.target);
+document.getElementById('form-personaje').addEventListener('submit',async e=>{e.preventDefault();const invalido=document.querySelector('#form-personaje [required]:invalid');if(invalido){const paso=invalido.closest('.char-step');if(paso)irAPasoCharacter(parseInt(paso.dataset.step),false);showToast('Completá los campos obligatorios antes de guardar','error');setTimeout(()=>invalido.reportValidity(),80);return}const btn=document.getElementById('btn-crear-personaje'),originalText=btn.textContent;btn.disabled=!0;btn.textContent='Guardando...';try{const fd = new FormData(e.target);
 const datos = {
   nombre: fd.get('nombre'),
   descripcion_corta: fd.get('descripcion_corta'),
@@ -1744,6 +1807,107 @@ const datos = {
   intensidad: normalizarIntensidad(document.getElementById('char-intensidad').value)
 };
 const id = document.getElementById('char-id').value;if(id){const updated=await actualizarPersonaje(id,datos);actualizarAvatarEnUI(updated);showToast('✅ Personaje actualizado')}else{const created=await crearPersonaje(datos);showToast('✅ Personaje creado')}closeModal('character-modal');CACHE.personajes=null;CACHE.cacheTime.personajes=0;CACHE.personajesComunidad=null;CACHE.cacheTime.personajesComunidad=0;renderCharacters()}catch(err){showToast(`❌ ${err.message}`,'error')}finally{btn.disabled=!1;btn.textContent=originalText}});
+let currentCharStep=1;
+function irAPasoCharacter(n,validar=true){
+  if(n===currentCharStep)return;
+  if(validar&&n>currentCharStep){
+    for(let s=currentCharStep;s<n;s++){
+      const paso=document.querySelector(`.char-step[data-step="${s}"]`);
+      const invalido=paso&&paso.querySelector('[required]:invalid');
+      if(invalido){invalido.reportValidity();return}
+    }
+  }
+  currentCharStep=n;
+  document.querySelectorAll('#form-personaje .char-step').forEach(p=>p.classList.toggle('hidden',parseInt(p.dataset.step)!==n));
+  document.querySelectorAll('.stepper-step').forEach(s=>{
+    const step=parseInt(s.dataset.step);
+    s.classList.toggle('active',step===n);
+    s.classList.toggle('done',step<n);
+  });
+  document.getElementById('btn-step-back').textContent=n===1?'Cancelar':'← Atrás';
+  document.getElementById('btn-step-next').classList.toggle('hidden',n===3);
+  document.getElementById('btn-crear-personaje').classList.toggle('hidden',n!==3);
+  const modal=document.querySelector('#character-modal .modal');
+  if(modal)modal.scrollTop=0;
+}
+document.querySelectorAll('.stepper-step').forEach(s=>s.addEventListener('click',()=>irAPasoCharacter(parseInt(s.dataset.step))));
+document.getElementById('btn-step-next').addEventListener('click',()=>irAPasoCharacter(currentCharStep+1));
+document.getElementById('btn-step-back').addEventListener('click',()=>{
+  if(currentCharStep===1){closeModal('character-modal');return}
+  irAPasoCharacter(currentCharStep-1,false);
+});
+function extraerJSONDeTexto(texto){
+  const limpiado=String(texto||'').trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
+  try{return JSON.parse(limpiado)}catch{}
+  const m=limpiado.match(/\{[\s\S]*\}/);
+  if(!m)throw new Error('Gemini no devolvió un JSON válido. Probá de nuevo.');
+  return JSON.parse(m[0]);
+}
+function setAuraColorUI(color){
+  const validos=['#ff4d8f','#4d79ff','#a855f7','#10b981','#f97316','#eab308'];
+  if(!validos.includes(color))return;
+  document.getElementById('char-color').value=color;
+  document.querySelectorAll('.aura-color-option').forEach(o=>{
+    const activo=o.dataset.color===color;
+    o.classList.toggle('active',activo);
+    o.style.borderColor=activo?'#fff':'transparent';
+    o.style.boxShadow=activo?`0 0 12px ${hexToRgba(color,0.6)}`:'none';
+  });
+}
+async function generarPersonajeConIA(){
+  const idea=document.getElementById('ai-idea').value.trim();
+  const statusEl=document.getElementById('ai-status');
+  if(!idea){showToast('Escribí una idea para tu personaje','error');return}
+  const apiKey=getGeminiKey();
+  if(!apiKey){showToast('⚠️ Configura tu API Key en Ajustes de Rol (🎭)','error');return}
+  const genBtn=document.getElementById('btn-ai-generar');
+  genBtn.disabled=true;genBtn.textContent='Generando...';
+  statusEl.textContent='⏳ Pensando tu personaje...';
+  try{
+    const systemPrompt=`Eres un diseñador experto de personajes para una app de roleplay narrativo con IA. A partir de la idea del usuario, crea un personaje completo, coherente e inmersivo.
+Devuelve EXCLUSIVAMENTE un objeto JSON válido, sin markdown, sin explicaciones ni texto adicional, con EXACTAMENTE estas claves:
+{"nombre":"Nombre corto y atractivo (máx 60 caracteres)","descripcion_corta":"Descripción en 1 frase para una tarjeta (máx 200 caracteres)","personalidad":"Rasgos de personalidad detallados y forma de hablar (2-4 párrafos breves)","saludo":"*acción entre asteriscos* + diálogo de presentación del personaje (1-2 frases)","escenario":"Descripción del lugar y la situación donde empieza la historia (1-2 párrafos)","ejemplos":"2 ejemplos de diálogo en este formato exacto con salto de línea: {{user}}: ...\n{{char}}: ...","color":"uno de estos hex exactos: #ff4d8f, #4d79ff, #a855f7, #10b981, #f97316, #eab308"}
+El tono debe ser consistente con la idea del usuario.`;
+    const body={system_instruction:{parts:[{text:systemPrompt}]},contents:[{role:'user',parts:[{text:`Idea: ${idea}`}]}],safetySettings:getSafetySettings('mediana'),generationConfig:{temperature:1,topP:.95,topK:40,maxOutputTokens:2048}};
+    const response=await fetch(geminiUrl('gemini-3.7-flash',false),{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body)});
+    if(!response.ok){const errText=await response.text();let msg=`Error al generar (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(msg)}
+    const data=await response.json();
+    const texto=data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!texto){
+      if(data.promptFeedback&&data.promptFeedback.blockReason)throw new Error(`Generación bloqueada (${data.promptFeedback.blockReason}). Probá con otra idea.`);
+      throw new Error('No se pudo generar el personaje');
+    }
+    const res=extraerJSONDeTexto(texto);
+    const nombre=(res.nombre||'').trim().slice(0,60);
+    if(!nombre)throw new Error('Gemini no generó un nombre válido. Probá de nuevo.');
+    document.getElementById('char-nombre').value=nombre;
+    document.getElementById('char-desc').value=(res.descripcion_corta||'').trim().slice(0,200);
+    document.getElementById('char-personalidad').value=(res.personalidad||'').trim();
+    document.getElementById('char-escenario').value=(res.escenario||'').trim();
+    document.getElementById('char-saludo').value=(res.saludo||'').trim().slice(0,2000);
+    document.getElementById('char-ejemplos').value=(res.ejemplos||'').trim();
+    setAuraColorUI(String(res.color||'').toLowerCase());
+    statusEl.textContent='✅ Personaje generado. Revisá los campos y ajustá lo que quieras.';
+    showToast('✅ Personaje generado con IA');
+    irAPasoCharacter(1,false);
+  }catch(err){
+    statusEl.textContent='';
+    showToast(`❌ ${err.message}`,'error');
+  }finally{
+    genBtn.disabled=false;genBtn.textContent='⚡ Generar';
+  }
+}
+document.getElementById('btn-ai-crear').addEventListener('click',()=>{
+  const panel=document.getElementById('ai-assistant');
+  panel.classList.toggle('hidden');
+  if(!panel.classList.contains('hidden'))document.getElementById('ai-idea').focus();
+});
+document.getElementById('btn-ai-generar').addEventListener('click',generarPersonajeConIA);
+document.getElementById('btn-ai-cancel').addEventListener('click',()=>{
+  document.getElementById('ai-assistant').classList.add('hidden');
+  document.getElementById('ai-status').textContent='';
+  document.getElementById('ai-idea').value='';
+});
 document.querySelectorAll('.dashboard-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.dashboard-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');currentView=tab.dataset.view;const title=document.getElementById('dashboard-title'),subtitle=document.getElementById('dashboard-subtitle'),btnNuevo=document.getElementById('btn-nuevo-personaje');if(currentView==='my-characters'){title.textContent='Tus personajes';subtitle.textContent='Crea, edita y chatea con tus personajes de IA';btnNuevo.style.display='inline-flex';renderCharacters()}else if(currentView==='community'){title.textContent='Comunidad';subtitle.textContent='Descubre personajes creados por otros usuarios';btnNuevo.style.display='none';renderCharacters()}else if(currentView==='announcements'){title.textContent='Anuncios';subtitle.textContent=isOwner()?'Publica anuncios para toda la comunidad':'Anuncios oficiales del Owner';btnNuevo.style.display='none';renderAnuncios()}})});
 async function abrirChatConPersonaje(personajeId){try{currentCharacter=await obtenerPersonaje(personajeId);currentChatId=null;await verificarYMostrarModalRol();const avatarEl=document.getElementById('chat-char-avatar');const safeAvatar=sanitizeImageUrl(currentCharacter.avatar_url);if(safeAvatar)avatarEl.innerHTML=`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`;else avatarEl.textContent=currentCharacter.nombre.charAt(0).toUpperCase();document.getElementById('chat-char-name').textContent=currentCharacter.nombre;document.getElementById('chat-char-sub').textContent='Chats';document.getElementById('chat-view').classList.add('visible');document.getElementById('dashboard').style.display='none';document.body.style.overflow='hidden';
 
@@ -1939,12 +2103,17 @@ window.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
 
+const SPLASH_MIN_MS=1800,splashInicio=Date.now();
 function ocultarSplash(){
   if(splash && !splash.classList.contains('hidden')){
-    splash.classList.add('hidden');
-    setTimeout(()=>{
-      splash.style.display='none';
-    },1000);
+    const restante=SPLASH_MIN_MS-(Date.now()-splashInicio);
+    const ocultar=()=>{
+      splash.classList.add('hidden');
+      setTimeout(()=>{
+        splash.style.display='none';
+      },1000);
+    };
+    if(restante>0)setTimeout(ocultar,restante);else ocultar();
   }
 }
 

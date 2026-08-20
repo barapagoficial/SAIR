@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sair-v2.2.4';
+const CACHE_NAME = 'sair-v2.2.8';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -49,7 +49,7 @@ self.addEventListener('fetch', (e) => {
   // Navegación (HTML): Network first, fallback a caché
   if (e.request.mode === 'navigate') {
     e.respondWith(
-      fetch(e.request)
+      fetch(e.request, { cache: 'no-store' })
         .then((response) => {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));

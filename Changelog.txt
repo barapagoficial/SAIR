@@ -2,6 +2,34 @@
  SAIR2 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[2.2.8] — 2026-08-19
+
+✨ Novedades
+- Crear personaje en 3 pasos (Identidad → Personalidad → Avanzado)
+  con indicador de progreso y validación por paso
+- ✨ Generar personaje con IA: describí tu idea en una línea y
+  Gemini 3.7 Flash crea nombre, descripción, personalidad, saludo,
+  escenario, ejemplos de diálogo y color de aura automáticamente
+  (usa siempre Gemini 3.7 Flash, igual que el recapitulador, sin
+  importar el modelo elegido para el roleplay)
+- Versión de la app visible en la esquina inferior derecha
+- Splash de carga un poco más duradero para que se lea la versión
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2.2.5] — 2026-08-19
+
+🐛 Correcciones y Mejoras
+- Actualización instantánea: ya no hace falta recargar 2 veces.
+  El service worker se verifica sin caché (updateViaCache: none),
+  la navegación ignora la caché HTTP (cache: no-store) y al detectar
+  una versión nueva la app se actualiza sola (con aviso si estás
+  escribiendo o en medio de un chat)
+- Arreglado el salto de la página hacia la izquierda al recargar
+  (scrollbar-gutter estable)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [2.2.4] — 2026-08-19
 
 ✨ Novedades
