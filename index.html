@@ -2019,20 +2019,22 @@ async function regenerarRespuesta(mensajeId, bubbleElement) {
     const ultimoUser = historialBase[historialBase.length - 1];
     if (!ultimoUser || ultimoUser.rol !== 'user') throw new Error('No se encontró el mensaje del usuario correspondiente');
     historialOriginal = mensajes.slice();
-    if (bubbleElement) {
-      bubbleElement.className = 'message-bubble assistant';
-      bubbleElement.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    // Elimina la respuesta anterior (y cualquier rama posterior) antes de generar.
+    establecerHistorialChat(historialBase);
+    await actualizarHistorialChat(currentChatId, historialBase);
+    const { historialProcesado, necesitaActualizacion } = await procesarHistorialSiEsNecesario(historialBase);
+    if (necesitaActualizacion) {
+      await actualizarHistorialChat(currentChatId, historialProcesado);
+      establecerHistorialChat(historialProcesado);
     }
-    const { historialProcesado } = await procesarHistorialSiEsNecesario(historialBase);
+    const bubbleIA = agregarBubble('', 'assistant', true);
     const generator = enviarAGeminiStream(currentCharacter.system_prompt, historialProcesado, ultimoUser.contenido, currentCharacter.max_tokens || 4096);
     let textoCompleto = '';
     for await (const chunk of generator) {
       textoCompleto += chunk;
-      if (bubbleElement) {
-        const typing = bubbleElement.querySelector('.typing-indicator');
-        if (typing) typing.remove();
-        bubbleElement.innerHTML = renderMarkdown(textoCompleto) + '<span class="streaming-cursor"></span>';
-      }
+      const typing = bubbleIA.querySelector('.typing-indicator');
+      if (typing) typing.remove();
+      bubbleIA.innerHTML = renderMarkdown(textoCompleto) + '<span class="streaming-cursor"></span>';
       scrollChatToBottom();
     }
     if (!textoCompleto.trim()) throw new Error('Gemini no generó ninguna respuesta');
@@ -2043,7 +2045,10 @@ async function regenerarRespuesta(mensajeId, bubbleElement) {
     showToast('✅ Respuesta regenerada');
   } catch (err) {
     console.error('Error al regenerar:', err);
-    if (historialOriginal) establecerHistorialChat(historialOriginal);
+    if (historialOriginal) {
+      await actualizarHistorialChat(currentChatId, historialOriginal).catch(() => {});
+      establecerHistorialChat(historialOriginal);
+    }
     const isRateLimit = err.message && (err.message.includes('429') || /rate limit|quota|too many requests/i.test(err.message));
     if (isRateLimit) mostrarErrorRateLimit(null, err.message, 'regenerate', { mensajeId, bubbleElement: document.querySelector(`[data-mensaje-id="${mensajeId}"]`) });
     else showToast(`❌ ${err.message}`, 'error');
@@ -2069,8 +2074,14 @@ async function guardarEdicionMensaje(bubble) {
     historialOriginal = mensajes.slice();
     const nuevoMsg = { id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5), rol: 'user', contenido: nuevoTexto };
     const historialBase = [...mensajes.slice(0, idx), nuevoMsg];
-    bubble.classList.remove('editing');
-    const { historialProcesado } = await procesarHistorialSiEsNecesario(historialBase);
+    // Confirma visualmente la edición y elimina la respuesta anterior antes del streaming.
+    establecerHistorialChat(historialBase);
+    await actualizarHistorialChat(currentChatId, historialBase);
+    const { historialProcesado, necesitaActualizacion } = await procesarHistorialSiEsNecesario(historialBase);
+    if (necesitaActualizacion) {
+      await actualizarHistorialChat(currentChatId, historialProcesado);
+      establecerHistorialChat(historialProcesado);
+    }
     const bubbleIA = agregarBubble('', 'assistant', true);
     const generator = enviarAGeminiStream(currentCharacter.system_prompt, historialProcesado, nuevoTexto, currentCharacter.max_tokens || 4096);
     let textoCompleto = '';
@@ -2089,7 +2100,10 @@ async function guardarEdicionMensaje(bubble) {
     showToast('✅ Mensaje editado y respuesta regenerada');
   } catch (err) {
     console.error('Error al editar:', err);
-    if (historialOriginal) establecerHistorialChat(historialOriginal);
+    if (historialOriginal) {
+      await actualizarHistorialChat(currentChatId, historialOriginal).catch(() => {});
+      establecerHistorialChat(historialOriginal);
+    }
     showToast(`❌ ${err.message}`, 'error');
   } finally {
     isStreaming = false;
