@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SAIR2">
+<meta name="apple-mobile-web-app-title" content="SAIR">
 <link rel="icon" type="image/png" href="icon-192.png" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#ff4d8f">
@@ -399,6 +399,8 @@ body[data-theme="light"]{--neon-pink:#ff4d8f;--neon-purple:#a855f7;--neon-blue:#
 .recap-title{font-size:1.3rem}
 }
 @media(max-width:480px){
+.toast{top:max(.75rem,env(safe-area-inset-top));right:.75rem;bottom:auto;max-width:calc(100vw - 1.5rem);transform:translateY(-140%)}
+.toast.visible{transform:translateY(0)}
 .recap-actions{flex-direction:column}
 .recap-features{padding:.8rem}
 }
@@ -408,8 +410,12 @@ body[data-theme="light"]{--neon-pink:#ff4d8f;--neon-purple:#a855f7;--neon-blue:#
 .edit-actions button{padding:.4rem .8rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;font-family:var(--font-sans)}
 .edit-save{background:var(--grad-main);color:#fff;box-shadow:0 4px 12px var(--pink-glow)}
 .edit-cancel{background:var(--bg-input);color:var(--text-2);border:1px solid var(--border)!important}
-.toast{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%) translateY(120px);padding:1rem 1.8rem;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-1);font-size:.92rem;font-weight:500;box-shadow:0 15px 50px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.05);z-index:3000;opacity:0;transition:all .5s cubic-bezier(0.68,-0.55,0.265,1.55);display:flex;align-items:center;gap:.6rem;max-width:90vw;backdrop-filter:blur(20px);pointer-events:none}
-.toast.visible{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast{position:fixed;right:1.25rem;bottom:1.25rem;transform:translateX(120%) translateY(0);padding:.85rem 2.15rem .85rem 1rem;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-1);font-size:.92rem;font-weight:500;box-shadow:0 15px 50px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.05);z-index:3000;opacity:0;transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .25s ease;display:flex;align-items:center;gap:.6rem;max-width:min(420px,calc(100vw - 2.5rem));backdrop-filter:blur(20px);pointer-events:none;touch-action:pan-y;will-change:transform}
+.toast.visible{opacity:1;transform:translateX(0);pointer-events:auto}
+.toast-content{padding-right:.25rem}
+.toast-close{position:absolute;top:.28rem;right:.35rem;width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--text-3);font-size:1.1rem;line-height:1;cursor:pointer;display:grid;place-items:center}
+.toast-close:hover{background:var(--bg-card-hover);color:var(--text-1)}
+.toast.swiping{transition:none;opacity:.82}
 .toast.success{border-color:rgba(34,197,94,.3)}
 .toast.success::before{content:'✓';color:#4ade80;font-weight:700}
 .toast.error{border-color:rgba(239,68,68,.3)}
@@ -521,9 +527,10 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 #character-modal .modal{width:100%;max-width:none;max-height:calc(100vh - 1rem);margin:0;overflow-x:hidden;padding:.9rem}
 #character-modal .modal-header{gap:.5rem;margin-bottom:1rem;padding-bottom:.7rem}
 #character-modal .modal-title{font-size:1.05rem;min-width:0}
-#character-modal .stepper{width:100%;gap:.25rem;overflow:hidden}
-#character-modal .stepper-step{min-width:0;flex:1;justify-content:center;gap:.25rem;padding:.3rem .2rem;font-size:.68rem}
-#character-modal .stepper-line{min-width:4px}
+#character-modal .stepper{width:100%;gap:.25rem;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;scrollbar-width:none}
+#character-modal .stepper::-webkit-scrollbar{display:none}
+#character-modal .stepper-step{min-width:max-content;flex:0 0 auto;justify-content:center;gap:.25rem;padding:.3rem .35rem;font-size:.68rem}
+#character-modal .stepper-line{flex:0 0 16px;min-width:16px}
 #character-modal .stepper-num{width:20px;height:20px;font-size:.65rem}
 #character-modal .form-label .hint{margin-left:.2rem}
 #character-modal .stepper-nav{gap:.5rem}
@@ -659,7 +666,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 .user-badge{transition:all .3s ease}
 .user-badge:hover{border-color:rgba(255,77,143,.3);box-shadow:0 4px 20px rgba(255,77,143,.1)}
 
-/* Mejoras de Experiencia Visual y UX (SAIR2) */
+/* Mejoras de Experiencia Visual y UX (SAIR) */
 .streaming-cursor {
   display: inline-block;
   width: 8px;
@@ -856,13 +863,33 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
     background: #f5f5fa !important;
   }
 }
+/* Modo visual ligero: conserva la funcionalidad y reduce coste de pintura. */
+body.performance-light .chat-main.has-background .chat-messages,
+body.performance-light .chat-input,
+body.performance-light .message-bubble,
+body.performance-light .modal,
+body.performance-light .character-card,
+body.performance-light .auth-container { backdrop-filter:none!important; -webkit-backdrop-filter:none!important; }
+body.performance-light * { animation:none!important; transition-duration:.01ms!important; }
+body.performance-light .chat-messages { background:var(--bg-0)!important; }
+body.performance-light .chat-bg-img { display:none!important; }
+.display-mode-option.active { border-color:var(--pink)!important; color:var(--pink)!important; background:rgba(255,77,143,.1)!important; }
+@media (max-width:768px), (pointer:coarse) {
+  .toast { top:max(.75rem,env(safe-area-inset-top)); right:.75rem; bottom:auto; left:auto; width:max-content; max-width:calc(100vw - 1.5rem); min-height:0; height:auto; box-sizing:border-box; transform:translateY(-150%)!important; }
+  .toast.visible { transform:translateY(0)!important; }
+  .toast-close { display:none!important; }
+  .toast-content { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; }
+}
 </style>
 </head>
 <body data-theme="dark">
 
 <div id="splash">
 <div class="splash-developer">Desarrollado por Moon-BaraPag</div>
-<h1 class="splash-title">SAIR2</h1>
+<h1 class="splash-title">SAIR</h1>
 <div class="splash-sub">v2.2.8</div>
 </div>
 
@@ -894,6 +921,15 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <div class="theme-option" data-theme-value="dark"><div class="theme-option-icon dark-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div><span class="theme-option-label">Oscuro</span></div>
 <div class="theme-option" data-theme-value="light"><div class="theme-option-icon light-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div><span class="theme-option-label">Claro</span></div>
 </div>
+</div>
+<div class="settings-section">
+<label class="section-label">Rendimiento visual</label>
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+<button class="btn btn-ghost btn-small display-mode-option" data-display-mode="auto">Automático</button>
+<button class="btn btn-ghost btn-small display-mode-option" data-display-mode="light">Modo ligero</button>
+<button class="btn btn-ghost btn-small display-mode-option" data-display-mode="full">Modo completo</button>
+</div>
+<p style="font-size:.75rem;color:var(--text-4);margin-top:.5rem;">Automático usa menos efectos en móviles y conserva todos los detalles en ordenadores.</p>
 </div>
 <div class="settings-section">
 <label class="section-label">Fondo del chat</label>
@@ -931,7 +967,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <div class="settings-section" id="pwa-install-section">
   <label class="section-label">Aplicación</label>
   <button class="btn btn-primary btn-small" id="btn-install-pwa" style="width:100%; text-align:center;">
-    📲 Instalar SAIR2 en este dispositivo
+    📲 Instalar SAIR en este dispositivo
   </button>
   <p style="font-size:.72rem;color:var(--text-4);margin-top:.5rem;text-align:center;">Instala la app para acceder sin navegador, como una app nativa.</p>
 </div>
@@ -947,15 +983,15 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 <!-- Modal de instalación PWA -->
 <div class="modal-overlay" id="pwa-install-modal">
 <div class="modal" style="max-width:440px">
-<div class="modal-header"><h2 class="modal-title">📲 Instalar SAIR2</h2><button class="modal-close" data-close-modal="pwa-install-modal">✕</button></div>
+<div class="modal-header"><h2 class="modal-title">📲 Instalar SAIR</h2><button class="modal-close" data-close-modal="pwa-install-modal">✕</button></div>
 <div id="pwa-install-body"></div>
 </div>
 </div>
 
 <!-- Banner flotante de instalación PWA -->
-<div id="pwa-install-banner" class="hidden" role="dialog" aria-label="Instalar SAIR2">
+<div id="pwa-install-banner" class="hidden" role="dialog" aria-label="Instalar SAIR">
 <div class="pwa-banner-icon">📲</div>
-<div class="pwa-banner-text"><strong>Instala SAIR2</strong><span>Acceso directo, sin navegador</span></div>
+<div class="pwa-banner-text"><strong>Instala SAIR</strong><span>Acceso directo, sin navegador</span></div>
 <button class="btn btn-primary btn-small" id="pwa-banner-install">Instalar</button>
 <button class="pwa-banner-close" id="pwa-banner-close" title="Cerrar">✕</button>
 </div>
@@ -1144,7 +1180,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 </div>
 <div id="auth-screen">
 <div class="auth-container">
-<div class="auth-header"><h2 class="auth-title">Bienvenido a SAIR2</h2><p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p></div>
+<div class="auth-header"><h2 class="auth-title">Bienvenido a SAIR</h2><p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p></div>
 <div class="auth-tabs"><button class="auth-tab active" data-tab="login">Iniciar Sesión</button><button class="auth-tab" data-tab="register">Registrarse</button></div>
 <form id="login-form" class="auth-form active">
 <div class="form-group"><label class="form-label" for="login-email">Correo electrónico</label><input type="email" id="login-email" class="form-input" placeholder="tu@email.com" required></div>
@@ -1154,7 +1190,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 </form>
 <form id="register-form" class="auth-form">
 <div class="form-group"><label class="form-label" for="register-email">Correo electrónico</label><input type="email" id="register-email" class="form-input" placeholder="tu@email.com" required></div>
-<div class="form-group"><label class="form-label" for="register-password">Contraseña</label><input type="password" id="register-password" class="form-input" placeholder="Mínimo 6 caracteres" minlength="6" required></div>
+<div class="form-group"><label class="form-label" for="register-password">Contraseña de la cuenta</label><input type="password" id="register-password" class="form-input" placeholder="Mínimo 6 caracteres" minlength="6" required></div>
 <div class="form-group"><label class="form-label" for="register-confirm">Confirmar contraseña</label><input type="password" id="register-confirm" class="form-input" placeholder="Repite tu contraseña" minlength="6" required></div>
 <button type="submit" class="btn btn-primary" style="width:100%">Crear Cuenta</button>
 <div id="register-message" class="form-message"></div>
@@ -1258,8 +1294,8 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
 
 <script src="supabase.js"></script>
 <script>
-const CONFIG={SUPABASE_URL:'https://tcnzimhqjyivlrvqzwpb.supabase.co',SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',LS:{THEME:'sair1_theme',GEMINI_KEY:'sair1_gemini_key',GEMINI_MODEL:'sair1_gemini_model'}};
-let sbClient=null,currentUser=null,userRole=null,userUsername=null,userAvatarUrl=null,userRoleName=null,currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null;
+const CONFIG={SUPABASE_URL:'https://tcnzimhqjyivlrvqzwpb.supabase.co',SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',LS:{THEME:'sair1_theme',GEMINI_KEY:'sair1_gemini_key',GEMINI_MODEL:'sair1_gemini_model',DISPLAY_MODE:'sair1_display_mode'}};
+let sbClient=null,currentUser=null,userRole=null,userUsername=null,userAvatarUrl=null,userRoleName=null,currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null,lastGeminiFinishReason='';
 
 // Crear el cliente Supabase inmediatamente al cargar el script
 // para que los tokens de sesión en localStorage estén disponibles desde el inicio
@@ -1299,7 +1335,10 @@ const CACHE={personajes:null,personajesComunidad:null,anuncios:null,usernames:{}
 function limpiarCacheUsuario(){CACHE.personajes=null;CACHE.personajesComunidad=null;CACHE.anuncios=null;CACHE.cacheTime.personajes=0;CACHE.cacheTime.personajesComunidad=0;CACHE.cacheTime.anuncios=0}
 function isCacheValid(k){return CACHE[k]&&Date.now()-CACHE.cacheTime[k]<CACHE.TTL}
 async function ejecutarConRefresh(fn,maxRetries=1){for(let intent=0;intent<=maxRetries;intent++){try{return await fn()}catch(err){if(err.message&&(err.message.includes('JWT expired')||err.message.includes('jwt expired')||err.message.includes('invalid token')||err.message.includes('token expired'))){if(intent<maxRetries){try{const{data,error}=await sbClient.auth.refreshSession();if(error){console.error('❌ Error al refrescar sesión:',error);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}if(data.session){currentUser=data.session.user;await cargarPerfilYRol();console.log('✅ Sesión refrescada correctamente');continue}}catch(refreshErr){console.error('❌ Falló el refresco de sesión:',refreshErr);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}}}throw err}}}
-function showToast(message,type='success'){const toast=document.getElementById('toast');let safeMessage=message;if(message.includes('violates row-level security')||message.includes('permission denied')||message.includes('relation')||message.includes('column')||message.includes('table'))safeMessage='Error de permisos. Contacta al administrador.';const div=document.createElement('div');div.textContent=safeMessage;toast.innerHTML=div.innerHTML;toast.className=`toast ${type}`;setTimeout(()=>toast.classList.add('visible'),10);setTimeout(()=>toast.classList.remove('visible'),3500)}
+let toastTimer=null,toastTouchStartX=0,toastTouchCurrentX=0;
+function ocultarToast(){const toast=document.getElementById('toast');if(!toast)return;clearTimeout(toastTimer);toast.classList.remove('visible','swiping');toast.style.transform='';}
+function prepararToastGestos(){const toast=document.getElementById('toast');if(!toast||toast.dataset.gestureReady)return;toast.dataset.gestureReady='true';toast.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;toastTouchStartX=e.clientX;toastTouchCurrentX=e.clientX;toast.classList.add('swiping');toast.setPointerCapture?.(e.pointerId)});toast.addEventListener('pointermove',e=>{if(!toast.classList.contains('swiping'))return;toastTouchCurrentX=e.clientX;const dx=toastTouchCurrentX-toastTouchStartX;if(Math.abs(dx)>4)toast.style.transform=`translateX(${dx}px)`});toast.addEventListener('pointerup',e=>{if(!toast.classList.contains('swiping'))return;const dx=toastTouchCurrentX-toastTouchStartX;toast.classList.remove('swiping');if(Math.abs(dx)>55){ocultarToast();return}toast.style.transform='';});toast.addEventListener('pointercancel',()=>{toast.classList.remove('swiping');toast.style.transform=''})}
+function showToast(message,type='success'){const toast=document.getElementById('toast');if(!toast)return;let safeMessage=String(message||'');if(safeMessage.includes('violates row-level security')||safeMessage.includes('permission denied')||safeMessage.includes('relation')||safeMessage.includes('column')||safeMessage.includes('table'))safeMessage='Error de permisos. Contacta al administrador.';clearTimeout(toastTimer);toast.innerHTML='';const content=document.createElement('div');content.className='toast-content';content.textContent=safeMessage;const close=document.createElement('button');close.className='toast-close';close.type='button';close.setAttribute('aria-label','Cerrar notificación');close.textContent='×';close.addEventListener('click',ocultarToast);toast.append(content,close);toast.className=`toast ${type}`;toast.style.transform='';prepararToastGestos();requestAnimationFrame(()=>toast.classList.add('visible'));toastTimer=setTimeout(ocultarToast,3500)}
 function escapeHtml(str){if(!str)return '';const div=document.createElement('div');div.textContent=str;return div.innerHTML}
 function hexToRgba(hex, alpha) {
   if (!hex) return 'rgba(255,77,143,0.35)';
@@ -1600,6 +1639,10 @@ async function obtenerUsername(userId){if(!userId)return'anónimo';if(CACHE.user
 async function obtenerUsernamesBatch(userIds){if(!userIds||userIds.length===0)return{};const map={},idsSinCaché=userIds.filter(id=>!CACHE.usernames[id]);if(idsSinCaché.length===0){userIds.forEach(id=>{map[id]=CACHE.usernames[id]});return map}try{const{data,error}=await sbClient.from('perfiles').select('user_id, username').in('user_id',idsSinCaché);if(data&&!error){data.forEach(p=>{CACHE.usernames[p.user_id]=p.username;map[p.user_id]=p.username})}}catch(err){console.error('Error obteniendo usernames batch:',err)}userIds.forEach(id=>{if(!map[id])map[id]=CACHE.usernames[id]||id.substring(0,8)+'...'});return map}
 function applyTheme(theme){document.documentElement.classList.add('no-transitions');document.body.setAttribute('data-theme',theme);localStorage.setItem(CONFIG.LS.THEME,theme);document.querySelectorAll('.theme-option').forEach(opt=>{opt.classList.toggle('active',opt.dataset.themeValue===theme)});const x=document.body.offsetHeight;requestAnimationFrame(()=>{document.documentElement.classList.remove('no-transitions')})}
 applyTheme(localStorage.getItem(CONFIG.LS.THEME)||'dark');
+function aplicarModoVisual(mode){const valid=['auto','light','full'].includes(mode)?mode:'auto';const light=valid==='light'||(valid==='auto'&&window.matchMedia&&window.matchMedia('(max-width: 700px)').matches);document.body.classList.toggle('performance-light',light);document.documentElement.dataset.displayMode=valid;localStorage.setItem(CONFIG.LS.DISPLAY_MODE,valid);document.querySelectorAll('.display-mode-option').forEach(btn=>{btn.classList.toggle('active',btn.dataset.displayMode===valid)});}
+aplicarModoVisual(localStorage.getItem(CONFIG.LS.DISPLAY_MODE)||'auto');
+document.querySelectorAll('.display-mode-option').forEach(btn=>btn.addEventListener('click',()=>{aplicarModoVisual(btn.dataset.displayMode);showToast(`Modo ${btn.dataset.displayMode==='auto'?'automático':btn.dataset.displayMode==='light'?'ligero':'completo'} activado`)}));
+if(window.matchMedia){window.matchMedia('(max-width: 700px)').addEventListener?.('change',()=>{if((localStorage.getItem(CONFIG.LS.DISPLAY_MODE)||'auto')==='auto')aplicarModoVisual('auto')});}
 function openModal(id){document.getElementById(id).classList.add('visible')}
 function closeModal(id){if(id==='politicas-modal'){const modal=document.getElementById('politicas-modal');if(modal&&modal._preventClose)return}const el=document.getElementById(id);if(el)el.classList.remove('visible')}
 document.getElementById('settings-btn').addEventListener('click',()=>{updateApiKeyUI();aplicarFondoChat();openModal('settings-modal')});
@@ -1693,19 +1736,20 @@ function construirSystemPrompt({nombre,personalidad,escenario,ejemplos,themeColo
 async function crearPersonaje(datos){if(!currentUser)throw new Error('No hay sesión');if(!datos.nombre?.trim())throw new Error('El nombre es obligatorio');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();if(avatar_url===undefined)avatar_url=null;const insertPayload={user_id:currentUser.id,nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,avatar_url,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave'};return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').insert(insertPayload).select().single();if(error){delete insertPayload.intensidad;const{data:d2,error:e2}=await sbClient.from('personajes').insert(insertPayload).select().single();if(e2)throw new Error(e2.message);return d2}return data})}
 async function actualizarPersonaje(id,datos){if(!currentUser)throw new Error('No hay sesión');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();const updates={nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave'};if(avatar_url!==undefined){updates.avatar_url=avatar_url;}return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').update(updates).eq('id',id).eq('user_id',currentUser.id).select().single();if(error){delete updates.intensidad;const{data:d2,error:e2}=await sbClient.from('personajes').update(updates).eq('id',id).eq('user_id',currentUser.id).select().single();if(e2)throw new Error(e2.message);return d2}return data})}
 async function listarPersonajes(){if(!currentUser)return[];return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').eq('user_id',currentUser.id).order('creado_en',{ascending:!1});if(error)throw new Error(error.message);return data||[]})}
-async function listarPersonajesComunidad(){if(!currentUser)return[];return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('id,nombre,descripcion_corta,avatar_url,publico,user_id,creado_en,system_prompt').eq('publico',!0).order('creado_en',{ascending:!1}).limit(50);if(error)throw new Error(error.message);return data||[]})}
+async function listarPersonajesComunidad(){if(!currentUser)return[];return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('id,nombre,descripcion_corta,avatar_url,publico,user_id,creado_en').eq('publico',!0).order('creado_en',{ascending:!1}).limit(50);if(error)throw new Error(error.message);return data||[]})}
 async function obtenerPersonaje(id){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').or(`publico.eq.true,user_id.eq.${currentUser.id}`).eq('id',id).single();if(error)throw new Error('Personaje no encontrado');return data})}
 async function eliminarPersonaje(id){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('personajes').delete().eq('id',id).eq('user_id',currentUser.id);if(error)throw new Error(error.message);return!0})}
 async function listarAnuncios(){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('anuncios').select('*').order('creado_en',{ascending:!1}).limit(50);if(error)throw new Error(error.message);return data||[]})}
 async function crearAnuncio(titulo,contenido){if(!isOwner())throw new Error('Solo el Owner puede publicar anuncios');return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('anuncios').insert({user_id:currentUser.id,titulo:titulo.trim(),contenido:contenido.trim()}).select().single();if(error)throw new Error(error.message);return data})}
 async function eliminarAnuncio(id){if(!isOwner())throw new Error('No autorizado');return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('anuncios').delete().eq('id',id);if(error)throw new Error(error.message);return!0})}
-async function crearNuevoChat(personajeId, historialInicial = []){if(!currentUser)throw new Error('No hay sesión');return ejecutarConRefresh(async()=>{const{data:personaje,error:pError}=await sbClient.from('personajes').select('id').or(`publico.eq.true,user_id.eq.${currentUser.id}`).eq('id',personajeId).single();if(pError||!personaje)throw new Error('No tienes permiso para chatear con este personaje');const{data,error}=await sbClient.from('chats').insert({user_id:currentUser.id,personaje_id:personajeId,historial:historialInicial}).select().single();if(error)throw new Error(error.message);return data})}
+async function crearNuevoChat(personajeId, historialInicial = []){if(!currentUser)throw new Error('No hay sesión');return ejecutarConRefresh(async()=>{const{data:personaje,error:pError}=await sbClient.from('personajes').select('id').or(`publico.eq.true,user_id.eq.${currentUser.id}`).eq('id',personajeId).single();if(pError||!personaje)throw new Error('No tienes permiso para chatear con este personaje');const{data,error}=await sbClient.from('chats').insert({user_id:currentUser.id,personaje_id:personajeId,historial:[]}).select().single();if(error)throw new Error(error.message);if(historialInicial.length){await reemplazarHistorialNormalizado(data.id,historialInicial)}return data})}
 async function listarChats(personajeId){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('chats').select('*').eq('user_id',currentUser.id).eq('personaje_id',personajeId).order('actualizado_en',{ascending:!1});if(error)throw new Error(error.message);return data||[]})}
 async function eliminarChat(chatId){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('chats').delete().eq('id',chatId).eq('user_id',currentUser.id);if(error)throw new Error(error.message);return!0})}
-async function cargarHistorialChat(chatId){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).eq('user_id',currentUser.id).single();if(error)throw new Error(error.message);let historial=chat?.historial||[];const historialGemini=historial.filter(m=>m.rol==='user'||m.rol==='assistant').map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));return{mensajes:historial,historialGemini}})}
-async function guardarMensaje(chatId,rol,contenido){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).eq('user_id',currentUser.id).single();if(error)throw new Error(error.message);const historial=chat.historial||[],nuevoMsg={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol,contenido};historial.push(nuevoMsg);const{error:updateError}=await sbClient.from('chats').update({historial}).eq('id',chatId).eq('user_id',currentUser.id);if(updateError)throw new Error(updateError.message);return nuevoMsg})}
-async function eliminarMensajeDeChat(chatId,mensajeId){return ejecutarConRefresh(async()=>{const{data:chat,error}=await sbClient.from('chats').select('historial').eq('id',chatId).eq('user_id',currentUser.id).single();if(error)throw new Error(error.message);let historial=chat.historial||[],nuevoHistorial=historial.filter(m=>m.id!==mensajeId);if(nuevoHistorial.length===historial.length)throw new Error('Mensaje no encontrado');const{error:updateError}=await sbClient.from('chats').update({historial:nuevoHistorial}).eq('id',chatId).eq('user_id',currentUser.id);if(updateError)throw new Error(updateError.message);return!0})}
-async function actualizarHistorialChat(chatId,nuevoHistorial){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('chats').update({historial:nuevoHistorial}).eq('id',chatId).eq('user_id',currentUser.id);if(error)throw new Error(error.message);return!0})}
+async function cargarHistorialChat(chatId){return ejecutarConRefresh(async()=>{const{data:chat,error:chatError}=await sbClient.from('chats').select('historial,resumen,resumen_version,formato_version').eq('id',chatId).eq('user_id',currentUser.id).single();if(chatError)throw new Error(chatError.message);const{data:rows,error:messagesError}=await sbClient.from('mensajes').select('id,rol,contenido,creado_en,orden').eq('chat_id',chatId).order('orden',{ascending:true,nullsFirst:false}).order('creado_en',{ascending:true}).order('id',{ascending:true});if(messagesError)throw new Error(messagesError.message);let mensajes=(rows||[]).map(m=>({id:m.id,rol:m.rol,contenido:m.contenido,creado_en:m.creado_en,orden:m.orden}));if(mensajes.length===0&&Array.isArray(chat?.historial)){mensajes=chat.historial.filter(m=>m&&['user','assistant'].includes(m.rol)).map((m,i)=>({...m,orden:i+1}));}if(chat?.resumen){mensajes=[{id:`summary-${chat.resumen_version||1}`,rol:'summary',contenido:chat.resumen,summary_version:chat.resumen_version||1,orden:0},...mensajes]}else if(Array.isArray(chat?.historial)){const legacySummary=chat.historial.find(m=>m?.rol==='summary');if(legacySummary)mensajes=[{...legacySummary,orden:0},...mensajes]}const historialGemini=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant').map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));return{mensajes,historialGemini}})}
+async function reemplazarHistorialNormalizado(chatId,historial){const resumenItem=(historial||[]).find(m=>m?.rol==='summary');const mensajes=(historial||[]).filter(m=>m&&['user','assistant'].includes(m.rol)).map(m=>({id:m.id||null,rol:m.rol,contenido:String(m.contenido||''),creado_en:m.creado_en||null}));const{error}=await sbClient.rpc('reemplazar_historial_chat',{p_chat_id:chatId,p_resumen:resumenItem?.contenido||null,p_resumen_version:resumenItem?.summary_version||1,p_mensajes:mensajes});if(error)throw new Error(error.message);return!0}
+async function guardarMensaje(chatId,rol,contenido){return ejecutarConRefresh(async()=>{const{data:last,error:lastError}=await sbClient.from('mensajes').select('orden').eq('chat_id',chatId).order('orden',{ascending:false,nullsFirst:false}).limit(1).maybeSingle();if(lastError)throw new Error(lastError.message);const orden=(Number(last?.orden)||0)+1;const nuevoMsg={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol,contenido,creado_en:new Date().toISOString(),orden};const{error}=await sbClient.from('mensajes').insert({id:nuevoMsg.id,chat_id:chatId,rol,contenido,creado_en:nuevoMsg.creado_en,orden});if(error)throw new Error(error.message);const{error:updateError}=await sbClient.from('chats').update({actualizado_en:new Date().toISOString(),formato_version:2}).eq('id',chatId).eq('user_id',currentUser.id);if(updateError)throw new Error(updateError.message);return nuevoMsg})}
+async function eliminarMensajeDeChat(chatId,mensajeId){return ejecutarConRefresh(async()=>{const{mensajes}=await cargarHistorialChat(chatId),nuevoHistorial=mensajes.filter(m=>m.id!==mensajeId);if(nuevoHistorial.length===mensajes.length)throw new Error('Mensaje no encontrado');await reemplazarHistorialNormalizado(chatId,nuevoHistorial);return!0})}
+async function actualizarHistorialChat(chatId,nuevoHistorial){return ejecutarConRefresh(async()=>reemplazarHistorialNormalizado(chatId,nuevoHistorial))}
 async function* enviarAGeminiStream(systemPrompt,mensajes,nuevoMensaje,maxTokens=4096){const apiKey=getGeminiKey();if(!apiKey)throw new Error('⚠️ Configura tu API Key de Gemini en los Ajustes de Rol (🎭)');let resumen='',mensajesSinResumen=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant');const summaries=mensajes.filter(m=>m.rol==='summary');if(summaries.length>0){resumen=summaries.map(s=>s.contenido).join('\n\n');mensajesSinResumen=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant')}const systemPromptFinal=resumen?`${systemPrompt}\n\n[RESUMEN DE CONVERSACIONES ANTERIORES - CONTEXTO IMPORTANTE]:\n${resumen}\n\n[FIN DEL RESUMEN - Continúa con el roleplay normal manteniendo toda la información del resumen]`:systemPrompt;const model=getGeminiModel();let historialGemini=mensajesSinResumen.map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));const ultimo=mensajesSinResumen[mensajesSinResumen.length-1];if(nuevoMensaje&&!(ultimo&&ultimo.rol==='user'&&ultimo.contenido===nuevoMensaje)){historialGemini.push({role:'user',parts:[{text:nuevoMensaje}]})}if(historialGemini.length===0)throw new Error('No hay mensajes para enviar a Gemini');const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);const intensidadVal=currentCharacter?.intensidad||parsed.intensidad||'suave';const body={system_instruction:{parts:[{text:systemPromptFinal}]},contents:historialGemini,safetySettings:getSafetySettings(intensidadVal),generationConfig:{temperature:.9,topP:.95,topK:40,maxOutputTokens:maxTokens}},url=geminiUrl(model,true),controller=new AbortController(),timeoutId=setTimeout(()=>controller.abort(),12e4);let response;try{response=await fetch(url,{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body),signal:controller.signal})}catch(err){if(err.name==='AbortError')throw new Error('Tiempo de espera agotado. Gemini no respondió a tiempo.');throw err}finally{clearTimeout(timeoutId)}if(!response.ok){const errText=await response.text();let msg=`Error de Gemini (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(mensajeErrorGemini(msg))}if(!response.body)throw new Error('Gemini no devolvió una respuesta válida');const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',yieldedText=!1;const parseLine=line=>{const trimmed=line.trim();if(!trimmed)return;let payload=trimmed;if(payload.startsWith('data:'))payload=payload.slice(5).trim();if(!payload||payload==='[DONE]')return;let json;try{json=JSON.parse(payload)}catch{return}if(json.error?.message)throw new Error(mensajeErrorGemini(json.error.message));const candidate=json.candidates?.[0];if(!candidate)return;const finishReason=candidate.finishReason;if(finishReason&&finishReason!=='STOP'&&finishReason!=='MAX_TOKENS'){throw new Error(finishReason==='SAFETY'?'Respuesta bloqueada por filtros de seguridad':`Gemini detuvo la respuesta (${finishReason})`)}const text=candidate.content?.parts?.map(p=>p.text||'').join('')||'';if(text){yieldedText=true;return text}};for(;;){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()||'';for(const line of lines){const text=parseLine(line);if(text)yield text}}buffer+=decoder.decode();for(const line of buffer.split('\n')){const text=parseLine(line);if(text)yield text}if(!yieldedText)throw new Error('Gemini no generó ninguna respuesta. Intenta de nuevo.')}
 async function fetchWithRetry(fn,retries=2,delay=1e3){for(let i=0;i<=retries;i++){try{return await fn()}catch(err){if(err.message&&(err.message.includes('JWT expired')||err.message.includes('jwt expired')||err.message.includes('invalid token')||err.message.includes('token expired'))){try{const{data,error}=await sbClient.auth.refreshSession();if(error){console.error('❌ Error al refrescar sesión:',error);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}if(data.session){currentUser=data.session.user;await cargarPerfilYRol();console.log('✅ Sesión refrescada correctamente');return await fn()}}catch(refreshErr){console.error('❌ Falló el refresco de sesión:',refreshErr);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}}if(i===retries)throw err;await new Promise(r=>setTimeout(r,delay*(i+1)))}}}
 async function renderCharacters(){const container=document.getElementById('characters-container'),cacheKey=currentView==='my-characters'?'personajes':'personajesComunidad';if(LOADING[cacheKey])return;if(isCacheValid(cacheKey)&&CACHE[cacheKey]){renderCharactersGrid(CACHE[cacheKey],currentView!=='my-characters');return}LOADING[cacheKey]=!0;container.innerHTML=`<div style="max-width:1280px;margin:0 auto"><div style="margin-bottom:1.5rem;"><div class="skeleton-line short" style="height:24px;"></div></div><div class="characters-grid">${Array(6).fill(0).map(()=>`<div class="skeleton-card"><div class="skeleton-avatar"></div><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line"></div></div>`).join('')}</div></div>`;try{let personajes,esComunidad=!1;if(currentView==='my-characters')personajes=await fetchWithRetry(()=>listarPersonajes());else{personajes=await fetchWithRetry(()=>listarPersonajesComunidad());esComunidad=!0}CACHE[cacheKey]=personajes;CACHE.cacheTime[cacheKey]=Date.now();renderCharactersGrid(personajes,esComunidad)}catch(err){console.error('Error en renderCharacters:',err);container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Error al cargar</h3><p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p><button class="btn btn-primary" onclick="renderCharacters()">🔄 Reintentar</button></div>`}finally{LOADING[cacheKey]=!1}}
@@ -1987,13 +2031,13 @@ document.getElementById('chat-back-btn').addEventListener('click',()=>{
 });
 document.getElementById('btn-immersive').addEventListener('click',()=>{const chatView=document.getElementById('chat-view'),btn=document.getElementById('btn-immersive');chatView.classList.toggle('immersive');if(chatView.classList.contains('immersive')){btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>`;btn.title='Salir del modo inmersivo';showToast('🎯 Modo inmersivo activado')}else{btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;btn.title='Modo inmersivo'}});
 document.addEventListener('keydown',e=>{if(e.key==='F11'&&document.getElementById('chat-view').classList.contains('visible')){e.preventDefault();document.getElementById('btn-immersive').click()}});
-document.getElementById('chat-export-btn').addEventListener('click',async()=>{if(!currentChatId){showToast('Selecciona un chat primero','error');return}try{const{mensajes}=await cargarHistorialChat(currentChatId),fecha=new Date().toISOString().split('T')[0],nombreChar=currentCharacter?.nombre||'chat',nombreArchivo=`${nombreChar}_${currentChatId.substring(0,8)}_${fecha}`;const data={character:{id:currentCharacter.id,name:currentCharacter.nombre,system_prompt:currentCharacter.system_prompt},export_date:new Date().toISOString(),messages:mensajes.map(m=>({role:m.rol,content:m.contenido,timestamp:m.creado_en||null}))};const contenido=JSON.stringify(data,null,2),blob=new Blob([contenido],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${nombreArchivo}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast('✅ Chat exportado como JSON')}catch(err){console.error('Error al exportar:',err);showToast('❌ Error al exportar','error')}});
+document.getElementById('chat-export-btn').addEventListener('click',async()=>{if(!currentChatId){showToast('Selecciona un chat primero','error');return}try{const{mensajes}=await cargarHistorialChat(currentChatId),fecha=new Date().toISOString().split('T')[0],nombreChar=currentCharacter?.nombre||'chat',nombreArchivo=`${nombreChar}_${currentChatId.substring(0,8)}_${fecha}`;const data={format_version:2,character:{id:currentCharacter.id,name:currentCharacter.nombre,system_prompt:currentCharacter.system_prompt},export_date:new Date().toISOString(),messages:mensajes.map(m=>({id:m.id||null,role:m.rol,content:m.contenido,timestamp:m.creado_en||null,summary_version:m.summary_version||null}))};const contenido=JSON.stringify(data,null,2),blob=new Blob([contenido],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${nombreArchivo}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast('✅ Chat exportado como JSON')}catch(err){console.error('Error al exportar:',err);showToast('❌ Error al exportar','error')}});
 const chatInput=document.getElementById('chat-input'),chatSendBtn=document.getElementById('chat-send-btn');
 chatInput.addEventListener('input',()=>{chatInput.style.height='auto';chatInput.style.height=Math.min(chatInput.scrollHeight,150)+'px';chatSendBtn.disabled=!chatInput.value.trim()||isStreaming||!currentChatId});
 chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!chatSendBtn.disabled)enviarMensaje()}});
 chatSendBtn.addEventListener('click',enviarMensaje);
 document.getElementById('chat-import-btn').addEventListener('click',()=>{document.getElementById('chat-import-file').click()});
-document.getElementById('chat-import-file').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;if(!file.name.endsWith('.json')){showToast('❌ Solo se permiten archivos JSON','error');e.target.value='';return}if(file.size>5*1024*1024){showToast('❌ Archivo demasiado grande (máx. 5MB)','error');e.target.value='';return}const reader=new FileReader();reader.onload=async(ev)=>{try{const data=JSON.parse(ev.target.result);if(!data.character||!data.messages||!Array.isArray(data.messages)){throw new Error('Estructura JSON inválida');}if(data.messages.length>5000){throw new Error('Demasiados mensajes (máx. 5000)');}if(!currentCharacter){showToast('❌ Selecciona un personaje primero','error');return}if(data.character.id!==currentCharacter.id){if(!confirm(`Este chat es de "${data.character.name}" pero estás en "${currentCharacter.nombre}". ¿Importar de todos modos?`)){return}}const historial=data.messages.filter(m=>m&&typeof m.content==='string'&&(m.role==='user'||m.role==='assistant')).slice(0,5000).map(m=>({id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol:m.role,contenido:String(m.content).slice(0,8000)}));if(historial.length===0){throw new Error('No hay mensajes válidos para importar');}const nuevoChat=await crearNuevoChat(currentCharacter.id);await actualizarHistorialChat(nuevoChat.id,historial);await renderChatList();await seleccionarChat(nuevoChat.id);showToast(`✅ Chat importado (${historial.length} mensajes)`)}catch(err){console.error('Error al importar:',err);showToast(`❌ Error al importar: ${err.message}`,'error')}};reader.readAsText(file);e.target.value=''});
+document.getElementById('chat-import-file').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;if(!file.name.endsWith('.json')){showToast('❌ Solo se permiten archivos JSON','error');e.target.value='';return}if(file.size>5*1024*1024){showToast('❌ Archivo demasiado grande (máx. 5MB)','error');e.target.value='';return}const reader=new FileReader();reader.onload=async(ev)=>{try{const data=JSON.parse(ev.target.result);if(!data.character||!data.messages||!Array.isArray(data.messages)){throw new Error('Estructura JSON inválida');}if(data.messages.length>5000){throw new Error('Demasiados mensajes (máx. 5000)');}if(!currentCharacter){showToast('❌ Selecciona un personaje primero','error');return}if(data.character.id!==currentCharacter.id){if(!confirm(`Este chat es de "${data.character.name}" pero estás en "${currentCharacter.nombre}". ¿Importar de todos modos?`)){return}}const rolesPermitidos=['user','assistant','summary'];const historial=data.messages.filter(m=>m&&typeof m.content==='string'&&rolesPermitidos.includes(m.role)).slice(0,5000).map(m=>({id:(typeof m.id==='string'&&m.id)?m.id:(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5)),rol:m.role,contenido:String(m.content).slice(0,m.role==='summary'?20000:8000),creado_en:m.timestamp||null,summary_version:m.role==='summary'?(Number(m.summary_version)||1):undefined}));if(!historial.some(m=>m.rol==='user'||m.rol==='assistant')){throw new Error('No hay mensajes válidos para importar');}const nuevoChat=await crearNuevoChat(currentCharacter.id);await actualizarHistorialChat(nuevoChat.id,historial);await renderChatList();await seleccionarChat(nuevoChat.id);showToast(`✅ Chat importado (${historial.filter(m=>m.rol!=='summary').length} mensajes${historial.some(m=>m.rol==='summary')?' + resumen':''})`)}catch(err){console.error('Error al importar:',err);showToast(`❌ Error al importar: ${err.message}`,'error')}};reader.readAsText(file);e.target.value=''});
 function renderizarChatPaginado(opciones={}){const{scrollToBottom=true,preserveScroll=false}=opciones;const messages=document.getElementById('chat-messages');let prevScrollHeight=0,prevScrollTop=0;if(preserveScroll){prevScrollHeight=messages.scrollHeight;prevScrollTop=messages.scrollTop}messages.innerHTML='';const total=historialCompleto.length;let inicio=Math.max(0,total-chatOffset);const fragment=document.createDocumentFragment();if(inicio>0){const loadMore=document.createElement('button');loadMore.className='load-more-btn';loadMore.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg>Cargar ${Math.min(CHAT_LIMITE,inicio)} mensajes anteriores`;loadMore.addEventListener('click',()=>{chatOffset+=CHAT_LIMITE;renderizarChatPaginado({preserveScroll:true})});fragment.appendChild(loadMore)}const mensajesAMostrar=historialCompleto.slice(inicio);mensajesAMostrar.forEach(m=>{if(m.rol==='user'||m.rol==='assistant')agregarBubble(m.contenido,m.rol,!1,m.id,!1,fragment)});messages.appendChild(fragment);if(preserveScroll){requestAnimationFrame(()=>{requestAnimationFrame(()=>{messages.scrollTop=prevScrollTop+(messages.scrollHeight-prevScrollHeight)})})}else if(scrollToBottom){scrollChatToBottom(true)}}
 function agregarBubble(texto,rol,conTyping=!1,mensajeId=null,autoScroll=!0,parent=null){const container=parent||document.getElementById('chat-messages'),div=document.createElement('div');div.className=`message-bubble ${rol}`;if(mensajeId)div.dataset.mensajeId=mensajeId;if(conTyping)div.innerHTML=`<div class="typing-indicator"><span></span><span></span><span></span></div>`;else{div.innerHTML=rol==='assistant'?renderMarkdown(texto):escapeHtml(texto);div.dataset.originalText=texto;agregarBotones(div,rol)}container.appendChild(div);if(autoScroll&&!parent)scrollChatToBottom();return div}
 function agregarBotones(bubble,rol){const oldActions=bubble.querySelector('.message-actions');if(oldActions)oldActions.remove();const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';let buttonsHTML='';buttonsHTML+=`<button class="btn-message btn-copy" title="Copiar mensaje"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copiar</button>`;if(rol==='user'){buttonsHTML+=`<button class="btn-message btn-edit-msg" title="Editar mensaje"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Editar</button>`}else if(rol==='assistant'){buttonsHTML+=`<button class="btn-message btn-regenerate" data-mensaje-id="${bubble.dataset.mensajeId||''}" title="Regenerar respuesta"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Regenerar</button>`}actionsDiv.innerHTML=buttonsHTML;bubble.appendChild(actionsDiv)}
@@ -2385,7 +2429,7 @@ if (scrollBtn) {
     messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
   });
 }
-console.log('✅ SAIR2 cargado correctamente');
+console.log('✅ SAIR cargado correctamente');
 // ============================================
 // SISTEMA DE ACEPTACIÓN DE POLÍTICAS DE PRIVACIDAD (MEJORADO)
 // ============================================
@@ -2715,7 +2759,7 @@ function suscribirActualizaciones(){if(channelNotificaciones){sbClient.removeCha
 function iniciarNotificaciones(){if(!sbClient)return;consultarEstadoApp();suscribirActualizaciones()}
 btnReload.addEventListener('click',()=>{window.location.reload()});
 
-// Instalar PWA: un solo botón en cualquier dispositivo (SAIR2)
+// Instalar PWA: un solo botón en cualquier dispositivo (SAIR)
 let deferredPrompt = null;
 const installSection = document.getElementById('pwa-install-section');
 const installBtn = document.getElementById('btn-install-pwa');
@@ -2741,13 +2785,13 @@ function abrirModalInstalacion(){
     <ol class="pwa-steps">
     <li><span class="pwa-step-num">1</span><span>Tocá el botón <strong>Compartir</strong> (cuadrado con flecha ↗) en la barra inferior de Safari.</span></li>
     <li><span class="pwa-step-num">2</span><span>Deslizá hacia abajo y tocá <strong>“Añadir a pantalla de inicio”</strong>.</span></li>
-    <li><span class="pwa-step-num">3</span><span>Confirmá tocando <strong>“Añadir”</strong>. SAIR2 quedará como una app en tu pantalla.</span></li>
+    <li><span class="pwa-step-num">3</span><span>Confirmá tocando <strong>“Añadir”</strong>. SAIR quedará como una app en tu pantalla.</span></li>
     </ol>`;
   }else if(plat==='android'&&navegadorInstalacion()==='brave'){
     html=`<p style="color:var(--text-3);font-size:.9rem;line-height:1.6;margin-bottom:1.2rem;">En Brave para Android son <strong>2 toques</strong>:</p>
     <ol class="pwa-steps">
     <li><span class="pwa-step-num">1</span><span>Tocá el menú <strong>⋮</strong> (arriba a la derecha).</span></li>
-    <li><span class="pwa-step-num">2</span><span>Tocá <strong>“Instalar aplicación”</strong> (o “Añadir a pantalla de inicio”) y confirmá. Se verá la barra de progreso de instalación de SAIR2.</span></li>
+    <li><span class="pwa-step-num">2</span><span>Tocá <strong>“Instalar aplicación”</strong> (o “Añadir a pantalla de inicio”) y confirmá. Se verá la barra de progreso de instalación de SAIR.</span></li>
     </ol>`;
   }else if(navegadorInstalacion()==='brave'){
     html=`<p style="color:var(--text-3);font-size:.9rem;line-height:1.6;margin-bottom:1.2rem;">En Brave (escritorio) no aparece el ícono en la barra de direcciones; se instala desde el menú:</p>
@@ -2788,7 +2832,7 @@ async function instalarPwa(){
     if(outcome==='accepted'){
       deferredPrompt=null;
       ocultarBannerInstalacion();
-      showToast('✅ ¡SAIR2 instalada con éxito!');
+      showToast('✅ ¡SAIR instalada con éxito!');
     }
   }else{
     abrirModalInstalacion();
@@ -2796,7 +2840,7 @@ async function instalarPwa(){
 }
 
 window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;mostrarBannerInstalacion()});
-window.addEventListener('appinstalled',()=>{deferredPrompt=null;if(installSection)installSection.classList.add('installed');ocultarBannerInstalacion();closeModal('pwa-install-modal');showToast('✅ ¡SAIR2 instalada con éxito!')});
+window.addEventListener('appinstalled',()=>{deferredPrompt=null;if(installSection)installSection.classList.add('installed');ocultarBannerInstalacion();closeModal('pwa-install-modal');showToast('✅ ¡SAIR instalada con éxito!')});
 
 if(estaInstaladaComoPWA()&&installSection)installSection.classList.add('installed');
 
@@ -2808,9 +2852,17 @@ if(bannerClose)bannerClose.addEventListener('click',ocultarBannerInstalacion);
 // mostramos el banner con la guía en pasos tras unos segundos.
 if(!estaInstaladaComoPWA()){
   const plat=plataformaInstalacion();
-  const delay=(plat==='ios'||plat==='android')?4000:6000;
-  setTimeout(()=>{if(!deferredPrompt)mostrarBannerInstalacion()},delay);
+  // En escritorio solo mostramos el banner cuando el navegador ofrece
+  // instalación nativa mediante beforeinstallprompt. La guía manual queda
+  // disponible desde la sección de instalación, sin interrumpir el acceso.
+  if(plat==='ios'||plat==='android'){
+    setTimeout(()=>{if(!deferredPrompt)mostrarBannerInstalacion()},4000);
+  }
 }
+/* Gemini puede terminar un stream después de haber entregado texto parcial.
+   Conservamos esa respuesta para no reemplazarla por un error genérico. */
+const enviarAGeminiStreamOriginal=enviarAGeminiStream;
+enviarAGeminiStream=async function*(...args){let parcial='';try{for await(const chunk of enviarAGeminiStreamOriginal(...args)){parcial+=chunk;yield chunk}}catch(err){if(parcial.trim()&&/PROHIBITED_CONTENT|SAFETY|BLOCKLIST|SPII/.test(err.message||'')){lastGeminiFinishReason=(err.message.match(/(PROHIBITED_CONTENT|SAFETY|BLOCKLIST|SPII)/)||[])[1]||lastGeminiFinishReason;return}throw err}};
 </script>
 </body>
 </html>

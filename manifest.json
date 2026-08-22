@@ -1,6 +1,6 @@
 {
-  "name": "SAIR2 — Roleplay con IA",
-  "short_name": "SAIR2",
+  "name": "SAIR — Roleplay con IA",
+  "short_name": "SAIR",
   "id": "sair2",
   "description": "Aplicación premium de roleplay conversacional con personajes de IA impulsados por Gemini.",
   "start_url": "./index.html",
