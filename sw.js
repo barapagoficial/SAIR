@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sair-v2.2.8';
+const CACHE_NAME = 'sair-v3.0.0-preview';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -15,7 +15,13 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(async (cache) => {
+        const critical = STATIC_ASSETS.filter((asset) => asset !== './ERROR.mp4');
+        await cache.addAll(critical);
+        await Promise.allSettled(
+          STATIC_ASSETS.filter((asset) => asset === './ERROR.mp4').map((asset) => cache.add(asset))
+        );
+      })
       .then(() => self.skipWaiting())
   );
 });

@@ -105,6 +105,46 @@ $$;
 revoke all on function public.reemplazar_historial_chat(uuid, text, integer, jsonb) from public;
 grant execute on function public.reemplazar_historial_chat(uuid, text, integer, jsonb) to authenticated;
 
+-- Guarda un mensaje y actualiza el chat dentro de la misma transacción.
+create or replace function public.guardar_mensaje_chat(
+  p_chat_id uuid,
+  p_rol text,
+  p_contenido text
+)
+returns table(id uuid, chat_id uuid, rol text, contenido text, creado_en timestamptz, orden bigint)
+language plpgsql
+security invoker
+set search_path = pg_catalog, public, auth
+as $$
+declare
+  v_id uuid := gen_random_uuid();
+  v_creado_en timestamptz := timezone('utc', now());
+  v_orden bigint;
+begin
+  if p_rol not in ('user', 'assistant') or nullif(trim(p_contenido), '') is null then
+    raise exception 'Mensaje inválido';
+  end if;
+  if not exists (
+    select 1 from public.chats
+    where id = p_chat_id and user_id = (select auth.uid())
+    for update
+  ) then
+    raise exception 'Chat no autorizado';
+  end if;
+  select coalesce(max(m.orden), 0) + 1 into v_orden
+  from public.mensajes m where m.chat_id = p_chat_id;
+  insert into public.mensajes (id, chat_id, rol, contenido, creado_en, orden)
+  values (v_id, p_chat_id, p_rol, p_contenido, v_creado_en, v_orden);
+  update public.chats
+  set actualizado_en = v_creado_en, formato_version = 2
+  where id = p_chat_id and user_id = (select auth.uid());
+  return query select v_id, p_chat_id, p_rol, p_contenido, v_creado_en, v_orden;
+end;
+$$;
+
+revoke all on function public.guardar_mensaje_chat(uuid, text, text) from public, anon;
+grant execute on function public.guardar_mensaje_chat(uuid, text, text) to authenticated;
+
 -- Reemplaza la política demasiado amplia de mensajes por políticas explícitas.
 drop policy if exists "Permitir todo a dueños del chat" on public.mensajes;
 create policy "Usuarios pueden ver mensajes de sus chats"

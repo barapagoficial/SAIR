@@ -1,5 +1,30 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- SAIR2 — Changelog
+ SAIR3 — Changelog
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[3.0.0 Preview] — 2026-08-27
+
+✨ Novedades
+- Nueva pantalla de bienvenida para usuarios sin sesión, con una
+  presentación animada de SAIR3 y el botón “Empieza ahora”
+- Descripción amigable del roleplay con IA y del uso de la API Key
+  propia de Google AI Studio
+- Buscador de personas para descubrir perfiles dentro de la comunidad
+- Indicadores de versión actualizados a 3.0.0 Preview
+
+🎨 Experiencia de usuario
+- Transiciones más suaves entre iniciar sesión y registrarse
+- El formulario de autenticación mantiene una altura estable para
+  evitar cambios bruscos al cambiar de vista
+- Editor de perfil rediseñado con fondo, avatar ajustable y previsualización tipo Discord
+- Avatar, fondo y ajustes visuales guardados en DB
+
+🛡️ Calidad y confianza
+- Mejoras de estabilidad en perfiles, conversaciones y recuperación de sesión
+- Mayor privacidad en la consulta de perfiles y datos de comunidad
+- Persistencia más segura de preferencias y credenciales locales
+- Funcionamiento offline y actualización de la aplicación más resistentes
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [2.2.8] — 2026-08-19

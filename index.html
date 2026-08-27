@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
 <title>SAIR — Roleplay con IA</title>
 <meta name="description" content="SAIR: Aplicación premium de roleplay conversacional con personajes de IA impulsados por Gemini.">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self';">
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -108,14 +109,32 @@ body[data-theme="light"] .intensity-card.active{background:rgba(255,77,143,0.1)}
 #dashboard.visible{display:block!important}
 #chat-view.visible{display:flex!important}
 .auth-container{width:100%;max-width:440px;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:2rem 1.5rem;backdrop-filter:blur(20px);box-shadow:var(--shadow-card)}
+.auth-container{position:relative;overflow:hidden}
+.auth-welcome{display:none;text-align:center;position:relative;padding:1.25rem .5rem .5rem;isolation:isolate}
+.auth-welcome::before{content:'';position:absolute;z-index:-1;width:220px;height:220px;top:-110px;left:50%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,77,143,.28),rgba(168,85,247,.1) 45%,transparent 72%);filter:blur(4px);animation:authWelcomeGlow 5s ease-in-out infinite}
+.auth-welcome-mark{width:76px;height:76px;margin:0 auto 1.35rem;border:1px solid rgba(255,255,255,.15);border-radius:24px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,77,143,.22),rgba(77,121,255,.16));box-shadow:0 18px 50px rgba(255,77,143,.18),inset 0 0 25px rgba(255,255,255,.06);animation:authWelcomeFloat 4s ease-in-out infinite}
+.auth-welcome-mark span{font-family:var(--font-display);font-size:1.9rem;font-weight:800;background:var(--grad-main);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.auth-welcome-title{font-family:var(--font-display);font-size:clamp(2.8rem,10vw,4.2rem);line-height:1;font-weight:800;letter-spacing:-.05em;background:var(--grad-main);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:0 0 .9rem;animation:authWelcomeIn .8s cubic-bezier(.16,1,.3,1) both}
+.auth-welcome-copy{max-width:34rem;margin:0 auto 1.6rem;color:var(--text-2);font-size:.96rem;line-height:1.7;animation:authWelcomeIn .8s .12s cubic-bezier(.16,1,.3,1) both}
+.auth-welcome-note{display:inline-flex;align-items:center;gap:.45rem;margin-bottom:1.6rem;color:var(--text-3);font-size:.76rem;animation:authWelcomeIn .8s .2s cubic-bezier(.16,1,.3,1) both}
+.auth-welcome-note::before{content:'✦';color:var(--pink);font-size:1rem}
+.auth-start-btn{animation:authWelcomeIn .8s .28s cubic-bezier(.16,1,.3,1) both}
+#auth-screen.guest-welcome .auth-welcome{display:block}
+#auth-screen.guest-welcome .auth-panel{display:none}
+#auth-screen:not(.guest-welcome) .auth-panel{animation:authPanelIn .55s cubic-bezier(.16,1,.3,1) both}
+@keyframes authWelcomeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes authPanelIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes authWelcomeFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(2deg)}}
+@keyframes authWelcomeGlow{0%,100%{opacity:.65;transform:translateX(-50%) scale(.9)}50%{opacity:1;transform:translateX(-50%) scale(1.1)}}
 .auth-header{text-align:center;margin-bottom:2rem}
 .auth-title{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-1);margin-bottom:.5rem}
 .auth-subtitle{font-size:.9rem;color:var(--text-3)}
 .auth-tabs{display:flex;gap:.5rem;margin-bottom:2rem;background:var(--bg-input);padding:4px;border-radius:10px;border:1px solid var(--border)}
 .auth-tab{flex:1;padding:.7rem;background:transparent;border:none;border-radius:8px;color:var(--text-3);font-family:var(--font-sans);font-weight:600;cursor:pointer;transition:all .25s ease}
 .auth-tab.active{background:var(--grad-main);color:#fff;box-shadow:0 4px 15px var(--pink-glow)}
-.auth-form{display:none}
-.auth-form.active{display:block}
+.auth-forms-shell{display:grid}
+.auth-form{display:block;grid-area:1 / 1;visibility:hidden;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .36s ease,transform .46s cubic-bezier(.16,1,.3,1),visibility 0s linear .46s}
+.auth-form.active{visibility:visible;opacity:1;transform:none;pointer-events:auto;transition-delay:0s}
 .form-message{margin-top:1rem;padding:.8rem;border-radius:8px;font-size:.85rem;text-align:center;display:none}
 .form-message.error{display:block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
 .form-message.success{display:block;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80}
@@ -441,6 +460,8 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .announcement-form-actions{display:flex;gap:.75rem;margin-top:1rem;justify-content:flex-end}
 .no-announcements{max-width:900px;margin:2rem auto;text-align:center;padding:3rem 1.5rem;background:var(--bg-card);border:1px dashed var(--border);border-radius:20px}
 .user-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .8rem;background:var(--bg-card);border:1px solid var(--border);border-radius:100px;font-size:.8rem;color:var(--text-1);font-weight:500;position:relative;cursor:pointer;transition:all .25s ease}
+.user-badge.has-profile-background{background-size:cover;background-position:center;isolation:isolate;overflow:hidden}
+.user-badge.has-profile-background::before{content:'';position:absolute;inset:0;background:rgba(5,5,7,.48);z-index:-1}
 .user-badge:hover,.user-badge:focus-visible{border-color:var(--pink);box-shadow:0 0 20px var(--pink-glow);outline:none}
 .user-badge-edit{position:absolute;right:-.35rem;top:-.35rem;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;background:var(--grad-main);color:#fff;border:2px solid var(--bg-0);opacity:0;transform:scale(.7);transition:all .2s ease;pointer-events:none}
 .user-badge:hover .user-badge-edit,.user-badge:focus-visible .user-badge-edit{opacity:1;transform:scale(1)}
@@ -462,11 +483,30 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .username-current-name{font-weight:600;color:var(--text-1);font-size:.95rem}
 .username-current-email{font-size:.78rem;color:var(--text-4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .profile-avatar-editor{text-align:center;margin:.25rem 0 1.5rem}
-.profile-avatar-preview{width:112px;height:112px;border-radius:50%;margin:0 auto .8rem;background:var(--grad-main);display:grid;place-items:center;overflow:hidden;color:#fff;font-family:var(--font-display);font-size:2.4rem;font-weight:700;border:3px solid rgba(255,255,255,.12);box-shadow:0 10px 30px var(--pink-glow)}
+.profile-background-editor{margin:0 0 1.25rem;padding:1rem;background:var(--bg-input);border:1px solid var(--border);border-radius:14px;text-align:left}
+.profile-cover-editor{margin:0 0 1.25rem}
+.profile-cover-preview{height:158px;border-radius:16px;background:linear-gradient(135deg,rgba(255,77,143,.3),rgba(77,121,255,.25));background-size:cover;background-position:center;border:1px solid var(--border);display:flex;align-items:center;padding:1rem;color:#fff;overflow:hidden;position:relative;isolation:isolate}
+.profile-cover-preview::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,5,7,.5),transparent 75%),linear-gradient(0deg,rgba(5,5,7,.55),transparent 55%);z-index:-1;pointer-events:none}
+.profile-cover-avatar{width:88px;height:88px;border-radius:50%;background:var(--grad-main);display:grid;place-items:center;overflow:hidden;color:#fff;font-family:var(--font-display);font-size:2rem;font-weight:700;border:4px solid rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(0,0,0,.35);object-fit:cover;position:relative}
+.profile-cover-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-cover-label{position:absolute;left:1rem;bottom:.8rem;color:#fff;font-size:.76rem;font-weight:600;text-shadow:0 1px 4px #000;z-index:1}
+.profile-background-preview{display:none}
+.profile-background-preview::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 20%,rgba(0,0,0,.58));pointer-events:none}
+.profile-background-preview span{position:relative;z-index:1}
+.profile-background-actions{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.65rem}
+.profile-background-actions .btn{min-height:42px}
+.profile-background-actions .profile-remove{min-height:0;padding:.35rem .5rem;font-size:.72rem;background:transparent;border-color:transparent;color:var(--text-4)}
+.profile-background-actions .profile-remove:hover{color:#fca5a5;border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.06)}
+.profile-avatar-preview{width:88px;height:88px;border-radius:50%;display:grid;place-items:center;overflow:hidden;color:#fff;font-family:var(--font-display);font-size:2.4rem;font-weight:700;border:4px solid rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .profile-avatar-preview img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
 .profile-avatar-editor input[type=file]{display:none}
+.profile-cover-editor input[type=file]{display:none}
 .profile-avatar-actions{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap}
 .profile-avatar-note{font-size:.75rem;color:var(--text-4);margin-top:.6rem}
+.profile-position-controls{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:.8rem;padding:.7rem;background:var(--bg-input);border:1px solid var(--border);border-radius:12px}
+.profile-position-title{grid-column:1/-1;color:var(--text-2);font-size:.78rem;font-weight:600}
+.profile-position-control{display:flex;flex-direction:column;gap:.3rem;color:var(--text-3);font-size:.72rem}
+.profile-position-control input{width:100%}
 .announcement-author{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--text-3);margin-left:.5rem}
 .announcement-author-avatar{width:22px;height:22px;border-radius:50%;background:var(--grad-main);display:grid;place-items:center;font-size:.6rem;font-weight:700;color:#fff}
 ::selection{background:var(--pink);color:#fff}
@@ -645,6 +685,32 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .dashboard-tab{position:relative;border-radius:10px 10px 0 0}
 .dashboard-tab.active{background:linear-gradient(180deg,rgba(255,77,143,.08) 0%,transparent 100%)}
 .dashboard-tab.active::after{content:'';position:absolute;bottom:-1px;left:10%;right:10%;height:2px;background:var(--grad-main);border-radius:2px;box-shadow:0 0 12px var(--pink-glow)}
+.friends-trigger{display:inline-flex;align-items:center;gap:.4rem;margin-left:.15rem;color:var(--purple);border-bottom-color:transparent}
+.friends-trigger:hover{color:var(--pink);background:linear-gradient(180deg,rgba(168,85,247,.1),transparent)}
+.friends-modal{max-width:720px!important;overflow:hidden!important;background:linear-gradient(145deg,rgba(20,16,32,.97),rgba(10,11,21,.98))!important;position:relative}
+.friends-content{position:relative;z-index:2}
+.friends-header{text-align:center;padding:.3rem 1rem 1.2rem}
+.friends-header-icon{font-size:2.2rem;display:block;margin-bottom:.4rem;animation:friendsIconFloat 3s ease-in-out infinite}
+.friends-title{font-family:var(--font-display);font-size:1.7rem;color:var(--text-1);margin:0 0 .35rem}
+.friends-subtitle{color:var(--text-3);font-size:.85rem;margin:0}
+.friends-search{position:relative;margin-bottom:1rem}
+.friends-search input{padding:1rem 3rem 1rem 1.1rem;border-radius:14px;background:rgba(255,255,255,.06);border-color:rgba(168,85,247,.28);font-size:1rem}
+.friends-search svg{position:absolute;right:1rem;top:50%;transform:translateY(-50%);width:20px;color:var(--purple);pointer-events:none}
+.friends-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.75rem;max-height:48vh;overflow:auto;padding:.15rem .1rem .3rem}
+.friend-card{min-height:120px;padding:1rem;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.045);position:relative;overflow:hidden;animation:friendCardIn .4s cubic-bezier(.16,1,.3,1) both}
+.friend-card::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,var(--friend-cover,rgba(255,77,143,.18)),transparent 65%);opacity:.7;pointer-events:none}
+.friend-card-top{position:relative;display:flex;align-items:center;gap:.75rem}
+.friend-avatar{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--grad-main);border:3px solid rgba(255,255,255,.85);overflow:hidden;color:#fff;font-family:var(--font-display);font-size:1.3rem;font-weight:700}
+.friend-avatar img{width:100%;height:100%;object-fit:cover}
+.friend-card{cursor:pointer}.friend-card:hover{border-color:rgba(255,77,143,.38);transform:translateY(-3px);box-shadow:0 12px 30px rgba(168,85,247,.14)}
+.friend-info{min-width:0}.friend-name{font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.friend-id{font-size:.76rem;color:var(--text-3);margin-top:.15rem}.friend-role{display:inline-flex;margin-top:.55rem;padding:.25rem .55rem;border-radius:999px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:rgba(168,85,247,.16);color:#d8b4fe;border:1px solid rgba(168,85,247,.25)}
+.friends-empty{padding:2rem 1rem;text-align:center;color:var(--text-3);font-size:.9rem}.friends-empty strong{display:block;color:var(--text-2);font-family:var(--font-display);font-size:1.05rem;margin-bottom:.35rem}
+.friends-petals{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:.7}.friends-petals span{position:absolute;top:-2rem;left:var(--left);font-size:var(--size);color:var(--color);filter:drop-shadow(0 0 6px var(--color));animation:petalFall var(--duration) linear var(--delay) infinite;transform:rotate(var(--rotation))}.friends-petals span:nth-child(3n){font-size:calc(var(--size)*.7)}
+@keyframes petalFall{0%{transform:translate3d(0,-10vh,0) rotate(0deg);opacity:0}10%{opacity:.9}50%{transform:translate3d(var(--sway),55vh,0) rotate(180deg)}100%{transform:translate3d(calc(var(--sway)*-1),115vh,0) rotate(360deg);opacity:0}}
+@keyframes friendCardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes friendsIconFloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+body.performance-light .friends-petals{display:none}body.performance-light .friends-modal{background:var(--bg-1)!important}
+.public-profile-modal{max-width:520px!important;overflow:hidden!important;padding:0!important}.public-profile-cover{height:210px;background:linear-gradient(135deg,#351326,#1c2148);background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-end;padding:1.2rem}.public-profile-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,5,7,.82),transparent 70%)}.public-profile-avatar{width:104px;height:104px;border-radius:50%;background:var(--grad-main);border:5px solid var(--bg-1);overflow:hidden;display:grid;place-items:center;color:#fff;font:700 2.3rem var(--font-display);position:relative;z-index:1;box-shadow:0 8px 28px rgba(0,0,0,.45)}.public-profile-avatar img{width:100%;height:100%;object-fit:cover}.public-profile-body{padding:1.2rem 1.35rem 1.4rem}.public-profile-name{font:700 1.45rem var(--font-display);color:var(--text-1)}.public-profile-role{display:inline-flex;margin-top:.45rem;padding:.3rem .65rem;border-radius:999px;background:rgba(168,85,247,.16);color:#d8b4fe;border:1px solid rgba(168,85,247,.25);font-size:.7rem;font-weight:700;text-transform:uppercase}.public-profile-description{margin-top:1rem;color:var(--text-2);font-size:.92rem;line-height:1.65;white-space:pre-wrap}.public-profile-empty{color:var(--text-4);font-style:italic}
+.friends-petals span:nth-child(1){--left:5%;--size:1.2rem;--color:#ff8fba;--duration:9s;--delay:-2s;--sway:35px;--rotation:20deg}.friends-petals span:nth-child(2){--left:14%;--size:.9rem;--color:#c4a7ff;--duration:12s;--delay:-7s;--sway:-45px;--rotation:80deg}.friends-petals span:nth-child(3){--left:24%;--size:1.4rem;--color:#ffb1d0;--duration:10s;--delay:-4s;--sway:55px;--rotation:140deg}.friends-petals span:nth-child(4){--left:36%;--size:1rem;--color:#9ec5ff;--duration:14s;--delay:-10s;--sway:-30px;--rotation:210deg}.friends-petals span:nth-child(5){--left:46%;--size:1.25rem;--color:#f4a9ff;--duration:11s;--delay:-1s;--sway:40px;--rotation:270deg}.friends-petals span:nth-child(6){--left:57%;--size:.9rem;--color:#ff9fca;--duration:13s;--delay:-8s;--sway:-55px;--rotation:320deg}.friends-petals span:nth-child(7){--left:67%;--size:1.3rem;--color:#b9b2ff;--duration:9.5s;--delay:-5s;--sway:45px;--rotation:30deg}.friends-petals span:nth-child(8){--left:76%;--size:1rem;--color:#ffbedc;--duration:12s;--delay:-9s;--sway:-35px;--rotation:90deg}.friends-petals span:nth-child(9){--left:86%;--size:1.4rem;--color:#d0b8ff;--duration:10.5s;--delay:-3s;--sway:50px;--rotation:160deg}.friends-petals span:nth-child(10){--left:94%;--size:1rem;--color:#ff9fca;--duration:14s;--delay:-12s;--sway:-40px;--rotation:230deg}.friends-petals span:nth-child(11){--left:30%;--size:.8rem;--color:#c4d5ff;--duration:11s;--delay:-6s;--sway:30px;--rotation:290deg}.friends-petals span:nth-child(12){--left:72%;--size:.85rem;--color:#ffb1d0;--duration:13s;--delay:-11s;--sway:-50px;--rotation:350deg}
 .chat-list-item{position:relative;overflow:hidden}
 .chat-list-item.active{border-color:rgba(255,77,143,.25);background:linear-gradient(135deg,rgba(255,77,143,.06),rgba(168,85,247,.04))}
 .chat-list-item.active::before{content:'';position:absolute;left:0;top:15%;bottom:15%;width:3px;background:var(--grad-main);border-radius:0 3px 3px 0}
@@ -889,11 +955,11 @@ body.performance-light .chat-bg-img { display:none!important; }
 
 <div id="splash">
 <div class="splash-developer">Desarrollado por Moon-BaraPag</div>
-<h1 class="splash-title">SAIR</h1>
-<div class="splash-sub">v2.2.8</div>
+<h1 class="splash-title">SAIR3</h1>
+<div class="splash-sub">3.0.0 Preview</div>
 </div>
 
-<div class="app-version">v2.2.8</div>
+<div class="app-version">3.0.0 Preview</div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
 
@@ -1001,13 +1067,21 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div class="modal" style="max-width:480px;">
 <div class="modal-header"><h2 class="modal-title">✏️ Editar perfil</h2><button class="modal-close" data-close-modal="profile-modal">✕</button></div>
 <form id="form-profile">
-<div class="profile-avatar-editor">
-<div class="profile-avatar-preview" id="profile-avatar-preview">?</div>
-<div class="profile-avatar-actions"><button type="button" class="btn btn-ghost btn-small" id="profile-avatar-change">📷 Cambiar foto</button><button type="button" class="btn btn-danger btn-small" id="profile-avatar-remove">Quitar</button></div>
-<input type="file" id="profile-avatar-file" accept="image/*">
-<div class="profile-avatar-note">JPG, PNG o WEBP. Máximo 5 MB.</div>
+<div class="profile-cover-editor">
+<div class="profile-cover-preview" id="profile-cover-preview"><div class="profile-avatar-preview" id="profile-avatar-preview">?</div><span class="profile-cover-label">Previsualización del perfil</span></div>
+<div class="profile-background-actions"><button type="button" class="btn btn-ghost btn-small" id="profile-avatar-change">📷 Cambiar foto</button><button type="button" class="btn btn-ghost btn-small" id="profile-background-change">🖼️ Cambiar fondo</button><button type="button" class="btn btn-danger btn-small profile-remove" id="profile-avatar-remove">Quitar foto</button><button type="button" class="btn btn-danger btn-small profile-remove" id="profile-background-remove">Quitar fondo</button></div>
+<input type="file" id="profile-avatar-file" accept="image/*"><input type="file" id="profile-background-file" accept="image/*">
+<div class="profile-position-controls">
+<div class="profile-position-title">Ajusta qué parte de cada imagen quieres mostrar</div>
+<label class="profile-position-control">Foto horizontal <input type="range" id="profile-avatar-pos-x" min="0" max="100" value="50"></label>
+<label class="profile-position-control">Foto vertical <input type="range" id="profile-avatar-pos-y" min="0" max="100" value="50"></label>
+<label class="profile-position-control">Fondo horizontal <input type="range" id="profile-background-pos-x" min="0" max="100" value="50"></label>
+<label class="profile-position-control">Fondo vertical <input type="range" id="profile-background-pos-y" min="0" max="100" value="50"></label>
+</div>
+<div class="profile-avatar-note">JPG, PNG o WEBP. Máximo 5 MB. Se guarda todo en Supabase.</div>
 </div>
 <div class="form-group"><label class="form-label" for="profile-username">Nombre de usuario</label><input type="text" id="profile-username" class="form-input" maxlength="20" pattern="^[a-zA-Z0-9_]{3,20}$" autocomplete="off" spellcheck="false" required><div class="username-hint" id="profile-username-hint">3-20 caracteres. Solo letras, números y guion bajo (_).</div></div>
+<div class="form-group"><label class="form-label" for="profile-description">Descripción <span class="hint">opcional</span></label><textarea id="profile-description" class="form-textarea" maxlength="280" rows="3" placeholder="Cuéntales un poco sobre ti..."></textarea></div>
 <div style="display:flex;justify-content:flex-end;gap:.6rem"><button type="button" class="btn btn-ghost" data-close-modal="profile-modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar cambios</button></div>
 </form>
 </div>
@@ -1072,7 +1146,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div class="ai-assistant-bar">
 <button type="button" class="btn-ai" id="btn-ai-crear"><span>✨</span> Generar personaje con IA</button>
 <div class="ai-assistant hidden" id="ai-assistant">
-<label for="ai-idea">Describí tu personaje en una línea — Gemini 3.7 Flash crea el resto:</label>
+<label for="ai-idea">Describe tu personaje en una línea — Gemini 3.7 Flash crea el resto:</label>
 <textarea id="ai-idea" class="form-textarea" maxlength="300" placeholder="Ej: una chica robot que colecciona estrellas y esconde un secreto..."></textarea>
 <div class="ai-actions">
 <button type="button" class="btn btn-primary btn-small" id="btn-ai-generar">⚡ Generar</button>
@@ -1180,8 +1254,17 @@ body.performance-light .chat-bg-img { display:none!important; }
 </div>
 <div id="auth-screen">
 <div class="auth-container">
+<section class="auth-welcome" aria-labelledby="auth-welcome-title">
+<div class="auth-welcome-mark" aria-hidden="true"><span>S</span></div>
+<h1 class="auth-welcome-title" id="auth-welcome-title">SAIR3</h1>
+<p class="auth-welcome-copy">Un espacio de roleplay con IA para crear historias, personajes y mundos a tu manera. Tú pones la imaginación y tu propia API Key de Google AI Studio se encarga de darles vida.</p>
+<span class="auth-welcome-note">Tu API Key permanece bajo tu control</span>
+<button class="btn btn-primary auth-start-btn" id="auth-start-btn" type="button">Empieza ahora</button>
+</section>
+<section class="auth-panel" aria-label="Acceso a SAIR">
 <div class="auth-header"><h2 class="auth-title">Bienvenido a SAIR</h2><p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p></div>
 <div class="auth-tabs"><button class="auth-tab active" data-tab="login">Iniciar Sesión</button><button class="auth-tab" data-tab="register">Registrarse</button></div>
+<div class="auth-forms-shell">
 <form id="login-form" class="auth-form active">
 <div class="form-group"><label class="form-label" for="login-email">Correo electrónico</label><input type="email" id="login-email" class="form-input" placeholder="tu@email.com" required></div>
 <div class="form-group"><label class="form-label" for="login-password">Contraseña</label><input type="password" id="login-password" class="form-input" placeholder="••••••••" required></div>
@@ -1195,6 +1278,8 @@ body.performance-light .chat-bg-img { display:none!important; }
 <button type="submit" class="btn btn-primary" style="width:100%">Crear Cuenta</button>
 <div id="register-message" class="form-message"></div>
 </form>
+</div>
+</section>
 </div>
 </div>
 
@@ -1210,9 +1295,29 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div class="dashboard-tabs">
 <button class="dashboard-tab active" data-view="my-characters">🎭 Mis Personajes</button>
 <button class="dashboard-tab" data-view="community">🌍 Comunidad</button>
+<button class="dashboard-tab friends-trigger" id="btn-buscar-amigos" type="button">🔎 Buscar Amigos</button>
 <button class="dashboard-tab" data-view="announcements" style="margin-left:auto">📢 Anuncios</button>
 </div>
 <div id="characters-container"></div>
+</div>
+
+<div class="modal-overlay" id="friends-modal">
+<div class="modal friends-modal">
+<div class="friends-petals" aria-hidden="true"><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span></div>
+<div class="friends-content">
+<div class="modal-header"><h2 class="modal-title">🔎 Buscar Amigos</h2><button class="modal-close" data-close-modal="friends-modal">✕</button></div>
+<div class="friends-header"><span class="friends-header-icon">🌸</span><h3 class="friends-title">Encuentra tu gente</h3><p class="friends-subtitle">Busca usuarios por su nombre para descubrir quién está en SAIR.</p></div>
+<div class="friends-search"><input id="friends-search-input" class="form-input" type="search" placeholder="Escribe un nombre de usuario..." autocomplete="off" maxlength="50" aria-label="Buscar usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg></div>
+<div class="friends-results" id="friends-results"><div class="friends-empty"><strong>Busca un usuario</strong>Escribe al menos una letra para comenzar.</div></div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="public-profile-modal">
+<div class="modal public-profile-modal">
+<div class="public-profile-cover" id="public-profile-cover"><div class="public-profile-avatar" id="public-profile-avatar">?</div></div>
+<div class="public-profile-body"><div class="modal-header" style="padding:0 0 .35rem;border:0"><h2 class="public-profile-name" id="public-profile-name">Usuario</h2><button class="modal-close" data-close-modal="public-profile-modal">✕</button></div><span class="public-profile-role" id="public-profile-role">USER</span><p class="public-profile-description" id="public-profile-description"></p></div>
+</div>
 </div>
 
 <div id="chat-view">
@@ -1295,7 +1400,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 <script src="supabase.js"></script>
 <script>
 const CONFIG={SUPABASE_URL:'https://tcnzimhqjyivlrvqzwpb.supabase.co',SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',LS:{THEME:'sair1_theme',GEMINI_KEY:'sair1_gemini_key',GEMINI_MODEL:'sair1_gemini_model',DISPLAY_MODE:'sair1_display_mode'}};
-let sbClient=null,currentUser=null,userRole=null,userUsername=null,userAvatarUrl=null,userRoleName=null,currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null,lastGeminiFinishReason='';
+let sbClient=null,currentUser=null,userRole=null,userUsername=null,userDescription='',userAvatarUrl=null,userRoleName=null,userAvatarPos={x:50,y:50},userBackgroundUrl=null,userBackgroundPos={x:50,y:50},currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null,lastGeminiFinishReason='';
 
 // Crear el cliente Supabase inmediatamente al cargar el script
 // para que los tokens de sesión en localStorage estén disponibles desde el inicio
@@ -1364,11 +1469,12 @@ function lightenColor(hex, percent) {
 }
 function sanitizeImageUrl(url){if(!url||typeof url!=='string')return '';const trimmed=url.trim(),cleanData=trimmed.replace(/[\r\n\s]+/g,'');if(cleanData.startsWith('data:image/'))return /^data:image\/[a-z0-9\+\-\.]+;(?:base64|utf8),/i.test(cleanData)?cleanData:'';try{const u=new URL(trimmed);if(u.protocol==='https:'||u.protocol==='http:')return trimmed}catch{}return ''}
 function renderMarkdown(texto){if(!texto)return '';let textoProcesado=reemplazarUserEnTexto(texto);const escaped=textoProcesado.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return escaped.replace(/\*([^*\n]+)\*/g,(m,p1)=>`<em class="accion">*${p1}*</em>`).replace(/\n/g,'<br>')}function formatDate(dateStr){const d=new Date(dateStr),now=new Date(),diff=now-d;if(diff<6e4)return'ahora';if(diff<36e5)return`hace ${Math.floor(diff/6e4)}m`;if(diff<864e5)return`hace ${Math.floor(diff/36e5)}h`;if(diff<6048e5)return`hace ${Math.floor(diff/864e5)}d`;return d.toLocaleDateString()}
+const GEMINI_KEY_STORAGE=window.sessionStorage;
 const _obf_k=(str)=>{if(!str)return '';return btoa(str.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join(''))},_deobf_k=(str)=>{if(!str)return '';try{const decoded=atob(str);return decoded.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join('')}catch{return''}};
 function isGeminiApiKey(key){if(!key||typeof key!=='string')return false;const k=key.trim().replace(/\s+/g,'');return /^AIza[0-9A-Za-z_-]{20,}$/.test(k)||/^AQ\.[0-9A-Za-z_.-]{20,}$/.test(k)||/^[0-9A-Za-z_-]{32,}$/.test(k)}
-function getGeminiKey(){const stored=(localStorage.getItem(CONFIG.LS.GEMINI_KEY)||'').trim();if(!stored)return '';let candidate=stored,best=null;for(let i=0;i<5;i++){const dec=(_deobf_k(candidate)||'').trim().replace(/\s+/g,'');if(!dec||dec===candidate)break;if(isGeminiApiKey(dec))best=dec;candidate=dec}const raw=stored.replace(/\s+/g,'');if(best){try{localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(best))}catch{}return best}if(isGeminiApiKey(raw)){try{localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(raw))}catch{}return raw}return ''}
+function getGeminiKey(){let stored=(GEMINI_KEY_STORAGE.getItem(CONFIG.LS.GEMINI_KEY)||'').trim();if(!stored){const legacy=localStorage.getItem(CONFIG.LS.GEMINI_KEY)||'';if(legacy){stored=legacy;try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,legacy);localStorage.removeItem(CONFIG.LS.GEMINI_KEY)}catch{}}}if(!stored)return '';let candidate=stored,best=null;for(let i=0;i<5;i++){const dec=(_deobf_k(candidate)||'').trim().replace(/\s+/g,'');if(!dec||dec===candidate)break;if(isGeminiApiKey(dec))best=dec;candidate=dec}const raw=stored.replace(/\s+/g,'');if(best){try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(best))}catch{}return best}if(isGeminiApiKey(raw)){try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(raw))}catch{}return raw}return ''}
 function mensajeErrorGemini(msg){const m=String(msg||'');if(/invalid authentication credentials|API key not valid|API_KEY_INVALID/.test(m))return 'Tu API Key de Gemini es inválida o fue revocada. Reconfigúrala en Ajustes de Rol (🎭)';return m}
-function saveGeminiKey(raw){const key=(raw||'').trim().replace(/\s+/g,'');if(!isGeminiApiKey(key))throw new Error('API Key inválida. Pega una clave válida de Google AI Studio.');localStorage.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));return key}
+function saveGeminiKey(raw){const key=(raw||'').trim().replace(/\s+/g,'');if(!isGeminiApiKey(key))throw new Error('API Key inválida. Pega una clave válida de Google AI Studio.');GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));localStorage.removeItem(CONFIG.LS.GEMINI_KEY);return key}
 function geminiHeaders(apiKey){return{'Content-Type':'application/json','x-goog-api-key':apiKey}}
 function geminiUrl(model,stream=false){const action=stream?'streamGenerateContent':'generateContent';const qs=stream?'?alt=sse':'';return`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:${action}${qs}`}
 const GEMINI_MODELS=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.6-flash','gemini-3.7-flash'];
@@ -1544,8 +1650,14 @@ function cargarInfoUsuarioLocal(){
     const cached = localStorage.getItem('sair_cached_user_info');
     if (cached) {
       const data = JSON.parse(cached);
+      if (!currentUser || data.userId !== currentUser.id) return false;
       userRole = data.role || 'user';
       userUsername = data.username || null;
+      userDescription = data.description || '';
+      userAvatarUrl = sanitizeImageUrl(data.avatarUrl || '');
+      userBackgroundUrl = sanitizeImageUrl(data.backgroundUrl || '');
+      userAvatarPos = {x:Number(data.avatarPosX)||50,y:Number(data.avatarPosY)||50};
+      userBackgroundPos = {x:Number(data.backgroundPosX)||50,y:Number(data.backgroundPosY)||50};
       userRoleName = data.roleName || null;
       return true;
     }
@@ -1558,8 +1670,16 @@ function cargarInfoUsuarioLocal(){
 function guardarInfoUsuarioLocal(){
   try {
     localStorage.setItem('sair_cached_user_info', JSON.stringify({
+      userId: currentUser?.id || null,
       role: userRole,
       username: userUsername,
+      description: userDescription || '',
+      avatarUrl: userAvatarUrl || null,
+      backgroundUrl: userBackgroundUrl || null,
+      avatarPosX: userAvatarPos.x,
+      avatarPosY: userAvatarPos.y,
+      backgroundPosX: userBackgroundPos.x,
+      backgroundPosY: userBackgroundPos.y,
       roleName: userRoleName
     }));
   } catch (e) {
@@ -1572,13 +1692,17 @@ if(!currentUser){userRole=null;userUsername=null;return}
 try{
 const[rolResult,perfilResultInicial]=await Promise.all([
 sbClient.from('roles').select('rol').eq('user_id',currentUser.id).single(),
-sbClient.from('perfiles').select('username, avatar_url').eq('user_id',currentUser.id).single()
+sbClient.rpc('obtener_mi_perfil')
 ]);
 let perfilResult=perfilResultInicial;
-if(perfilResult.error?.code==='42703')perfilResult=await sbClient.from('perfiles').select('username').eq('user_id',currentUser.id).single();
+if(Array.isArray(perfilResult.data))perfilResult={...perfilResult,data:perfilResult.data[0]||null};
 userRole=rolResult.data?.rol||'user';
 userUsername=perfilResult.data?.username||null;
+userDescription=perfilResult.data?.descripcion||'';
 userAvatarUrl=sanitizeImageUrl(perfilResult.data?.avatar_url||'');
+userBackgroundUrl=sanitizeImageUrl(perfilResult.data?.fondo_url||'');
+userAvatarPos={x:Number(perfilResult.data?.avatar_pos_x)||50,y:Number(perfilResult.data?.avatar_pos_y)||50};
+userBackgroundPos={x:Number(perfilResult.data?.fondo_pos_x)||50,y:Number(perfilResult.data?.fondo_pos_y)||50};
 console.log('👤 Perfil:',userUsername,'| Rol:',userRole)
 guardarInfoUsuarioLocal();
 }catch(err){
@@ -1629,14 +1753,14 @@ openModal('role-modal');
 showToast('🎭 Configura tu nombre de rol para continuar','success')
 }
 }
-function actualizarUIPerfil(){const displayName=userUsername||currentUser?.email?.split('@')[0]||'Usuario',initial=displayName.charAt(0).toUpperCase(),safeAvatar=sanitizeImageUrl(userAvatarUrl);const badgeName=document.getElementById('user-badge-name'),badgeAvatar=document.getElementById('user-badge-avatar'),badgeRole=document.getElementById('user-badge-role'),profilePreview=document.getElementById('profile-avatar-preview'),profileUsername=document.getElementById('profile-username');if(badgeName)badgeName.textContent=displayName;if(badgeAvatar)badgeAvatar.innerHTML=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`:initial;if(badgeRole){badgeRole.textContent=userRole;badgeRole.className=`role-tag ${userRole}`}if(profilePreview)profilePreview.innerHTML=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="Foto de perfil">`:initial;if(profileUsername)profileUsername.value=userUsername||''}
+function getProfileBackground(){return sanitizeImageUrl(userBackgroundUrl||'')}
+function actualizarUIPerfil(){const displayName=userUsername||currentUser?.email?.split('@')[0]||'Usuario',initial=displayName.charAt(0).toUpperCase(),safeAvatar=sanitizeImageUrl(userAvatarUrl),safeBackground=sanitizeImageUrl(userBackgroundUrl);const badgeName=document.getElementById('user-badge-name'),badgeAvatar=document.getElementById('user-badge-avatar'),badgeRole=document.getElementById('user-badge-role'),profilePreview=document.getElementById('profile-avatar-preview'),cover=document.getElementById('profile-cover-preview'),profileUsername=document.getElementById('profile-username');if(badgeName)badgeName.textContent=displayName;if(badgeAvatar)badgeAvatar.innerHTML=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`:initial;if(badgeRole){badgeRole.textContent=userRole;badgeRole.className=`role-tag ${userRole}`}if(profilePreview)profilePreview.innerHTML=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="Foto de perfil">`:initial;if(profileUsername)profileUsername.value=userUsername||'';if(cover){cover.style.backgroundImage=safeBackground?`url("${safeBackground.replace(/"/g,'%22')}")`:'';cover.style.backgroundPosition=`${userBackgroundPos.x}% ${userBackgroundPos.y}%`;const avatarImg=profilePreview?.querySelector('img');if(avatarImg)avatarImg.style.objectPosition=`${userAvatarPos.x}% ${userAvatarPos.y}%`}actualizarPreviewFondoPerfil(safeBackground);document.querySelectorAll('#user-badge-avatar img,#profile-avatar-preview img').forEach(img=>img.addEventListener('error',()=>{img.remove();if(img.parentElement)img.parentElement.textContent=initial},{once:true}))}
 function playErrorSound(){try{document.getElementById('error-sound').play().catch(()=>{})}catch(e){}}
 function shakeElement(el){if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),500)}
 async function cambiarUsername(nuevoUsername){if(!currentUser)throw new Error('No hay sesión');const regex=/^[a-zA-Z0-9_]{3,20}$/;if(!regex.test(nuevoUsername))throw new Error('Username inválido. Usa 3-20 caracteres: letras, números o _');const{error}=await sbClient.from('perfiles').update({username:nuevoUsername}).eq('user_id',currentUser.id);if(error){if(error.code==='23505'||error.message.includes('unique'))throw new Error('Ese nombre de usuario ya está en uso');throw new Error(error.message)}userUsername=nuevoUsername;actualizarUIPerfil()}
-async function guardarAvatarPerfil(avatarUrl){if(!currentUser)throw new Error('No hay sesión');const{error}=await sbClient.from('perfiles').update({avatar_url:avatarUrl||null}).eq('user_id',currentUser.id);if(error)throw new Error(error.message);userAvatarUrl=avatarUrl||null}
 function isOwner(){return userRole==='owner'}
-async function obtenerUsername(userId){if(!userId)return'anónimo';if(CACHE.usernames[userId])return CACHE.usernames[userId];try{const{data,error}=await sbClient.from('perfiles').select('username').eq('user_id',userId).single();if(error||!data)return userId.substring(0,8)+'...';CACHE.usernames[userId]=data.username;return data.username}catch(err){return userId.substring(0,8)+'...'}}
-async function obtenerUsernamesBatch(userIds){if(!userIds||userIds.length===0)return{};const map={},idsSinCaché=userIds.filter(id=>!CACHE.usernames[id]);if(idsSinCaché.length===0){userIds.forEach(id=>{map[id]=CACHE.usernames[id]});return map}try{const{data,error}=await sbClient.from('perfiles').select('user_id, username').in('user_id',idsSinCaché);if(data&&!error){data.forEach(p=>{CACHE.usernames[p.user_id]=p.username;map[p.user_id]=p.username})}}catch(err){console.error('Error obteniendo usernames batch:',err)}userIds.forEach(id=>{if(!map[id])map[id]=CACHE.usernames[id]||id.substring(0,8)+'...'});return map}
+async function obtenerUsername(userId){if(!userId)return'anónimo';if(CACHE.usernames[userId])return CACHE.usernames[userId];try{const{data,error}=await sbClient.rpc('obtener_usernames',{p_user_ids:[userId]});const item=Array.isArray(data)?data[0]:null;if(error||!item)return userId.substring(0,8)+'...';CACHE.usernames[userId]=item.username;return item.username}catch(err){return userId.substring(0,8)+'...'}}
+async function obtenerUsernamesBatch(userIds){if(!userIds||userIds.length===0)return{};const map={},idsSinCaché=userIds.filter(id=>!CACHE.usernames[id]);if(idsSinCaché.length===0){userIds.forEach(id=>{map[id]=CACHE.usernames[id]});return map}try{const{data,error}=await sbClient.rpc('obtener_usernames',{p_user_ids:idsSinCaché});if(data&&!error){data.forEach(p=>{CACHE.usernames[p.user_id]=p.username;map[p.user_id]=p.username})}}catch(err){console.error('Error obteniendo usernames batch:',err)}userIds.forEach(id=>{if(!map[id])map[id]=CACHE.usernames[id]||id.substring(0,8)+'...'});return map}
 function applyTheme(theme){document.documentElement.classList.add('no-transitions');document.body.setAttribute('data-theme',theme);localStorage.setItem(CONFIG.LS.THEME,theme);document.querySelectorAll('.theme-option').forEach(opt=>{opt.classList.toggle('active',opt.dataset.themeValue===theme)});const x=document.body.offsetHeight;requestAnimationFrame(()=>{document.documentElement.classList.remove('no-transitions')})}
 applyTheme(localStorage.getItem(CONFIG.LS.THEME)||'dark');
 function aplicarModoVisual(mode){const valid=['auto','light','full'].includes(mode)?mode:'auto';const light=valid==='light'||(valid==='auto'&&window.matchMedia&&window.matchMedia('(max-width: 700px)').matches);document.body.classList.toggle('performance-light',light);document.documentElement.dataset.displayMode=valid;localStorage.setItem(CONFIG.LS.DISPLAY_MODE,valid);document.querySelectorAll('.display-mode-option').forEach(btn=>{btn.classList.toggle('active',btn.dataset.displayMode===valid)});}
@@ -1697,7 +1821,7 @@ document.getElementById('save-api-key').addEventListener('click',()=>{
   actualizarIndicadoresChat();
   showToast(raw?'✅ API Key y modelo guardados':'✅ Modelo guardado');
 });
-document.getElementById('clear-api-key').addEventListener('click',()=>{if(getGeminiKey()&&confirm('¿Eliminar tu API Key y modelo?')){localStorage.removeItem(CONFIG.LS.GEMINI_KEY);localStorage.removeItem(CONFIG.LS.GEMINI_MODEL);updateApiKeyUI();showToast('API Key y modelo eliminados')}});
+document.getElementById('clear-api-key').addEventListener('click',()=>{if(getGeminiKey()&&confirm('¿Eliminar tu API Key y modelo?')){GEMINI_KEY_STORAGE.removeItem(CONFIG.LS.GEMINI_KEY);localStorage.removeItem(CONFIG.LS.GEMINI_KEY);localStorage.removeItem(CONFIG.LS.GEMINI_MODEL);updateApiKeyUI();showToast('API Key y modelo eliminados')}});
 const BG_STORAGE_KEY='sair1_chat_bg';
 function actualizarIndicadoresChat(){const sub=document.getElementById('chat-char-sub');if(!sub)return;const intensidad=obtenerIntensidadPersonaje(currentCharacter),modelo=getGeminiModel(),count=document.getElementById('chat-count-label')?.textContent||'Chats';sub.innerHTML=`<span id="chat-count-label">${escapeHtml(count)}</span><span id="chat-intensity-indicator" class="chat-status-badge intensity-${intensidad}">${etiquetaIntensidad(intensidad)}</span><span id="chat-model-indicator" class="chat-status-badge">🤖 ${escapeHtml(modelo.replace('gemini-','Gemini '))}</span>`}
 const chatSubObserver=new MutationObserver(()=>{if(!document.getElementById('chat-intensity-indicator'))actualizarIndicadoresChat()});
@@ -1733,8 +1857,8 @@ function procesarAvatar(){return new Promise(resolve=>{if(!avatarModificado){res
 function setAvatarForEdit(avatarUrl){avatarModificado=false;const safeUrl=sanitizeImageUrl(avatarUrl);if(safeUrl){avatarData.original=safeUrl;avatarData.final=safeUrl;avatarData.sourceIsRaw=false;resetAvatarSliders();updateAvatarPreview();setAvatarControlsMode('view');avatarControls.classList.add('visible');avatarContainer.classList.add('has-image')}else{document.getElementById('avatar-remove').click()}}
 function actualizarAvatarEnUI(personaje){if(!personaje)return;const safeAvatar=sanitizeImageUrl(personaje.avatar_url);if(currentCharacter&&currentCharacter.id===personaje.id){currentCharacter={...currentCharacter,...personaje};const avatarEl=document.getElementById('chat-char-avatar');if(avatarEl){if(safeAvatar)avatarEl.innerHTML=`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`;else avatarEl.textContent=personaje.nombre.charAt(0).toUpperCase()}}}
 function construirSystemPrompt({nombre,personalidad,escenario,ejemplos,themeColor,intensidad}){const LIMITS={nombre:60,personalidad:3000,escenario:2000,ejemplos:4000};if(nombre&&nombre.length>LIMITS.nombre)throw new Error(`Nombre demasiado largo (máx. ${LIMITS.nombre})`);if(personalidad&&personalidad.length>LIMITS.personalidad)throw new Error(`Personalidad demasiado larga (máx. ${LIMITS.personalidad})`);if(escenario&&escenario.length>LIMITS.escenario)throw new Error(`Escenario demasiado largo (máx. ${LIMITS.escenario})`);if(ejemplos&&ejemplos.length>LIMITS.ejemplos)throw new Error(`Ejemplos demasiado largos (máx. ${LIMITS.ejemplos})`);const partes=[];partes.push(`[Sistema de Roleplay]`);partes.push(`Interpretarás al personaje "${nombre}" de forma inmersiva y consistente.`);partes.push(``);partes.push(`REGLAS ESTRICTAS DE FORMATO:`);partes.push(`- Usa *asteriscos* para acciones, pensamientos, expresiones y entorno.`);partes.push(`- Escribe el diálogo normal sin comillas.`);partes.push(`- NUNCA rompas el personaje. NUNCA hables como IA.`);partes.push(`- Responde siempre en primera persona como ${nombre}.`);partes.push(`- Sé descriptivo con las acciones.`);partes.push(``);if(personalidad?.trim()){partes.push(`[Personalidad de ${nombre}]`);partes.push(personalidad.trim());partes.push(``)}if(escenario?.trim()){partes.push(`[Escenario]`);partes.push(escenario.trim());partes.push(``)}if(ejemplos?.trim()){partes.push(`[Ejemplos de diálogo - imita este estilo]`);partes.push(ejemplos.trim());partes.push(``)}if(themeColor){partes.push(`[ConfiguracionTema]`);partes.push(sanitizeThemeColor(themeColor));partes.push(``)}if(intensidad){partes.push(`[ConfiguracionIntensidad]`);partes.push(intensidad);partes.push(``)}partes.push(`[Final] Mantén siempre el rol de ${nombre}.`);return partes.join('\n')}
-async function crearPersonaje(datos){if(!currentUser)throw new Error('No hay sesión');if(!datos.nombre?.trim())throw new Error('El nombre es obligatorio');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();if(avatar_url===undefined)avatar_url=null;const insertPayload={user_id:currentUser.id,nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,avatar_url,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave'};return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').insert(insertPayload).select().single();if(error){delete insertPayload.intensidad;const{data:d2,error:e2}=await sbClient.from('personajes').insert(insertPayload).select().single();if(e2)throw new Error(e2.message);return d2}return data})}
-async function actualizarPersonaje(id,datos){if(!currentUser)throw new Error('No hay sesión');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();const updates={nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave'};if(avatar_url!==undefined){updates.avatar_url=avatar_url;}return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').update(updates).eq('id',id).eq('user_id',currentUser.id).select().single();if(error){delete updates.intensidad;const{data:d2,error:e2}=await sbClient.from('personajes').update(updates).eq('id',id).eq('user_id',currentUser.id).select().single();if(e2)throw new Error(e2.message);return d2}return data})}
+async function crearPersonaje(datos){if(!currentUser)throw new Error('No hay sesión');if(!datos.nombre?.trim())throw new Error('El nombre es obligatorio');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();if(avatar_url===undefined)avatar_url=null;const insertPayload={user_id:currentUser.id,nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,avatar_url,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave'};return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').insert(insertPayload).select().single();if(error?.code==='42703'){const legacyPayload={...insertPayload};delete legacyPayload.intensidad;const{data:d2,error:e2}=await sbClient.from('personajes').insert(legacyPayload).select().single();if(e2)throw new Error(e2.message);return d2}if(error)throw new Error(error.message);return data})}
+async function actualizarPersonaje(id,datos){if(!currentUser)throw new Error('No hay sesión');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();const updates={nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave'};if(avatar_url!==undefined){updates.avatar_url=avatar_url;}return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').update(updates).eq('id',id).eq('user_id',currentUser.id).select().single();if(error?.code==='42703'){const legacyUpdates={...updates};delete legacyUpdates.intensidad;const{data:d2,error:e2}=await sbClient.from('personajes').update(legacyUpdates).eq('id',id).eq('user_id',currentUser.id).select().single();if(e2)throw new Error(e2.message);return d2}if(error)throw new Error(error.message);return data})}
 async function listarPersonajes(){if(!currentUser)return[];return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').eq('user_id',currentUser.id).order('creado_en',{ascending:!1});if(error)throw new Error(error.message);return data||[]})}
 async function listarPersonajesComunidad(){if(!currentUser)return[];return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('id,nombre,descripcion_corta,avatar_url,publico,user_id,creado_en').eq('publico',!0).order('creado_en',{ascending:!1}).limit(50);if(error)throw new Error(error.message);return data||[]})}
 async function obtenerPersonaje(id){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').or(`publico.eq.true,user_id.eq.${currentUser.id}`).eq('id',id).single();if(error)throw new Error('Personaje no encontrado');return data})}
@@ -1747,7 +1871,7 @@ async function listarChats(personajeId){return ejecutarConRefresh(async()=>{cons
 async function eliminarChat(chatId){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('chats').delete().eq('id',chatId).eq('user_id',currentUser.id);if(error)throw new Error(error.message);return!0})}
 async function cargarHistorialChat(chatId){return ejecutarConRefresh(async()=>{const{data:chat,error:chatError}=await sbClient.from('chats').select('historial,resumen,resumen_version,formato_version').eq('id',chatId).eq('user_id',currentUser.id).single();if(chatError)throw new Error(chatError.message);const{data:rows,error:messagesError}=await sbClient.from('mensajes').select('id,rol,contenido,creado_en,orden').eq('chat_id',chatId).order('orden',{ascending:true,nullsFirst:false}).order('creado_en',{ascending:true}).order('id',{ascending:true});if(messagesError)throw new Error(messagesError.message);let mensajes=(rows||[]).map(m=>({id:m.id,rol:m.rol,contenido:m.contenido,creado_en:m.creado_en,orden:m.orden}));if(mensajes.length===0&&Array.isArray(chat?.historial)){mensajes=chat.historial.filter(m=>m&&['user','assistant'].includes(m.rol)).map((m,i)=>({...m,orden:i+1}));}if(chat?.resumen){mensajes=[{id:`summary-${chat.resumen_version||1}`,rol:'summary',contenido:chat.resumen,summary_version:chat.resumen_version||1,orden:0},...mensajes]}else if(Array.isArray(chat?.historial)){const legacySummary=chat.historial.find(m=>m?.rol==='summary');if(legacySummary)mensajes=[{...legacySummary,orden:0},...mensajes]}const historialGemini=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant').map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));return{mensajes,historialGemini}})}
 async function reemplazarHistorialNormalizado(chatId,historial){const resumenItem=(historial||[]).find(m=>m?.rol==='summary');const mensajes=(historial||[]).filter(m=>m&&['user','assistant'].includes(m.rol)).map(m=>({id:m.id||null,rol:m.rol,contenido:String(m.contenido||''),creado_en:m.creado_en||null}));const{error}=await sbClient.rpc('reemplazar_historial_chat',{p_chat_id:chatId,p_resumen:resumenItem?.contenido||null,p_resumen_version:resumenItem?.summary_version||1,p_mensajes:mensajes});if(error)throw new Error(error.message);return!0}
-async function guardarMensaje(chatId,rol,contenido){return ejecutarConRefresh(async()=>{const{data:last,error:lastError}=await sbClient.from('mensajes').select('orden').eq('chat_id',chatId).order('orden',{ascending:false,nullsFirst:false}).limit(1).maybeSingle();if(lastError)throw new Error(lastError.message);const orden=(Number(last?.orden)||0)+1;const nuevoMsg={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5),rol,contenido,creado_en:new Date().toISOString(),orden};const{error}=await sbClient.from('mensajes').insert({id:nuevoMsg.id,chat_id:chatId,rol,contenido,creado_en:nuevoMsg.creado_en,orden});if(error)throw new Error(error.message);const{error:updateError}=await sbClient.from('chats').update({actualizado_en:new Date().toISOString(),formato_version:2}).eq('id',chatId).eq('user_id',currentUser.id);if(updateError)throw new Error(updateError.message);return nuevoMsg})}
+async function guardarMensaje(chatId,rol,contenido){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.rpc('guardar_mensaje_chat',{p_chat_id:chatId,p_rol:rol,p_contenido:contenido});if(error)throw new Error(error.message);const nuevoMsg=Array.isArray(data)?data[0]:data;if(!nuevoMsg)throw new Error('No se pudo guardar el mensaje');return nuevoMsg})}
 async function eliminarMensajeDeChat(chatId,mensajeId){return ejecutarConRefresh(async()=>{const{mensajes}=await cargarHistorialChat(chatId),nuevoHistorial=mensajes.filter(m=>m.id!==mensajeId);if(nuevoHistorial.length===mensajes.length)throw new Error('Mensaje no encontrado');await reemplazarHistorialNormalizado(chatId,nuevoHistorial);return!0})}
 async function actualizarHistorialChat(chatId,nuevoHistorial){return ejecutarConRefresh(async()=>reemplazarHistorialNormalizado(chatId,nuevoHistorial))}
 async function* enviarAGeminiStream(systemPrompt,mensajes,nuevoMensaje,maxTokens=4096){const apiKey=getGeminiKey();if(!apiKey)throw new Error('⚠️ Configura tu API Key de Gemini en los Ajustes de Rol (🎭)');let resumen='',mensajesSinResumen=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant');const summaries=mensajes.filter(m=>m.rol==='summary');if(summaries.length>0){resumen=summaries.map(s=>s.contenido).join('\n\n');mensajesSinResumen=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant')}const systemPromptFinal=resumen?`${systemPrompt}\n\n[RESUMEN DE CONVERSACIONES ANTERIORES - CONTEXTO IMPORTANTE]:\n${resumen}\n\n[FIN DEL RESUMEN - Continúa con el roleplay normal manteniendo toda la información del resumen]`:systemPrompt;const model=getGeminiModel();let historialGemini=mensajesSinResumen.map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));const ultimo=mensajesSinResumen[mensajesSinResumen.length-1];if(nuevoMensaje&&!(ultimo&&ultimo.rol==='user'&&ultimo.contenido===nuevoMensaje)){historialGemini.push({role:'user',parts:[{text:nuevoMensaje}]})}if(historialGemini.length===0)throw new Error('No hay mensajes para enviar a Gemini');const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);const intensidadVal=currentCharacter?.intensidad||parsed.intensidad||'suave';const body={system_instruction:{parts:[{text:systemPromptFinal}]},contents:historialGemini,safetySettings:getSafetySettings(intensidadVal),generationConfig:{temperature:.9,topP:.95,topK:40,maxOutputTokens:maxTokens}},url=geminiUrl(model,true),controller=new AbortController(),timeoutId=setTimeout(()=>controller.abort(),12e4);let response;try{response=await fetch(url,{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body),signal:controller.signal})}catch(err){if(err.name==='AbortError')throw new Error('Tiempo de espera agotado. Gemini no respondió a tiempo.');throw err}finally{clearTimeout(timeoutId)}if(!response.ok){const errText=await response.text();let msg=`Error de Gemini (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(mensajeErrorGemini(msg))}if(!response.body)throw new Error('Gemini no devolvió una respuesta válida');const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',yieldedText=!1;const parseLine=line=>{const trimmed=line.trim();if(!trimmed)return;let payload=trimmed;if(payload.startsWith('data:'))payload=payload.slice(5).trim();if(!payload||payload==='[DONE]')return;let json;try{json=JSON.parse(payload)}catch{return}if(json.error?.message)throw new Error(mensajeErrorGemini(json.error.message));const candidate=json.candidates?.[0];if(!candidate)return;const finishReason=candidate.finishReason;if(finishReason&&finishReason!=='STOP'&&finishReason!=='MAX_TOKENS'){throw new Error(finishReason==='SAFETY'?'Respuesta bloqueada por filtros de seguridad':`Gemini detuvo la respuesta (${finishReason})`)}const text=candidate.content?.parts?.map(p=>p.text||'').join('')||'';if(text){yieldedText=true;return text}};for(;;){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()||'';for(const line of lines){const text=parseLine(line);if(text)yield text}}buffer+=decoder.decode();for(const line of buffer.split('\n')){const text=parseLine(line);if(text)yield text}if(!yieldedText)throw new Error('Gemini no generó ninguna respuesta. Intenta de nuevo.')}
@@ -1913,7 +2037,7 @@ function setAuraColorUI(color){
 async function generarPersonajeConIA(){
   const idea=document.getElementById('ai-idea').value.trim();
   const statusEl=document.getElementById('ai-status');
-  if(!idea){showToast('Escribí una idea para tu personaje','error');return}
+  if(!idea){showToast('Escribe una idea para tu personaje','error');return}
   const apiKey=getGeminiKey();
   if(!apiKey){showToast('⚠️ Configura tu API Key en Ajustes de Rol (🎭)','error');return}
   const genBtn=document.getElementById('btn-ai-generar');
@@ -1964,7 +2088,18 @@ document.getElementById('btn-ai-cancel').addEventListener('click',()=>{
   document.getElementById('ai-status').textContent='';
   document.getElementById('ai-idea').value='';
 });
-document.querySelectorAll('.dashboard-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.dashboard-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');currentView=tab.dataset.view;const title=document.getElementById('dashboard-title'),subtitle=document.getElementById('dashboard-subtitle'),btnNuevo=document.getElementById('btn-nuevo-personaje');if(currentView==='my-characters'){title.textContent='Tus personajes';subtitle.textContent='Crea, edita y chatea con tus personajes de IA';btnNuevo.style.display='inline-flex';renderCharacters()}else if(currentView==='community'){title.textContent='Comunidad';subtitle.textContent='Descubre personajes creados por otros usuarios';btnNuevo.style.display='none';renderCharacters()}else if(currentView==='announcements'){title.textContent='Anuncios';subtitle.textContent=isOwner()?'Publica anuncios para toda la comunidad':'Anuncios oficiales del Owner';btnNuevo.style.display='none';renderAnuncios()}})});
+let friendsSearchTimer=null;
+function mostrarPerfilPublico(user){const cover=document.getElementById('public-profile-cover'),avatar=document.getElementById('public-profile-avatar'),name=document.getElementById('public-profile-name'),role=document.getElementById('public-profile-role'),description=document.getElementById('public-profile-description'),safeAvatar=sanitizeImageUrl(user.avatar_url),safeCover=sanitizeImageUrl(user.fondo_url),initial=(user.username||'U').charAt(0).toUpperCase();name.textContent=user.username||'Usuario';role.textContent=(user.rol||'user').toUpperCase();description.textContent=user.descripcion||'Este usuario aún no ha añadido una descripción.';description.className=`public-profile-description${user.descripcion?'':' public-profile-empty'}`;avatar.innerHTML=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`:initial;avatar.style.transform='none';if(safeAvatar)avatar.querySelector('img').style.objectPosition=`${Number(user.avatar_pos_x)||50}% ${Number(user.avatar_pos_y)||50}%`;cover.style.backgroundImage=safeCover?`url("${safeCover.replace(/"/g,'%22')}")`:'';cover.style.backgroundPosition=`${Number(user.fondo_pos_x)||50}% ${Number(user.fondo_pos_y)||50}%`;openModal('public-profile-modal')}
+async function abrirPerfilBuscado(username){try{const{data,error}=await sbClient.rpc('buscar_usuarios',{p_busqueda:username});if(error)throw error;const user=(data||[]).find(item=>item.username===username)||data?.[0];if(user)mostrarPerfilPublico(user)}catch(err){const{data,error}=await sbClient.from('perfiles').select('user_id,username,descripcion,avatar_url,fondo_url,avatar_pos_x,avatar_pos_y,fondo_pos_x,fondo_pos_y').eq('username',username).maybeSingle();if(!error&&data)mostrarPerfilPublico({...data,rol:'user'})}}
+document.getElementById('friends-results').addEventListener('click',e=>{const card=e.target.closest('.friend-card');if(!card)return;const username=card.querySelector('.friend-name')?.textContent?.trim();if(username)abrirPerfilBuscado(username)});
+document.getElementById('user-badge').addEventListener('click',()=>{const description=document.getElementById('profile-description');if(description)description.value=userDescription||''});
+function crearFloresBuscador(){document.querySelectorAll('#friends-modal .friends-petals span').forEach((petal,i)=>{petal.style.setProperty('--left',`${5+(i*17)%92}%`);petal.style.setProperty('--size',`${.8+(i%4)*.18}rem`);petal.style.setProperty('--color',i%2?'#c4a7ff':'#ff9fca');petal.style.setProperty('--duration',`${9+(i%5)}s`);petal.style.setProperty('--delay',`${-(i%8)}s`);petal.style.setProperty('--sway',`${i%2?'-':'+'}${25+(i%4)*12}px`);petal.style.setProperty('--rotation',`${i*35}deg`)})}
+function renderFriendResults(users){const out=document.getElementById('friends-results');if(!out)return;if(!users?.length){out.innerHTML='<div class="friends-empty"><strong>No encontramos usuarios</strong>Prueba con otro nombre.</div>';return}out.innerHTML=users.map((u,i)=>{const name=escapeHtml(u.username||'Usuario'),initial=escapeHtml((u.username||'U').charAt(0).toUpperCase()),avatar=sanitizeImageUrl(u.avatar_url),cover=sanitizeImageUrl(u.fondo_url),role=escapeHtml(u.rol||'user');return`<article class="friend-card" style="--friend-cover:${cover?`url("${cover.replace(/"/g,'%22')}")`:'rgba(168,85,247,.18)'};animation-delay:${Math.min(i,8)*35}ms"><div class="friend-card-top"><div class="friend-avatar">${avatar?`<img src="${avatar.replace(/"/g,'&quot;')}" alt="">`:initial}</div><div class="friend-info"><div class="friend-name">${name}</div><div class="friend-id">Miembro de SAIR</div><span class="friend-role">${role}</span></div></div></article>`}).join('')}
+async function buscarAmigos(){const input=document.getElementById('friends-search-input'),term=input?.value.trim()||'',out=document.getElementById('friends-results');if(term.length<1){out.innerHTML='<div class="friends-empty"><strong>Busca un usuario</strong>Escribe al menos una letra para comenzar.</div>';return}out.innerHTML='<div class="friends-empty">Buscando perfiles...</div>';try{const{data,error}=await sbClient.rpc('buscar_usuarios',{p_busqueda:term});if(error)throw error;renderFriendResults(data||[])}catch(err){console.warn('RPC de búsqueda no disponible, usando perfiles básicos:',err);try{const{data,error}=await sbClient.from('perfiles').select('user_id,username,avatar_url,fondo_url').neq('user_id',currentUser.id).ilike('username',`%${term}%`).limit(30);if(error)throw error;renderFriendResults((data||[]).map(user=>({...user,rol:'user'})))}catch(fallbackErr){console.error('Error buscando usuarios:',fallbackErr);out.innerHTML='<div class="friends-empty"><strong>No se pudo completar la búsqueda</strong>Intenta de nuevo en un momento.</div>'}}}
+document.getElementById('btn-buscar-amigos').addEventListener('click',()=>{crearFloresBuscador();openModal('friends-modal');setTimeout(()=>document.getElementById('friends-search-input')?.focus(),180)});
+document.getElementById('friends-search-input').addEventListener('input',()=>{clearTimeout(friendsSearchTimer);friendsSearchTimer=setTimeout(buscarAmigos,280)});
+document.getElementById('friends-modal').addEventListener('click',e=>{if(e.target===document.getElementById('friends-modal'))closeModal('friends-modal')});
+document.querySelectorAll('.dashboard-tab').forEach(tab=>{tab.addEventListener('click',()=>{if(!tab.dataset.view)return;document.querySelectorAll('.dashboard-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');currentView=tab.dataset.view;const title=document.getElementById('dashboard-title'),subtitle=document.getElementById('dashboard-subtitle'),btnNuevo=document.getElementById('btn-nuevo-personaje');if(currentView==='my-characters'){title.textContent='Tus personajes';subtitle.textContent='Crea, edita y chatea con tus personajes de IA';btnNuevo.style.display='inline-flex';renderCharacters()}else if(currentView==='community'){title.textContent='Comunidad';subtitle.textContent='Descubre personajes creados por otros usuarios';btnNuevo.style.display='none';renderCharacters()}else if(currentView==='announcements'){title.textContent='Anuncios';subtitle.textContent=isOwner()?'Publica anuncios para toda la comunidad':'Anuncios oficiales del Owner';btnNuevo.style.display='none';renderAnuncios()}})});
 async function abrirChatConPersonaje(personajeId){try{currentCharacter=await obtenerPersonaje(personajeId);currentChatId=null;await verificarYMostrarModalRol();const avatarEl=document.getElementById('chat-char-avatar');const safeAvatar=sanitizeImageUrl(currentCharacter.avatar_url);if(safeAvatar)avatarEl.innerHTML=`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`;else avatarEl.textContent=currentCharacter.nombre.charAt(0).toUpperCase();document.getElementById('chat-char-name').textContent=currentCharacter.nombre;document.getElementById('chat-char-sub').textContent='Chats';document.getElementById('chat-view').classList.add('visible');document.getElementById('dashboard').style.display='none';document.body.style.overflow='hidden';
 
 // Aplicar tema dinámico de aura
@@ -2223,7 +2358,7 @@ async function initApp(){
     // Escuchar cambios de autenticación reactivamente
     sbClient.auth.onAuthStateChange((event,session)=>{
       if(event==='SIGNED_OUT'){
- currentUser=null;userRole=null;userUsername=null;userAvatarUrl=null;userRoleName=null;
+ currentUser=null;userRole=null;userUsername=null;userDescription='';userAvatarUrl=null;userBackgroundUrl=null;userAvatarPos={x:50,y:50};userBackgroundPos={x:50,y:50};userRoleName=null;
         limpiarCacheUsuario();
         try { localStorage.removeItem('sair_cached_user_info'); } catch(e){}
         showAuth();
@@ -2251,6 +2386,7 @@ function showAuth(){
   if(politicasEl){politicasEl.classList.remove('visible');politicasEl._preventClose=false}
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.id!=='politicas-modal'){m.style.pointerEvents='';m.style.opacity=''}});
   authScreen.classList.add('visible');
+  authScreen.classList.add('guest-welcome');
   dashboard.classList.remove('visible');
   document.getElementById('chat-view').classList.remove('visible');
   settingsBtn.classList.add('hidden');
@@ -2260,7 +2396,8 @@ function showAuth(){
   if(loginBtn){loginBtn.disabled=!1;loginBtn.textContent='Iniciar Sesión';}
   void authScreen.offsetWidth;
 }
-function showDashboard(){authScreen.classList.remove('visible');dashboard.classList.add('visible');settingsBtn.classList.remove('hidden');limpiarCacheUsuario();verificarPoliticas();renderCharacters()}
+function showDashboard(){authScreen.classList.remove('visible','guest-welcome');dashboard.classList.add('visible');settingsBtn.classList.remove('hidden');limpiarCacheUsuario();verificarPoliticas();renderCharacters()}
+document.getElementById('auth-start-btn')?.addEventListener('click',()=>{authScreen.classList.remove('guest-welcome');requestAnimationFrame(()=>document.getElementById('login-email')?.focus())});
 document.querySelectorAll('.auth-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));document.getElementById(`${tab.dataset.tab}-form`).classList.add('active');document.querySelectorAll('.form-message').forEach(m=>{m.className='form-message';m.textContent=''})})});
 document.getElementById('login-form').addEventListener('submit',async e=>{
 e.preventDefault();
@@ -2338,16 +2475,33 @@ limpiarCacheUsuario();
   }
 });
 document.getElementById('logout-modal').addEventListener('click',e=>{if(e.target===document.getElementById('logout-modal'))document.getElementById('logout-modal').classList.remove('visible')});
-let perfilAvatarPendiente=null;
+let perfilAvatarPendiente=null,perfilFondoPendiente=null,perfilAvatarPosPendiente={x:50,y:50},perfilFondoPosPendiente={x:50,y:50};
 function actualizarPreviewAvatarPerfil(url){const preview=document.getElementById('profile-avatar-preview'),displayName=userUsername||currentUser?.email?.split('@')[0]||'Usuario';if(!preview)return;const safe=sanitizeImageUrl(url);preview.innerHTML=safe?`<img src="${safe.replace(/"/g,'&quot;')}" alt="Foto de perfil">`:displayName.charAt(0).toUpperCase()}
+function actualizarPreviewFondoPerfil(url,pos=perfilFondoPosPendiente){const preview=document.getElementById('profile-cover-preview');if(!preview)return;const safe=sanitizeImageUrl(url);preview.style.backgroundImage=safe?`url("${safe.replace(/"/g,'%22')}")`:'';preview.style.backgroundPosition=`${pos.x}% ${pos.y}%`}
+function actualizarPosicionesPerfil(){const avatar=document.getElementById('profile-avatar-preview'),cover=document.getElementById('profile-cover-preview');const avatarImg=avatar?.querySelector('img');if(avatarImg)avatarImg.style.objectPosition=`${perfilAvatarPosPendiente.x}% ${perfilAvatarPosPendiente.y}%`;if(cover)cover.style.backgroundPosition=`${perfilFondoPosPendiente.x}% ${perfilFondoPosPendiente.y}%`}
 function prepararAvatarPerfil(file){return new Promise((resolve,reject)=>{if(!file){resolve(null);return}if(!file.type.startsWith('image/')){reject(new Error('Solo se permiten imágenes'));return}if(file.size>5*1024*1024){reject(new Error('La imagen debe pesar máximo 5 MB'));return}const reader=new FileReader();reader.onerror=()=>reject(new Error('No se pudo leer la imagen'));reader.onload=ev=>{const img=new Image();img.onerror=()=>reject(new Error('Imagen inválida'));img.onload=()=>{const size=256,canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;const ctx=canvas.getContext('2d'),ratio=Math.max(size/img.width,size/img.height),w=img.width*ratio,h=img.height*ratio;ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);resolve(canvas.toDataURL('image/jpeg',.82))};img.src=ev.target.result};reader.readAsDataURL(file)})}
-document.getElementById('user-badge').addEventListener('click',()=>{actualizarUIPerfil();perfilAvatarPendiente=userAvatarUrl;openModal('profile-modal')});
+function prepararFondoPerfil(file){return new Promise((resolve,reject)=>{if(!file){resolve(null);return}if(!file.type.startsWith('image/')){reject(new Error('Solo se permiten imágenes'));return}if(file.size>5*1024*1024){reject(new Error('La imagen debe pesar máximo 5 MB'));return}const reader=new FileReader();reader.onerror=()=>reject(new Error('No se pudo leer la imagen'));reader.onload=ev=>{const img=new Image();img.onerror=()=>reject(new Error('Imagen inválida'));img.onload=()=>{const maxWidth=1200,ratio=Math.min(1,maxWidth/img.width),w=Math.max(1,Math.round(img.width*ratio)),h=Math.max(1,Math.round(img.height*ratio)),canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',.78))};img.src=ev.target.result};reader.readAsDataURL(file)})}
+document.getElementById('user-badge').addEventListener('click',()=>{actualizarUIPerfil();perfilAvatarPendiente=userAvatarUrl;perfilFondoPendiente=userBackgroundUrl;perfilAvatarPosPendiente={...userAvatarPos};perfilFondoPosPendiente={...userBackgroundPos};document.getElementById('profile-avatar-pos-x').value=perfilAvatarPosPendiente.x;document.getElementById('profile-avatar-pos-y').value=perfilAvatarPosPendiente.y;document.getElementById('profile-background-pos-x').value=perfilFondoPosPendiente.x;document.getElementById('profile-background-pos-y').value=perfilFondoPosPendiente.y;actualizarPreviewFondoPerfil(perfilFondoPendiente);actualizarPosicionesPerfil();openModal('profile-modal')});
 document.getElementById('user-badge').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();document.getElementById('user-badge').click()}});
 document.getElementById('profile-avatar-change').addEventListener('click',()=>document.getElementById('profile-avatar-file').click());
 document.getElementById('profile-avatar-file').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{perfilAvatarPendiente=await prepararAvatarPerfil(file);actualizarPreviewAvatarPerfil(perfilAvatarPendiente)}catch(err){showToast(`❌ ${err.message}`,'error')}finally{e.target.value=''}});
 document.getElementById('profile-avatar-remove').addEventListener('click',()=>{perfilAvatarPendiente=null;actualizarPreviewAvatarPerfil(null)});
+document.getElementById('profile-background-change').addEventListener('click',()=>document.getElementById('profile-background-file').click());
+document.getElementById('profile-background-file').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{perfilFondoPendiente=await prepararFondoPerfil(file);actualizarPreviewFondoPerfil(perfilFondoPendiente)}catch(err){showToast(`❌ ${err.message}`,'error')}finally{e.target.value=''}});
+document.getElementById('profile-background-remove').addEventListener('click',()=>{perfilFondoPendiente=null;actualizarPreviewFondoPerfil(null)});
+[['profile-avatar-pos-x',perfilAvatarPosPendiente,'x'],['profile-avatar-pos-y',perfilAvatarPosPendiente,'y'],['profile-background-pos-x',perfilFondoPosPendiente,'x'],['profile-background-pos-y',perfilFondoPosPendiente,'y']].forEach(([id,target,axis])=>document.getElementById(id).addEventListener('input',e=>{target[axis]=Number(e.target.value);actualizarPosicionesPerfil()}));
 const formProfile=document.getElementById('form-profile');
-formProfile.addEventListener('submit',async e=>{e.preventDefault();const input=document.getElementById('profile-username'),hint=document.getElementById('profile-username-hint'),btn=e.target.querySelector('button[type="submit"]'),nuevoUsername=input.value.trim(),regex=/^[a-zA-Z0-9_]{3,20}$/;if(!regex.test(nuevoUsername)){hint.textContent='❌ Usa 3-20 caracteres: letras, números o _.';hint.className='username-hint error';shakeElement(input);return}const originalText=btn.textContent;btn.disabled=true;btn.textContent='Guardando...';try{await cambiarUsername(nuevoUsername);await guardarAvatarPerfil(perfilAvatarPendiente);actualizarUIPerfil();closeModal('profile-modal');showToast('✅ Perfil actualizado')}catch(err){playErrorSound();showToast(`❌ ${err.message}`,'error')}finally{btn.disabled=false;btn.textContent=originalText}});
+formProfile.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const input=document.getElementById('profile-username'),description=document.getElementById('profile-description'),hint=document.getElementById('profile-username-hint'),btn=e.target.querySelector('button[type="submit"]'),nuevoUsername=input.value.trim(),nuevoDescription=description?.value.trim().slice(0,280)||'',regex=/^[a-zA-Z0-9_]{3,20}$/;
+  if(!regex.test(nuevoUsername)){hint.textContent='❌ Usa 3-20 caracteres: letras, números y _.';hint.className='username-hint error';shakeElement(input);return}
+  const originalText=btn.textContent;btn.disabled=true;btn.textContent='Guardando...';
+  try{
+    const{error}=await sbClient.from('perfiles').update({username:nuevoUsername,descripcion:nuevoDescription||null,avatar_url:sanitizeImageUrl(perfilAvatarPendiente)||null,fondo_url:sanitizeImageUrl(perfilFondoPendiente)||null,avatar_pos_x:perfilAvatarPosPendiente.x,avatar_pos_y:perfilAvatarPosPendiente.y,fondo_pos_x:perfilFondoPosPendiente.x,fondo_pos_y:perfilFondoPosPendiente.y}).eq('user_id',currentUser.id);
+    if(error)throw new Error(error.message);
+    userUsername=nuevoUsername;userDescription=nuevoDescription;userAvatarUrl=sanitizeImageUrl(perfilAvatarPendiente)||null;userBackgroundUrl=sanitizeImageUrl(perfilFondoPendiente)||null;userAvatarPos={...perfilAvatarPosPendiente};userBackgroundPos={...perfilFondoPosPendiente};guardarInfoUsuarioLocal();actualizarUIPerfil();closeModal('profile-modal');showToast('✅ Perfil actualizado');
+  }catch(err){playErrorSound();showToast(`❌ ${err.message}`,'error')}finally{btn.disabled=false;btn.textContent=originalText}
+});
 document.getElementById('settings-btn').addEventListener('click',()=>{actualizarUIPerfil()});
 const formRole=document.getElementById('form-role');
 if(formRole){
@@ -2783,40 +2937,40 @@ function abrirModalInstalacion(){
   if(plat==='ios'){
     html=`<p style="color:var(--text-3);font-size:.9rem;line-height:1.6;margin-bottom:1.2rem;">iOS no permite instalación automática desde el navegador (restricción de Apple), pero son solo <strong>3 toques</strong>:</p>
     <ol class="pwa-steps">
-    <li><span class="pwa-step-num">1</span><span>Tocá el botón <strong>Compartir</strong> (cuadrado con flecha ↗) en la barra inferior de Safari.</span></li>
-    <li><span class="pwa-step-num">2</span><span>Deslizá hacia abajo y tocá <strong>“Añadir a pantalla de inicio”</strong>.</span></li>
-    <li><span class="pwa-step-num">3</span><span>Confirmá tocando <strong>“Añadir”</strong>. SAIR quedará como una app en tu pantalla.</span></li>
+    <li><span class="pwa-step-num">1</span><span>Toca el botón <strong>Compartir</strong> (cuadrado con flecha ↗) en la barra inferior de Safari.</span></li>
+    <li><span class="pwa-step-num">2</span><span>Desliza hacia abajo y toca <strong>“Añadir a pantalla de inicio”</strong>.</span></li>
+    <li><span class="pwa-step-num">3</span><span>Confirma tocando <strong>“Añadir”</strong>. SAIR quedará como una app en tu pantalla.</span></li>
     </ol>`;
   }else if(plat==='android'&&navegadorInstalacion()==='brave'){
     html=`<p style="color:var(--text-3);font-size:.9rem;line-height:1.6;margin-bottom:1.2rem;">En Brave para Android son <strong>2 toques</strong>:</p>
     <ol class="pwa-steps">
-    <li><span class="pwa-step-num">1</span><span>Tocá el menú <strong>⋮</strong> (arriba a la derecha).</span></li>
-    <li><span class="pwa-step-num">2</span><span>Tocá <strong>“Instalar aplicación”</strong> (o “Añadir a pantalla de inicio”) y confirmá. Se verá la barra de progreso de instalación de SAIR.</span></li>
+    <li><span class="pwa-step-num">1</span><span>Toca el menú <strong>⋮</strong> (arriba a la derecha).</span></li>
+    <li><span class="pwa-step-num">2</span><span>Toca <strong>“Instalar aplicación”</strong> (o “Añadir a pantalla de inicio”) y confirma. Se verá la barra de progreso de instalación de SAIR.</span></li>
     </ol>`;
   }else if(navegadorInstalacion()==='brave'){
     html=`<p style="color:var(--text-3);font-size:.9rem;line-height:1.6;margin-bottom:1.2rem;">En Brave (escritorio) no aparece el ícono en la barra de direcciones; se instala desde el menú:</p>
     <ol class="pwa-steps">
-    <li><span class="pwa-step-num">1</span><span>Tocá el menú <strong>⋮</strong> (arriba a la derecha) → <strong>“Guardar y compartir”</strong> → <strong>“Instalar página como app”</strong> → <strong>“Instalar”</strong>.</span></li>
+    <li><span class="pwa-step-num">1</span><span>Toca el menú <strong>⋮</strong> (arriba a la derecha) → <strong>“Guardar y compartir”</strong> → <strong>“Instalar página como app”</strong> → <strong>“Instalar”</strong>.</span></li>
     </ol>
-    <p style="font-size:.75rem;color:var(--text-4);margin-top:.8rem;">¿Solo aparece <strong>“Crear acceso directo”</strong>? Brave solo muestra “Instalar página como app” cuando reconoce la PWA. Escribí <code>:> install pwa</code> en la barra de direcciones y Enter (Quick Commands de Brave), o activá <code>brave://flags/#web-app-universal-install</code> → Reiniciar → volvé a ⋮ → “Guardar y compartir”.</p>`;
+    <p style="font-size:.75rem;color:var(--text-4);margin-top:.8rem;">¿Solo aparece <strong>“Crear acceso directo”</strong>? Brave solo muestra “Instalar página como app” cuando reconoce la PWA. Escribe <code>:> install pwa</code> en la barra de direcciones y Enter (Quick Commands de Brave), o activa <code>brave://flags/#web-app-universal-install</code> → Reiniciar → vuelve a ⋮ → “Guardar y compartir”.</p>`;
   }else if(navegadorInstalacion()==='chrome'||navegadorInstalacion()==='edge'){
     html=`<p style="color:var(--text-3);font-size:.9rem;line-height:1.6;margin-bottom:1.2rem;">Son <strong>2 toques</strong>:</p>
     <ol class="pwa-steps">
-    <li><span class="pwa-step-num">1</span><span>En la <strong>barra de direcciones</strong>, a la derecha, tocá el ícono de instalar: un <strong>monitor con una flecha hacia abajo (⬇)</strong>.</span></li>
-    <li><span class="pwa-step-num">2</span><span>Tocá <strong>“Instalar”</strong> en el diálogo que aparece.</span></li>
+    <li><span class="pwa-step-num">1</span><span>En la <strong>barra de direcciones</strong>, a la derecha, toca el ícono de instalar: un <strong>monitor con una flecha hacia abajo (⬇)</strong>.</span></li>
+    <li><span class="pwa-step-num">2</span><span>Toca <strong>“Instalar”</strong> en el diálogo que aparece.</span></li>
     </ol>
-    <p style="font-size:.75rem;color:var(--text-4);margin-top:.8rem;">Si el ícono no aparece, usá el menú ⋮ → “Instalar aplicación” o “Guardar y compartir” → “Instalar página como app”.</p>`;
+    <p style="font-size:.75rem;color:var(--text-4);margin-top:.8rem;">Si el ícono no aparece, usa el menú ⋮ → “Instalar aplicación” o “Guardar y compartir” → “Instalar página como app”.</p>`;
   }else if(navegadorInstalacion()==='firefox'){
     html=`<p style="color:var(--text-3);font-size:.9rem;line-height:1.6;margin-bottom:1.2rem;">En Firefox son <strong>2 toques</strong>:</p>
     <ol class="pwa-steps">
-    <li><span class="pwa-step-num">1</span><span>Tocá el menú <strong>☰</strong> (arriba a la derecha).</span></li>
-    <li><span class="pwa-step-num">2</span><span>Tocá <strong>“Instalar aplicación”</strong> y confirmá. En Android: menú ⋮ → “Añadir a pantalla de inicio”.</span></li>
+    <li><span class="pwa-step-num">1</span><span>Toca el menú <strong>☰</strong> (arriba a la derecha).</span></li>
+    <li><span class="pwa-step-num">2</span><span>Toca <strong>“Instalar aplicación”</strong> y confirma. En Android: menú ⋮ → “Añadir a pantalla de inicio”.</span></li>
     </ol>`;
   }else{
     html=`<p style="color:var(--text-3);font-size:.9rem;line-height:1.6;margin-bottom:1.2rem;">Son <strong>2 toques</strong>:</p>
     <ol class="pwa-steps">
     <li><span class="pwa-step-num">1</span><span>Busca el botón de instalar en la barra del navegador (ícono de <strong>monitor con flecha ⬇</strong>) o en el menú <strong>(⋮ o ☰)</strong>.</span></li>
-    <li><span class="pwa-step-num">2</span><span>Tocá <strong>“Instalar aplicación”</strong> o <strong>“Añadir al escritorio / pantalla de inicio”</strong>.</span></li>
+    <li><span class="pwa-step-num">2</span><span>Toca <strong>“Instalar aplicación”</strong> o <strong>“Añadir al escritorio / pantalla de inicio”</strong>.</span></li>
     </ol>`;
   }
   installBody.innerHTML=html;
@@ -2859,6 +3013,14 @@ if(!estaInstaladaComoPWA()){
     setTimeout(()=>{if(!deferredPrompt)mostrarBannerInstalacion()},4000);
   }
 }
+const REGLA_ESPANOL_NEUTRAL='\n\n[Idioma] Usa español neutral en todas tus respuestas. Evita el voseo y las formas regionales; usa formas como "describe", "escribe", "toca", "confirma", "revisa", "prueba", "quieres" y "tienes".';
+const reemplazosEspanolNeutral=[['Describí','Describe'],['Escribí','Escribe'],['Tocá','Toca'],['Deslizá','Desliza'],['Confirmá','Confirma'],['Activá','Activa'],['Volvé','Vuelve'],['Usá','Usa'],['Completá','Completa'],['Probá','Prueba'],['Revisá','Revisa'],['Ajustá','Ajusta'],['Verificá','Verifica']];
+function normalizarTextoInterfaz(texto){return reemplazosEspanolNeutral.reduce((resultado,[regional,neutral])=>resultado.replaceAll(regional,neutral),texto)}
+const normalizadorInterfaz=new MutationObserver(cambios=>{for(const cambio of cambios){for(const nodo of cambio.type==='characterData'?[cambio.target]:Array.from(cambio.addedNodes)){if(nodo.nodeType!==Node.TEXT_NODE)continue;const padre=nodo.parentElement;if(!padre||padre.closest('#chat-messages,.message-bubble,.character-desc,.announcement-content,textarea,input,code'))continue;const texto=normalizarTextoInterfaz(nodo.nodeValue);if(texto!==nodo.nodeValue)nodo.nodeValue=texto}}});
+normalizadorInterfaz.observe(document.body,{subtree:true,childList:true,characterData:true});
+const construirSystemPromptBase=construirSystemPrompt;
+construirSystemPrompt=function(datos){return construirSystemPromptBase(datos)+REGLA_ESPANOL_NEUTRAL};
+
 /* Gemini puede terminar un stream después de haber entregado texto parcial.
    Conservamos esa respuesta para no reemplazarla por un error genérico. */
 const enviarAGeminiStreamOriginal=enviarAGeminiStream;
