@@ -69,8 +69,8 @@ set search_path = pg_catalog, public, auth
 as $$
 begin
   if not exists (
-    select 1 from public.chats
-    where id = p_chat_id and user_id = (select auth.uid())
+    select 1 from public.chats c
+    where c.id = p_chat_id and c.user_id = (select auth.uid())
   ) then
     raise exception 'Chat no autorizado';
   end if;
@@ -125,8 +125,8 @@ begin
     raise exception 'Mensaje inválido';
   end if;
   if not exists (
-    select 1 from public.chats
-    where id = p_chat_id and user_id = (select auth.uid())
+    select 1 from public.chats c
+    where c.id = p_chat_id and c.user_id = (select auth.uid())
     for update
   ) then
     raise exception 'Chat no autorizado';
@@ -135,9 +135,9 @@ begin
   from public.mensajes m where m.chat_id = p_chat_id;
   insert into public.mensajes (id, chat_id, rol, contenido, creado_en, orden)
   values (v_id, p_chat_id, p_rol, p_contenido, v_creado_en, v_orden);
-  update public.chats
+  update public.chats c
   set actualizado_en = v_creado_en, formato_version = 2
-  where id = p_chat_id and user_id = (select auth.uid());
+  where c.id = p_chat_id and c.user_id = (select auth.uid());
   return query select v_id, p_chat_id, p_rol, p_contenido, v_creado_en, v_orden;
 end;
 $$;

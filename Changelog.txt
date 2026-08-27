@@ -24,6 +24,7 @@
 - Mayor privacidad en la consulta de perfiles y datos de comunidad
 - Persistencia más segura de preferencias y credenciales locales
 - Funcionamiento offline y actualización de la aplicación más resistentes
+- Corrección del envío de mensajes y actualización forzada de la versión instalada
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
