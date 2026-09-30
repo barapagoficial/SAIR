@@ -2,7 +2,7 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[3.0.0 Preview] — 2026-08-27
+[3.0.0 Preview F] — 2026-08-27
 
 ✨ Novedades
 - Nueva pantalla de bienvenida para usuarios sin sesión, con una
@@ -10,7 +10,7 @@
 - Descripción amigable del roleplay con IA y del uso de la API Key
   propia de Google AI Studio
 - Buscador de personas para descubrir perfiles dentro de la comunidad
-- Indicadores de versión actualizados a 3.0.0 Preview
+- Indicadores de versión actualizados a 3.0.0 Preview F
 
 🎨 Experiencia de usuario
 - Transiciones más suaves entre iniciar sesión y registrarse
