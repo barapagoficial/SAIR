@@ -2,6 +2,28 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[3.0.0 Preview G] — 2026-09-29
+
+✨ Novedades
+- Nuevo selector de modelo para la recapitulación, los resúmenes
+  automáticos del chat y la generación de personajes con IA
+  (antes fijado siempre en Gemini 3.7 Flash)
+- La API Key de Gemini ahora se guarda de forma persistente en el
+  navegador: ya no se pierde al cerrar la pestaña o el navegador
+- Los modelos de roleplay y de resúmenes quedan guardados aunque no
+  vuelvas a pegar la API Key al guardar los Ajustes de Rol
+- El estado del motor (Ajustes de Rol) y la confirmación de la
+  recapitulación muestran los modelos realmente configurados
+
+🎨 Experiencia de usuario
+- Nueva animación de entrada cinematográfica que reemplaza la
+  pantalla de carga: el velo de SAIR3 brilla y se desliza revelando
+  la app, con entradas escalonadas del panel de acceso, el dashboard
+  y las tarjetas de personajes
+- Indicadores de versión actualizados a 3.0.0 Preview G
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [3.0.0 Preview F] — 2026-08-27
 
 ✨ Novedades
