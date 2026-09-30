@@ -49,6 +49,8 @@ where item->>'rol' in ('user', 'assistant')
 
 create index if not exists idx_mensajes_chat_creado
   on public.mensajes (chat_id, creado_en, id);
+create index if not exists idx_mensajes_chat_orden
+  on public.mensajes (chat_id, orden, creado_en, id);
 create index if not exists idx_anuncios_user_id
   on public.anuncios (user_id);
 create index if not exists idx_personajes_user_id
