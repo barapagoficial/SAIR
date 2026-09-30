@@ -24,15 +24,37 @@ html{scrollbar-gutter:stable}html,body{height:100%}
 body[data-theme="dark"]{--bg-0:#050507;--bg-1:#0a0a0f;--bg-2:#12121a;--bg-card:rgba(255,255,255,0.03);--bg-card-hover:rgba(255,255,255,0.06);--bg-input:rgba(255,255,255,0.02);--border:rgba(255,255,255,0.06);--border-strong:rgba(255,255,255,0.12);--text-1:#ffffff;--text-2:#d0d0e0;--text-3:#9090a8;--text-4:#606078;--overlay:rgba(0,0,0,0.8);--shadow-card:0 25px 70px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.03);--splash-bg:radial-gradient(ellipse at top,#0f0f1a 0%,#050507 70%);--bubble-user:linear-gradient(135deg,#ff4d8f 0%,#a855f7 100%);--bubble-ai:rgba(255,255,255,0.04);--skeleton-bg:rgba(255,255,255,0.03);--skeleton-shine:rgba(255,255,255,0.06)}
 body[data-theme="light"]{--bg-0:#fafafa;--bg-1:#ffffff;--bg-2:#f5f5f7;--bg-card:rgba(255,255,255,0.9);--bg-card-hover:#ffffff;--bg-input:rgba(0,0,0,0.03);--border:rgba(0,0,0,0.08);--border-strong:rgba(0,0,0,0.15);--text-1:#0a0a0f;--text-2:#2a2a3a;--text-3:#5a5a70;--text-4:#8a8aa0;--overlay:rgba(0,0,0,0.5);--shadow-card:0 20px 60px rgba(0,0,0,0.1);--splash-bg:radial-gradient(ellipse at center,#ffffff 0%,#f0f0f5 70%);--pink-glow:rgba(255,77,143,0.2);--blue-glow:rgba(77,121,255,0.2);--bubble-user:linear-gradient(135deg,#ff4d8f,#a855f7);--bubble-ai:rgba(0,0,0,0.05);--skeleton-bg:rgba(0,0,0,0.04);--skeleton-shine:rgba(0,0,0,0.08)}
 body{font-family:var(--font-sans);background:var(--bg-0);color:var(--text-2);overflow-x:hidden;line-height:1.6;transition:var(--transition-theme)}
-#splash{position:fixed;inset:0;z-index:9999;background:var(--splash-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s ease;overflow:hidden}
-#splash::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(255,77,143,0.15) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(77,121,255,0.15) 0%,transparent 50%);animation:splashFloat 15s ease-in-out infinite;pointer-events:none}
+/* ===== ANIMACIÓN DE ENTRADA (sustituye a la pantalla de carga) ===== */
+#intro-veil{position:fixed;inset:0;z-index:9999;background:var(--splash-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;animation:veilExit .95s .55s cubic-bezier(.76,0,.24,1) both;box-shadow:0 2px 40px rgba(0,0,0,.35)}
+#intro-veil::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(255,77,143,0.15) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(77,121,255,0.15) 0%,transparent 50%);animation:splashFloat 12s ease-in-out infinite;pointer-events:none}
+#intro-veil::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.08) 50%,transparent 58%);transform:translateX(-130%);animation:veilShine 1s .1s ease both}
 @keyframes splashFloat{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-5%,5%) rotate(180deg)}}
-#splash.hidden{opacity:0;pointer-events:none}
-.splash-developer{font-family:var(--font-mono);font-size:clamp(.85rem,1.4vw,1rem);letter-spacing:.25em;text-transform:uppercase;color:var(--text-3);margin-bottom:1.5rem}
-.splash-developer::before,.splash-developer::after{content:'';display:inline-block;width:30px;height:1px;background:linear-gradient(90deg,transparent,var(--text-3),transparent);vertical-align:middle;margin:0 1rem}
-.splash-title{font-family:var(--font-display);font-size:clamp(2.2rem,6vw,4.5rem);font-weight:700;background:var(--grad-main);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;position:relative;animation:titleGlow 3s ease-in-out infinite}
+@keyframes veilShine{to{transform:translateX(130%)}}
+@keyframes veilExit{0%{transform:translateY(0)}100%{transform:translateY(-101%)}}
+.intro-brand{font-family:var(--font-display);font-size:clamp(2.4rem,7vw,4.8rem);font-weight:700;background:linear-gradient(135deg,#ff4d8f 0%,#ff6ba0 20%,#a855f7 50%,#b86eff 70%,#4d79ff 100%);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:brandIn .55s cubic-bezier(.16,1,.3,1) both,brandOut .4s .5s cubic-bezier(.7,0,.84,0) both,titleGlow 3s ease-in-out infinite,gradientShift 8s ease infinite}
+.intro-line{width:0;height:1px;margin-top:1.1rem;background:linear-gradient(90deg,transparent,var(--pink),var(--purple),var(--blue),transparent);animation:introLine .8s .12s cubic-bezier(.16,1,.3,1) both,brandOut .35s .5s both}
+.intro-sub{margin-top:.8rem;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.42em;text-transform:uppercase;color:var(--text-3);animation:brandIn .55s .08s cubic-bezier(.16,1,.3,1) both,brandOut .35s .48s both}
+@keyframes brandIn{from{opacity:0;transform:translateY(18px) scale(.94);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes brandOut{to{opacity:0;transform:translateY(-16px) scale(1.04);filter:blur(6px)}}
+@keyframes introLine{from{width:0;opacity:0}to{width:min(260px,60vw);opacity:1}}
 @keyframes titleGlow{0%,100%{filter:brightness(1) drop-shadow(0 0 20px rgba(255,77,143,0.3))}50%{filter:brightness(1.2) drop-shadow(0 0 40px rgba(255,77,143,0.5))}}
-.splash-sub{margin-top:1rem;font-family:var(--font-mono);font-size:.85rem;color:var(--text-3);letter-spacing:.3em}
+/* Entrada escalonada de las vistas (solo durante el arranque) */
+body.intro-anim #auth-screen.visible .auth-container{animation:enterRise .7s .35s cubic-bezier(.16,1,.3,1) both}
+body.intro-anim #dashboard.visible .dashboard-header{animation:enterRise .7s .35s cubic-bezier(.16,1,.3,1) both}
+body.intro-anim #dashboard.visible .dashboard-tabs{animation:enterRise .7s .43s cubic-bezier(.16,1,.3,1) both}
+body.intro-anim #dashboard.visible #characters-container{animation:enterRise .8s .5s cubic-bezier(.16,1,.3,1) both}
+body.intro-anim .app-version,body.intro-anim .settings-btn{animation:enterFade .8s 1s ease both}
+body.intro-anim .characters-grid>*{animation:enterRise .55s cubic-bezier(.16,1,.3,1) both}
+body.intro-anim .characters-grid>*:nth-child(1){animation-delay:.52s}
+body.intro-anim .characters-grid>*:nth-child(2){animation-delay:.58s}
+body.intro-anim .characters-grid>*:nth-child(3){animation-delay:.64s}
+body.intro-anim .characters-grid>*:nth-child(4){animation-delay:.7s}
+body.intro-anim .characters-grid>*:nth-child(5){animation-delay:.76s}
+body.intro-anim .characters-grid>*:nth-child(6){animation-delay:.82s}
+body.intro-anim .characters-grid>*:nth-child(7){animation-delay:.88s}
+body.intro-anim .characters-grid>*:nth-child(8){animation-delay:.94s}
+@keyframes enterRise{from{opacity:0;transform:translateY(24px) scale(.99)}to{opacity:1;transform:none}}
+@keyframes enterFade{from{opacity:0}}
 .app-version{position:fixed;bottom:.6rem;right:.8rem;z-index:100;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.15em;color:var(--text-4);background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:.2rem .5rem;pointer-events:none;opacity:.85;backdrop-filter:blur(10px)}
 .settings-btn{position:fixed;top:1.5rem;right:1.5rem;z-index:1000;width:48px;height:48px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);backdrop-filter:blur(20px);cursor:pointer;display:grid;place-items:center;transition:all .3s ease,opacity .3s ease,transform .3s ease;opacity:1;transform:scale(1)}
 .settings-btn.hidden{opacity:0;transform:scale(.8);pointer-events:none}
@@ -331,7 +353,6 @@ body[data-theme="dark"] .message-bubble.assistant .btn-message:hover{background:
    ============================================ */
 body[data-theme="dark"]{--neon-pink:#ff4d8f;--neon-purple:#a855f7;--neon-blue:#4d79ff;--glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08)}
 body[data-theme="light"]{--neon-pink:#ff4d8f;--neon-purple:#a855f7;--neon-blue:#4d79ff;--glass-bg:rgba(255,255,255,0.7);--glass-border:rgba(0,0,0,0.08)}
-.splash-title{background:linear-gradient(135deg,#ff4d8f 0%,#ff6ba0 20%,#a855f7 50%,#b86eff 70%,#4d79ff 100%);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:titleGlow 3s ease-in-out infinite,gradientShift 8s ease infinite}
 @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .character-card{background:linear-gradient(135deg,var(--bg-card) 0%,rgba(255,255,255,0.02) 100%);position:relative}
 .character-card::before{height:2px;background:linear-gradient(90deg,transparent,var(--pink),var(--purple),var(--blue),transparent)}
@@ -552,9 +573,9 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .username-form{flex-direction:column}
 .username-form .btn{width:100%}
 .dashboard-welcome h1{font-size:1.3rem}
-.splash-title{font-size:2rem}
-.splash-developer{font-size:.7rem;letter-spacing:.15em}
-.splash-developer::before,.splash-developer::after{width:20px;margin:0 .5rem}
+.intro-brand{font-size:2.2rem}
+.intro-sub{font-size:.66rem;letter-spacing:.28em}
+.intro-line{margin-top:.8rem}
 }
 @media(max-width:480px){
 .characters-grid{grid-template-columns:1fr}
@@ -947,19 +968,19 @@ body.performance-light .chat-bg-img { display:none!important; }
   .toast-content { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
 }
 @media (prefers-reduced-motion: reduce) {
-  *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; }
+  *,*::before,*::after { animation-duration:.01ms!important; animation-delay:0s!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; }
 }
 </style>
 </head>
 <body data-theme="dark">
 
-<div id="splash">
-<div class="splash-developer">Desarrollado por Moon-BaraPag</div>
-<h1 class="splash-title">SAIR3</h1>
-<div class="splash-sub">3.0.0 Preview F</div>
+<div id="intro-veil" aria-hidden="true">
+<div class="intro-brand">SAIR3</div>
+<div class="intro-line"></div>
+<div class="intro-sub">3.0.0 Preview G</div>
 </div>
 
-<div class="app-version">3.0.0 Preview F</div>
+<div class="app-version">3.0.0 Preview G</div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
 
@@ -1124,7 +1145,8 @@ body.performance-light .chat-bg-img { display:none!important; }
 <p style="font-size:.75rem;color:var(--text-3);line-height:1.5;margin-bottom:.85rem;">Estos ajustes se usan únicamente para las respuestas del personaje en este chat.</p>
 <label class="form-label" for="gemini-api-key">API Key de Gemini</label>
 <div class="api-key-wrapper"><input type="password" id="gemini-api-key" class="api-key-input" placeholder="Pega tu clave de Google AI Studio" autocomplete="off" spellcheck="false"><button type="button" class="api-key-toggle" id="toggle-api-key" title="Mostrar/Ocultar"><svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
-<div class="form-group" style="margin-top:.75rem;"><label class="form-label" for="gemini-model">Modelo para roleplay</label><select id="gemini-model" class="form-input"><option value="gemini-3.5-flash">Gemini 3.5 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.7-flash">Gemini 3.7 Flash</option></select><p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">La recapitulación y los resúmenes usan siempre Gemini 3.7 Flash.</p></div>
+<div class="form-group" style="margin-top:.75rem;"><label class="form-label" for="gemini-model">Modelo para roleplay</label><select id="gemini-model" class="form-input"><option value="gemini-3.5-flash">Gemini 3.5 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.7-flash">Gemini 3.7 Flash</option></select><p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">Se usa en las respuestas del personaje durante el chat.</p></div>
+<div class="form-group" style="margin-top:.75rem;"><label class="form-label" for="gemini-summary-model">Modelo para recap, resúmenes y generación IA</label><select id="gemini-summary-model" class="form-input"><option value="gemini-3.5-flash">Gemini 3.5 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.7-flash">Gemini 3.7 Flash</option></select><p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">Se usa en la recapitulación (🔁), los resúmenes automáticos del chat y al generar personajes con IA.</p></div>
 <div id="api-key-status" class="api-key-status empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="api-key-status-text">No hay API Key configurada</span></div>
 <div class="api-key-actions"><button type="button" class="btn-small primary" id="save-api-key">Guardar motor</button><button type="button" class="btn-small danger" id="clear-api-key">Eliminar key</button></div>
 <div class="api-key-info">🔒 La API Key se guarda localmente en tu navegador. Obténla en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.</div>
@@ -1146,7 +1168,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div class="ai-assistant-bar">
 <button type="button" class="btn-ai" id="btn-ai-crear"><span>✨</span> Generar personaje con IA</button>
 <div class="ai-assistant hidden" id="ai-assistant">
-<label for="ai-idea">Describe tu personaje en una línea — Gemini 3.7 Flash crea el resto:</label>
+<label for="ai-idea">Describe tu personaje en una línea — la IA crea el resto:</label>
 <textarea id="ai-idea" class="form-textarea" maxlength="300" placeholder="Ej: una chica robot que colecciona estrellas y esconde un secreto..."></textarea>
 <div class="ai-actions">
 <button type="button" class="btn btn-primary btn-small" id="btn-ai-generar">⚡ Generar</button>
@@ -1470,17 +1492,23 @@ function lightenColor(hex, percent) {
 }
 function sanitizeImageUrl(url){if(!url||typeof url!=='string')return '';const trimmed=url.trim(),cleanData=trimmed.replace(/[\r\n\s]+/g,'');if(cleanData.startsWith('data:image/'))return /^data:image\/[a-z0-9\+\-\.]+;(?:base64|utf8),/i.test(cleanData)?cleanData:'';try{const u=new URL(trimmed);if(u.protocol==='https:'||u.protocol==='http:')return trimmed}catch{}return ''}
 function renderMarkdown(texto){if(!texto)return '';let textoProcesado=reemplazarUserEnTexto(texto);const escaped=textoProcesado.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return escaped.replace(/\*([^*\n]+)\*/g,(m,p1)=>`<em class="accion">*${p1}*</em>`).replace(/\n/g,'<br>')}function formatDate(dateStr){const d=new Date(dateStr),now=new Date(),diff=now-d;if(diff<6e4)return'ahora';if(diff<36e5)return`hace ${Math.floor(diff/6e4)}m`;if(diff<864e5)return`hace ${Math.floor(diff/36e5)}h`;if(diff<6048e5)return`hace ${Math.floor(diff/864e5)}d`;return d.toLocaleDateString()}
-const GEMINI_KEY_STORAGE=window.sessionStorage;
+// La API Key se guarda en localStorage para que persista entre sesiones
+// (antes vivía en sessionStorage y se perdía al cerrar la pestaña)
+const GEMINI_KEY_STORAGE=window.localStorage;
 const _obf_k=(str)=>{if(!str)return '';return btoa(str.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join(''))},_deobf_k=(str)=>{if(!str)return '';try{const decoded=atob(str);return decoded.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(i%10+3))).join('')}catch{return''}};
 function isGeminiApiKey(key){if(!key||typeof key!=='string')return false;const k=key.trim().replace(/\s+/g,'');return /^AIza[0-9A-Za-z_-]{20,}$/.test(k)||/^AQ\.[0-9A-Za-z_.-]{20,}$/.test(k)||/^[0-9A-Za-z_-]{32,}$/.test(k)}
-function getGeminiKey(){let stored=(GEMINI_KEY_STORAGE.getItem(CONFIG.LS.GEMINI_KEY)||'').trim();if(!stored){const legacy=localStorage.getItem(CONFIG.LS.GEMINI_KEY)||'';if(legacy){stored=legacy;try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,legacy);localStorage.removeItem(CONFIG.LS.GEMINI_KEY)}catch{}}}if(!stored)return '';let candidate=stored,best=null;for(let i=0;i<5;i++){const dec=(_deobf_k(candidate)||'').trim().replace(/\s+/g,'');if(!dec||dec===candidate)break;if(isGeminiApiKey(dec))best=dec;candidate=dec}const raw=stored.replace(/\s+/g,'');if(best){try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(best))}catch{}return best}if(isGeminiApiKey(raw)){try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(raw))}catch{}return raw}return ''}
+function getGeminiKey(){let stored=(GEMINI_KEY_STORAGE.getItem(CONFIG.LS.GEMINI_KEY)||'').trim();if(!stored){const legacy=(window.sessionStorage.getItem(CONFIG.LS.GEMINI_KEY)||'').trim();if(legacy){stored=legacy;try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,legacy)}catch{}}}try{window.sessionStorage.removeItem(CONFIG.LS.GEMINI_KEY)}catch{}if(!stored)return '';let candidate=stored,best=null;for(let i=0;i<5;i++){const dec=(_deobf_k(candidate)||'').trim().replace(/\s+/g,'');if(!dec||dec===candidate)break;if(isGeminiApiKey(dec))best=dec;candidate=dec}const raw=stored.replace(/\s+/g,'');if(best){try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(best))}catch{}return best}if(isGeminiApiKey(raw)){try{GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(raw))}catch{}return raw}return ''}
 function mensajeErrorGemini(msg){const m=String(msg||'');if(/invalid authentication credentials|API key not valid|API_KEY_INVALID/.test(m))return 'Tu API Key de Gemini es inválida o fue revocada. Reconfigúrala en Ajustes de Rol (🎭)';return m}
-function saveGeminiKey(raw){const key=(raw||'').trim().replace(/\s+/g,'');if(!isGeminiApiKey(key))throw new Error('API Key inválida. Pega una clave válida de Google AI Studio.');GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));localStorage.removeItem(CONFIG.LS.GEMINI_KEY);return key}
+function saveGeminiKey(raw){const key=(raw||'').trim().replace(/\s+/g,'');if(!isGeminiApiKey(key))throw new Error('API Key inválida. Pega una clave válida de Google AI Studio.');GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));try{window.sessionStorage.removeItem(CONFIG.LS.GEMINI_KEY)}catch{};return key}
 function geminiHeaders(apiKey){return{'Content-Type':'application/json','x-goog-api-key':apiKey}}
 function geminiUrl(model,stream=false){const action=stream?'streamGenerateContent':'generateContent';const qs=stream?'?alt=sse':'';return`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:${action}${qs}`}
 const GEMINI_MODELS=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.6-flash','gemini-3.7-flash'];
 function getGeminiModel(){const saved=localStorage.getItem(CONFIG.LS.GEMINI_MODEL);return GEMINI_MODELS.includes(saved)?saved:'gemini-3.5-flash'}
 function setGeminiModel(model){const safe=GEMINI_MODELS.includes(model)?model:'gemini-3.5-flash';localStorage.setItem(CONFIG.LS.GEMINI_MODEL,safe);return safe}
+function etiquetaModelo(model){const m=String(model||'gemini-3.5-flash').replace(/^gemini-/,'');return 'Gemini '+m.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')}
+const DEFAULT_SUMMARY_MODEL='gemini-3.7-flash';
+function getSummaryModel(){const saved=localStorage.getItem(CONFIG.LS.GEMINI_SUMMARY_MODEL);return GEMINI_MODELS.includes(saved)?saved:DEFAULT_SUMMARY_MODEL}
+function setSummaryModel(model){const safe=GEMINI_MODELS.includes(model)?model:DEFAULT_SUMMARY_MODEL;localStorage.setItem(CONFIG.LS.GEMINI_SUMMARY_MODEL,safe);return safe}
 function normalizarIntensidad(value){const clean=String(value||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');return ['suave','mediana','maxima'].includes(clean)?clean:'suave'}
 function obtenerIntensidadPersonaje(personaje=currentCharacter){if(!personaje)return'suave';const parsed=parsearSystemPrompt(personaje.system_prompt||'');return normalizarIntensidad(personaje.intensidad||parsed.intensidad||'suave')}
 function etiquetaIntensidad(value){return{suave:'🟢 Suave',mediana:'🟡 Mediana',maxima:'🔥 Máxima'}[normalizarIntensidad(value)]}
@@ -1503,7 +1531,7 @@ function getSafetySettings(intensidad='suave'){
 async function resumirHistorialConGemini(texto, intensidad = null){
   const apiKey=getGeminiKey();
   if(!apiKey)throw new Error('No hay API Key configurada');
-  const model='gemini-3.7-flash';
+  const model=getSummaryModel();
   const parsed = parsearSystemPrompt(currentCharacter?.system_prompt);
   const intensidadFinal = normalizarIntensidad(intensidad || currentCharacter?.intensidad || parsed.intensidad || 'suave');
   const systemPrompt=`Eres un asistente experto en resumir conversaciones de roleplay. Tu tarea es crear un resumen conciso pero completo. Debes incluir:
@@ -1809,6 +1837,7 @@ document.getElementById('save-api-key').addEventListener('click',()=>{
   const input=document.getElementById('gemini-api-key');
   const raw=(input?.value||'').trim();
   const model=modelSelector?.value||getGeminiModel();
+  const summaryModel=summaryModelSelector?.value||getSummaryModel();
   if(raw){
     if(!isGeminiApiKey(raw)){showToast('API Key inválida. Verificá que pegaste la clave completa.','error');if(input)shakeElement(input);return}
     try{saveGeminiKey(raw)}catch(err){showToast('❌ '+err.message,'error');if(input)shakeElement(input);return}
@@ -1818,18 +1847,21 @@ document.getElementById('save-api-key').addEventListener('click',()=>{
     return;
   }
   setGeminiModel(model);
+  setSummaryModel(summaryModel);
   updateApiKeyUI();
   actualizarIndicadoresChat();
-  showToast(raw?'✅ API Key y modelo guardados':'✅ Modelo guardado');
+  showToast(raw?'✅ API Key y modelos guardados':'✅ Modelos guardados');
 });
-document.getElementById('clear-api-key').addEventListener('click',()=>{if(getGeminiKey()&&confirm('¿Eliminar tu API Key y modelo?')){GEMINI_KEY_STORAGE.removeItem(CONFIG.LS.GEMINI_KEY);localStorage.removeItem(CONFIG.LS.GEMINI_KEY);localStorage.removeItem(CONFIG.LS.GEMINI_MODEL);updateApiKeyUI();showToast('API Key y modelo eliminados')}});
+document.getElementById('clear-api-key').addEventListener('click',()=>{if(getGeminiKey()&&confirm('¿Eliminar tu API Key y modelos?')){GEMINI_KEY_STORAGE.removeItem(CONFIG.LS.GEMINI_KEY);try{window.sessionStorage.removeItem(CONFIG.LS.GEMINI_KEY)}catch{};localStorage.removeItem(CONFIG.LS.GEMINI_MODEL);localStorage.removeItem(CONFIG.LS.GEMINI_SUMMARY_MODEL);updateApiKeyUI();showToast('API Key y modelos eliminados')}});
 const BG_STORAGE_KEY='sair1_chat_bg';
-function actualizarIndicadoresChat(){const sub=document.getElementById('chat-char-sub');if(!sub)return;const intensidad=obtenerIntensidadPersonaje(currentCharacter),modelo=getGeminiModel(),count=document.getElementById('chat-count-label')?.textContent||'Chats';sub.innerHTML=`<span id="chat-count-label">${escapeHtml(count)}</span><span id="chat-intensity-indicator" class="chat-status-badge intensity-${intensidad}">${etiquetaIntensidad(intensidad)}</span><span id="chat-model-indicator" class="chat-status-badge">🤖 ${escapeHtml(modelo.replace('gemini-','Gemini '))}</span>`}
+function actualizarIndicadoresChat(){const sub=document.getElementById('chat-char-sub');if(!sub)return;const intensidad=obtenerIntensidadPersonaje(currentCharacter),modelo=getGeminiModel(),count=document.getElementById('chat-count-label')?.textContent||'Chats';sub.innerHTML=`<span id="chat-count-label">${escapeHtml(count)}</span><span id="chat-intensity-indicator" class="chat-status-badge intensity-${intensidad}">${etiquetaIntensidad(intensidad)}</span><span id="chat-model-indicator" class="chat-status-badge">🤖 ${escapeHtml(etiquetaModelo(modelo))}</span>`}
 const chatSubObserver=new MutationObserver(()=>{if(!document.getElementById('chat-intensity-indicator'))actualizarIndicadoresChat()});
 chatSubObserver.observe(document.getElementById('chat-char-sub'),{childList:true});
 const modelSelector=document.getElementById('gemini-model');
 if(modelSelector){modelSelector.value=getGeminiModel();modelSelector.addEventListener('change',()=>{setGeminiModel(modelSelector.value);actualizarIndicadoresChat();showToast(`✅ Modelo seleccionado: ${modelSelector.options[modelSelector.selectedIndex].text}`)})}
-function updateApiKeyUI(){const key=getGeminiKey(),model=getGeminiModel(),statusEl=document.getElementById('api-key-status'),input=document.getElementById('gemini-api-key'),modelInput=document.getElementById('gemini-model');if(modelInput)modelInput.value=model;if(key){statusEl.className='api-key-status saved';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>API Key configurada (${key.substring(0,8)}...${key.substring(key.length-4)}) · Modelo: ${model}</span>`;input.value=key}else{statusEl.className='api-key-status empty';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>No hay API Key configurada</span>`;input.value=''}}
+const summaryModelSelector=document.getElementById('gemini-summary-model');
+if(summaryModelSelector){summaryModelSelector.value=getSummaryModel();summaryModelSelector.addEventListener('change',()=>{const safe=setSummaryModel(summaryModelSelector.value);showToast(`✅ Modelo de resúmenes: ${etiquetaModelo(safe)}`)})}
+function updateApiKeyUI(){const key=getGeminiKey(),model=getGeminiModel(),sumModel=getSummaryModel(),statusEl=document.getElementById('api-key-status'),input=document.getElementById('gemini-api-key'),modelInput=document.getElementById('gemini-model'),sumModelInput=document.getElementById('gemini-summary-model');if(modelInput)modelInput.value=model;if(sumModelInput)sumModelInput.value=sumModel;if(key){statusEl.className='api-key-status saved';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>API Key configurada (${key.substring(0,8)}...${key.substring(key.length-4)}) · Rol: ${etiquetaModelo(model)} · Recap: ${etiquetaModelo(sumModel)}</span>`;input.value=key}else{statusEl.className='api-key-status empty';statusEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>No hay API Key configurada</span>`;input.value=''}}
 function aplicarFondoChat(){const raw=localStorage.getItem(BG_STORAGE_KEY),bg=sanitizeImageUrl(raw),chatMain=document.querySelector('.chat-main'),bgImg=document.getElementById('chat-bg-img'),btnPreview=document.getElementById('btn-bg-preview');if(bg&&chatMain){chatMain.classList.add('has-background');if(bgImg){bgImg.src=bg;bgImg.alt='Fondo del chat'}if(btnPreview)btnPreview.style.display='inline-flex'}else{if(chatMain)chatMain.classList.remove('has-background');if(bgImg){bgImg.removeAttribute('src');bgImg.alt=''}if(btnPreview)btnPreview.style.display='none'}}
 const observer=new MutationObserver(()=>{if(document.getElementById('chat-view').classList.contains('visible'))aplicarFondoChat()});observer.observe(document.getElementById('chat-view'),{attributes:!0,attributeFilter:['class']});
 document.getElementById('btn-bg-none').addEventListener('click',()=>{localStorage.removeItem(BG_STORAGE_KEY);aplicarFondoChat();showToast('Fondo eliminado')});
@@ -2090,7 +2122,7 @@ Devuelve EXCLUSIVAMENTE un objeto JSON válido, sin markdown, sin explicaciones 
 {"nombre":"Nombre corto y atractivo (máx 60 caracteres)","descripcion_corta":"Descripción en 1 frase para una tarjeta (máx 200 caracteres)","personalidad":"Rasgos de personalidad detallados y forma de hablar (2-4 párrafos breves)","saludo":"*acción entre asteriscos* + diálogo de presentación del personaje (1-2 frases)","escenario":"Descripción del lugar y la situación donde empieza la historia (1-2 párrafos)","ejemplos":"2 ejemplos de diálogo en este formato exacto con salto de línea: {{user}}: ...\n{{char}}: ...","color":"uno de estos hex exactos: #ff4d8f, #4d79ff, #a855f7, #10b981, #f97316, #eab308"}
 El tono debe ser consistente con la idea del usuario.`;
     const body={system_instruction:{parts:[{text:systemPrompt}]},contents:[{role:'user',parts:[{text:`Idea: ${idea}`}]}],safetySettings:getSafetySettings('mediana'),generationConfig:{temperature:1,topP:.95,topK:40,maxOutputTokens:2048}};
-    const response=await fetch(geminiUrl('gemini-3.7-flash',false),{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body)});
+    const response=await fetch(geminiUrl(getSummaryModel(),false),{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body)});
     if(!response.ok){const errText=await response.text();let msg=`Error al generar (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(msg)}
     const data=await response.json();
     const texto=data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -2381,32 +2413,36 @@ async function guardarEdicionMensaje(bubble) {
   }
 }
 
-const splash=document.getElementById('splash'),authScreen=document.getElementById('auth-screen'),dashboard=document.getElementById('dashboard');
+const authScreen=document.getElementById('auth-screen'),dashboard=document.getElementById('dashboard');
 
 // Iniciar comprobación de sesión inmediatamente
 window.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
 
-const SPLASH_MIN_MS=1800,splashInicio=Date.now();
-function ocultarSplash(){
-  if(splash && !splash.classList.contains('hidden')){
-    const restante=SPLASH_MIN_MS-(Date.now()-splashInicio);
-    const ocultar=()=>{
-      splash.classList.add('hidden');
-      setTimeout(()=>{
-        splash.style.display='none';
-      },1000);
-    };
-    if(restante>0)setTimeout(ocultar,restante);else ocultar();
-  }
-}
+// ===== Animación de entrada (reemplaza a la antigua pantalla de carga) =====
+// Un velo con la marca SAIR3 entra, brilla y se desliza hacia arriba
+// revelando la app, cuyas vistas aparecen con animaciones escalonadas.
+const INTRO_LIMPIEZA_MS=2600;
+(function iniciarEntrada(){
+  try{
+    document.body.classList.add('intro-anim');
+    const veil=document.getElementById('intro-veil');
+    if(veil){
+      let retirado=false;
+      const retirar=()=>{if(!retirado){retirado=true;veil.remove()}};
+      veil.addEventListener('animationend',e=>{if(e.target===veil&&e.animationName==='veilExit')retirar()});
+      setTimeout(retirar,INTRO_LIMPIEZA_MS);
+    }
+    setTimeout(()=>document.body.classList.remove('intro-anim'),INTRO_LIMPIEZA_MS);
+  }catch(err){console.warn('⚠️ No se pudo iniciar la animación de entrada:',err)}
+})();
 
 async function initApp(){
   try{
     // Si el client no se creó al inicio (ej: Supabase CDN cargó tardío), crearlo ahora
     if(!sbClient){
-      if(!window.supabase?.createClient){console.error('❌ Supabase no cargó');showAuth();ocultarSplash();return}
+      if(!window.supabase?.createClient){console.error('❌ Supabase no cargó');showAuth();return}
       sbClient=window.supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY,{
         auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}
       });
@@ -2452,11 +2488,9 @@ async function initApp(){
       }
     });
     iniciarNotificaciones();
-    ocultarSplash();
   }catch(err){
     console.error('❌',err);
     showAuth();
-    ocultarSplash();
   }
 }
 const settingsBtn=document.getElementById('settings-btn');
@@ -2599,12 +2633,13 @@ if(!nuevoRole)return;
 const keyInput=document.getElementById('gemini-api-key'),rawKey=(keyInput?.value||'').trim(),modelSel=document.getElementById('gemini-model');
 btn.disabled=!0;btn.textContent='Guardando...';
 try{
+setGeminiModel(modelSel?.value||getGeminiModel());
+setSummaryModel(document.getElementById('gemini-summary-model')?.value||getSummaryModel());
 if(rawKey){
   saveGeminiKey(rawKey);
-  setGeminiModel(modelSel?.value||getGeminiModel());
-  updateApiKeyUI();
-  actualizarIndicadoresChat();
 }
+updateApiKeyUI();
+actualizarIndicadoresChat();
 await guardarNombreRol(nuevoRole);
 showToast(`✅ Nombre de rol configurado: ${nuevoRole}`);
 inputRole.value='';hintRole.textContent='3-30 caracteres. Solo letras, números y guion bajo (_).';hintRole.className='username-hint';
@@ -2787,7 +2822,7 @@ recapContent.innerHTML=`
 </div>
 <div class="recap-feature">
 <div class="recap-feature-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-<span>Powered by <strong style="color:var(--purple)">Gemini 3.7 Flash</strong></span>
+<span>Powered by <strong style="color:var(--purple)">${escapeHtml(etiquetaModelo(getSummaryModel()))}</strong></span>
 </div>
 </div>
 <div class="recap-actions">
@@ -2923,7 +2958,7 @@ Describe el estado PRESENTE de la conversación:
 Sé específico sobre los últimos intercambios.`;
     const parsedRecap = parsearSystemPrompt(currentCharacter?.system_prompt);
     const intensidadRecap = currentCharacter?.intensidad || parsedRecap.intensidad || 'maxima';
-    const model='gemini-3.7-flash';
+    const model=getSummaryModel();
     const url=geminiUrl(model,false);
     const body={
       system_instruction:{parts:[{text:systemPrompt}]},
