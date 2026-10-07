@@ -2,6 +2,46 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[3.1.0 Oficial A] — 2026-10-07
+
+✨ Novedades
+- 📖 Diario de Personajes en el chat: pulsa “Diario de Personajes” en la
+  barra lateral y la IA lee la historia, detecta a los personajes que
+  han interactuado contigo en el rol y escribe el diario íntimo de cada
+  uno: qué opina de ti, qué le gustaría saber de ti, qué siente y cómo
+  se siente cuando está contigo.
+  Mientras la IA escribe aparece una pantalla de carga con mensajes de
+  progreso; al terminar ves una ficha por personaje con sus cuatro
+  secciones, y al final dos botones para actualizar, borrar, copiar o
+  descargar el diario.
+  El diario se guarda por chat (en el dispositivo y en la nube) y se
+  incluye al exportar/importar la conversación
+  
+🐛 Correcciones
+- Arreglado que el resumidor automático no contestara por “contenido
+  prohibido” en conversaciones normales o románticas: los filtros de
+  Gemini podían bloquear el resumen incluso en chats con filtros
+  mínimos. Ahora la app reintenta de forma escalonada en vez de
+  rendirse al primer bloqueo:
+  · reintento con el umbral de seguridad más permisivo
+  · reintento con los modelos de respaldo de Gemini
+  · si aun así se bloquea, la conversación se resume por tramos y se
+    unen los resúmenes parciales (nunca más un “El resumen fue
+    bloqueado por Gemini” en una escena normal)
+- La recapitulación usa la misma estrategia de reintentos, así que
+  tampoco se queda sin respuesta por un bloqueo puntual
+- La orden de resumen ya no usa lenguaje que disparaba los filtros
+  (“sin censurar”, “prohibido”): ahora pide el resumen de forma neutral
+  y recuerda al modelo que es ficción entre personajes imaginarios
+
+🧩 Requiere ejecutar SQL (una sola vez)
+- supabase_diario_personajes.sql: crea la columna
+  chats.diario_personajes y la función guardar_diario_chat. Sin este
+  script el Diario de Personajes funciona solo en el navegador actual
+  (no se sincroniza entre dispositivos)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [3.0.0 Preview H] — 2026-10-07
 
 ✨ Novedades
