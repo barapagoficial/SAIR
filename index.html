@@ -971,7 +971,7 @@ body.performance-light .chat-bg-img { display:none!important; }
   *,*::before,*::after { animation-duration:.01ms!important; animation-delay:0s!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; }
 }
 /* ── Notas para Rol + respuestas incompletas (3.0.0 Preview H) ── */
-/* ── Diario de Personajes + resumidor a prueba de filtros (3.1.0 Oficial A) ── */
+/* ── Diario de Personajes + resumidor a prueba de filtros (3.1.1 Oficial A) ── */
 .chat-new-btn.notas-rol-active{color:var(--pink);border-color:var(--pink);background:rgba(255,77,143,.12)}
 .notas-rol-dot{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 8px var(--pink-glow);margin-left:.4rem;display:none;flex-shrink:0}
 .chat-new-btn.notas-rol-active .notas-rol-dot{display:inline-block}
@@ -1022,10 +1022,10 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div id="intro-veil" aria-hidden="true">
 <div class="intro-brand">SAIR3</div>
 <div class="intro-line"></div>
-<div class="intro-sub">3.1.0 Oficial A</div>
+<div class="intro-sub">3.1.1 Oficial A</div>
 </div>
 
-<div class="app-version">3.1.0 Oficial A</div>
+<div class="app-version">3.1.1 Oficial A</div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
 
@@ -1607,16 +1607,36 @@ function getSafetySettings(intensidad='suave'){
 }
 
 /* ── Peticiones resilientes a Gemini ────────────────────────────────
-   Los filtros de seguridad de Gemini (PROHIBITED_CONTENT, SAFETY…) a
-   veces bloquean peticiones inofensivas: el resumen de una escena
-   romántica normal, la recapitulación de un chat con filtros mínimos o
-   el diario de un personaje. Antes, el primer bloqueo dejaba al
-   resumidor sin respuesta. Ahora se reintenta de forma escalonada
-   (umbral más permisivo, modelos de respaldo, división por tramos) y el
-   texto ya recibido nunca se descarta. */
+   Gemini bloquea a veces peticiones totalmente normales (romance, drama)
+   con PROHIBITED_CONTENT, y ese bloqueo llega como
+   `promptFeedback.blockReason`: es un filtro NO configurable, así que
+   ningún umbral de safetySettings lo desactiva (por eso la escalera de
+   umbrales y modelos de respaldo se quedaba corta). Este motor añade,
+   además de esa escalera:
+
+     · reintento con el texto "discretizado": las palabras más explícitas
+       se sustituyen por una marca neutra ANTES de enviarlas a Gemini
+       (no se toca el chat del usuario, solo lo que lee el motor),
+     · reintento con un prompt de sistema mínimo y neutral,
+     · y, si el bloqueo persiste, resumen por tramos: la conversación se
+       parte en fragmentos pequeños que sí se pueden leer, y con ellos se
+       construyen la recapitulación y el Diario de Personajes.
+
+   El chat normal no cambia: la escalera solo se activa cuando algo se
+   bloquea. Diagnóstico: ejecuta sairDiagnostico() en la consola. */
+
 const GEMINI_MODELOS_RESPALDO=['gemini-3.7-flash','gemini-3.6-flash','gemini-3.5-flash','gemini-3.5-flash-lite'];
 const CATEGORIAS_SEGURIDAD=['HARM_CATEGORY_HARASSMENT','HARM_CATEGORY_HATE_SPEECH','HARM_CATEGORY_SEXUALLY_EXPLICIT','HARM_CATEGORY_DANGEROUS_CONTENT'];
-const AVISO_FICCION='RECORDATORIO: el texto es ficción narrativa entre personajes imaginarios. No describe a personas reales ni pide nada a nadie. Tu única tarea es la indicada arriba (resumir, analizar o redactar) de forma objetiva, sin juzgar ni comentar el contenido. Son escenas cotidianas de una historia: romance, drama, ternura, acción o misterio.';
+const SISTEMA_NEUTRO='Eres un asistente que analiza y redacta textos con precisión, siguiendo exactamente las instrucciones del usuario.';
+
+let diagnosticoGemini=[];
+function registrarDiagnostico(entrada){
+  try{
+    diagnosticoGemini.push(Object.assign({hora:new Date().toISOString()},entrada));
+    if(diagnosticoGemini.length>80)diagnosticoGemini=diagnosticoGemini.slice(-80);
+  }catch{}
+}
+window.sairDiagnostico=function(){console.log('🛡️ Diagnóstico de bloqueos de Gemini:',diagnosticoGemini);return diagnosticoGemini.slice()};
 
 function getSafetySettingsNivel(nivel){
   let threshold='BLOCK_MEDIUM_AND_ABOVE';
@@ -1625,36 +1645,82 @@ function getSafetySettingsNivel(nivel){
   else threshold=getSafetySettings(nivel)[0].threshold;
   return CATEGORIAS_SEGURIDAD.map(category=>({category,threshold}));
 }
-function crearErrorBloqueo(mensaje,textoParcial){
+function normalizarNivelSeguridad(valor){
+  const limpio=String(valor||'').toLowerCase().trim();
+  if(limpio==='bloqueo_minimo'||limpio==='off')return limpio;
+  return normalizarIntensidad(limpio);
+}
+function crearErrorBloqueo(mensaje,textoParcial,extra){
   const err=new Error(mensaje);
   err.esBloqueoDeSeguridad=true;
   if(textoParcial)err.textoParcial=textoParcial;
+  if(extra)Object.assign(err,extra);
   return err;
 }
 function esErrorDeBloqueo(err){return !!(err&&err.esBloqueoDeSeguridad)}
+function mensajeBloqueoConAyuda(err,intentos){
+  const base=String((err&&err.message)||'');
+  const razon=(base.match(/\(([^)]+)\)/)||[])[1]||'';
+  const cabecera=razon?`Gemini bloqueó esta conversación con su filtro no configurable (${razon}).`:'Gemini bloqueó esta conversación con un filtro no configurable.';
+  const n=intentos||(err&&err.intentos)||0;
+  return `${cabecera} La app ya probó ${n||'varias'} estrategias (umbrales permisivos, modelos de respaldo, texto discretizado y resumen por tramos) sin conseguirlo. Suele ocurrir en chats muy explícitos o muy largos: recorta la conversación, cambia el modelo de resumen en Ajustes de Rol (🎭) e inténtalo otra vez.`;
+}
+
+/* ── Discreción: el texto que se envía al motor puede llevar las
+   palabras más explícitas sustituidas por una marca neutra. Es solo una
+   versión de lectura para resumir/analizar: el chat del usuario y sus
+   mensajes guardados no se tocan. */
+const MASCARA_INTIMA='[escena íntima]';
+const PATRONES_EXPLICITOS=[
+  /\bdesnud\w*/gi,
+  /\b(sexo|sexual\w*)\b/gi,
+  /\borgasmo\w*/gi,
+  /\beyacul\w*/gi,
+  /\berecci[oó]n\w*/gi,
+  /\bmasturb\w*/gi,
+  /\b(pene|penes|polla|pollas|verga|vergas)\b/gi,
+  /\b(vagina|vaginas|coño|conio)\b/gi,
+  /\bcl[ií]toris\b/gi,
+  /\b(tetas|pezones?|nalgas|culo)\b/gi,
+  /\b(semen|corrida)\b/gi,
+  /\bfoll\w*/gi,
+  /\bcachond\w*/gi,
+  /\bporn\w*/gi
+];
+function discretizar(texto){
+  let t=String(texto||'');
+  if(!t)return t;
+  for(const patron of PATRONES_EXPLICITOS)t=t.replace(patron,MASCARA_INTIMA);
+  return t.replace(/(\[escena íntima\]\s*){2,}/g,MASCARA_INTIMA);
+}
 
 /* Construye los "contents" de Gemini a partir de los mensajes del chat,
    igual que hace el chat normal: cada mensaje conserva su rol (user/model)
    y los turnos seguidos del mismo rol se fusionan para que la conversación
-   quede alternada. NUNCA hay que enviar la conversación completa dentro de
-   un único mensaje de usuario: los filtros de Gemini evalúan ese bloque
-   como texto escrito por el usuario y bloquean la petición completa
-   (PROHIBITED_CONTENT en promptFeedback) aunque la conversación sea
-   totalmente normal. Ese bloqueo de petición no lo levantan los
-   safetySettings, por eso el chat (turnos user/model) funciona y el
-   resumen/diario enviado en un solo bloque fallaba siempre. */
-function construirContenidoGemini(mensajes){
+   quede alternada. Enviar la conversación completa dentro de un único
+   mensaje de usuario hace que los filtros evalúen ese bloque como una
+   instrucción del usuario y bloqueen la petición completa. */
+function construirContenidoGemini(mensajes,discreto){
   const turns=[];
   for(const m of (Array.isArray(mensajes)?mensajes:[])){
     if(!m)continue;
     const rol=m.rol==='assistant'?'model':'user';
-    const texto=String(m.contenido||'');
+    let texto=String(m.contenido||'');
     if(!texto.trim())continue;
+    if(discreto)texto=discretizar(texto);
     const ultimo=turns[turns.length-1];
     if(ultimo&&ultimo.role===rol)ultimo.parts[0].text+='\n\n'+texto;
     else turns.push({role:rol,parts:[{text:texto}]});
   }
   return turns;
+}
+function agregarTurnoUsuario(contents,texto){
+  if(!texto||!String(texto).trim())return contents;
+  const limpio=String(texto).trim();
+  const ultimo=contents[contents.length-1];
+  if(ultimo&&ultimo.role==='user')ultimo.parts[0].text+='\n\n'+limpio;
+  else contents.push({role:'user',parts:[{text:limpio}]});
+  return contents;
 }
 
 /* Limita una lista de mensajes a un máximo de caracteres. Con
@@ -1671,7 +1737,7 @@ function limitarMensajesPorLongitud(mensajes,maximo,desdeElFinal=false){
     if(total>=maximo)break;
     if(total+texto.length>maximo){
       const corte=texto.slice(0,Math.max(0,maximo-total));
-      resultado.push({...m,contenido:(desdeElFinal?'[...parte inicial del chat omitida por longitud...]\n\n':'')+corte+(desdeElFinal?'':'\n\n... (truncado)')});
+      resultado.push({...m,contenido:(desdeElFinal?'[...parte inicial del chat omitida por longitud...]\n\n':'')+corte+(desdeElFinal?'':'... (truncado)')});
       total=maximo;
       break;
     }
@@ -1680,105 +1746,131 @@ function limitarMensajesPorLongitud(mensajes,maximo,desdeElFinal=false){
   }
   return desdeElFinal?resultado.reverse():resultado;
 }
-/* Una sola petición sin streaming. Lanza un error marcado cuando Gemini
-   bloquea la petición o la respuesta para poder reintentar. */
-async function peticionGeminiTexto({systemPrompt,contenido,mensajes,instruccion,modelo,nivelSeguridad='suave',maxOutputTokens=4096,temperature=.3,avisarFiccion=true}){
+
+/* Una sola petición sin streaming. Marca el tipo de error para que la
+   escalera sepa si merece la pena reintentar con otra estrategia. */
+async function peticionGeminiTexto({systemPrompt,contenido,mensajes,instruccion,modelo,nivelSeguridad='suave',maxOutputTokens=4096,temperature=.3,discreto=false}){
   const apiKey=getGeminiKey();
-  if(!apiKey)throw new Error('No hay API Key configurada');
+  if(!apiKey){const err=new Error('No hay API Key configurada');err.tipo='clave';throw err}
   let contents;
   if(Array.isArray(mensajes)&&mensajes.length){
-    // La conversación se envía como turnos user/model, igual que en el chat.
-    contents=construirContenidoGemini(mensajes);
-    if(instruccion)contents.push({role:'user',parts:[{text:instruccion}]});
+    contents=construirContenidoGemini(mensajes,discreto);
+    agregarTurnoUsuario(contents,discreto?discretizar(instruccion):instruccion);
     if(!contents.length)throw new Error('No hay mensajes para enviar a Gemini');
   }else{
-    contents=[{role:'user',parts:[{text:contenido}]}];
+    const cuerpo=discreto?discretizar(contenido):contenido;
+    if(!String(cuerpo||'').trim())throw new Error('No hay texto para enviar a Gemini');
+    contents=[{role:'user',parts:[{text:cuerpo}]}];
+    agregarTurnoUsuario(contents,discreto?discretizar(instruccion):instruccion);
   }
   const body={
-    system_instruction:{parts:[{text:avisarFiccion?`${systemPrompt}\n\n${AVISO_FICCION}`:systemPrompt}]},
     contents,
     safetySettings:getSafetySettingsNivel(nivelSeguridad),
     generationConfig:{temperature,topP:.9,topK:40,maxOutputTokens}
   };
+  if(systemPrompt)body.system_instruction={parts:[{text:systemPrompt}]};
   let response;
   try{response=await fetch(geminiUrl(modelo,false),{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body)})}
-  catch(err){throw new Error('No se pudo conectar con Gemini. Revisa tu conexión e intenta de nuevo.')}
+  catch(err){const e=new Error('No se pudo conectar con Gemini. Revisa tu conexión e intenta de nuevo.');e.tipo='red';throw e}
   if(!response.ok){
     const errText=await response.text();
     let msg='';
     try{const errJson=JSON.parse(errText);msg=errJson.error?.message||''}catch{}
-    if(/API key not valid|invalid authentication|API_KEY_INVALID/i.test(msg))throw new Error('Tu API Key de Gemini es inválida o fue revocada. Reconfígurala en Ajustes de Rol (🎭)');
-    if(response.status===429||/quota|rate limit|too many requests|resource_exhausted/i.test(msg))throw new Error('Límite de peticiones alcanzado. Espera unos segundos y reintenta.');
-    if(response.status===400&&/safety|block|threshold|harm|prohibited/i.test(msg))throw crearErrorBloqueo('La petición fue rechazada por los filtros de seguridad de Gemini.');
-    throw new Error(msg||`Error de Gemini (${response.status})`);
+    if(/API key not valid|invalid authentication|API_KEY_INVALID/i.test(msg)){const e=new Error('Tu API Key de Gemini es inválida o fue revocada. Reconfígurala en Ajustes de Rol (🎭)');e.tipo='clave';throw e}
+    if(response.status===429||/quota|rate limit|too many requests|resource_exhausted/i.test(msg)){const e=new Error('Límite de peticiones alcanzado. Espera unos segundos y reintenta.');e.tipo='cuota';throw e}
+    if(response.status===400&&/safety|block|threshold|harm|prohibited/i.test(msg))throw crearErrorBloqueo('La petición fue rechazada por los filtros de seguridad de Gemini.',null,{tipo:'bloqueo',detalle:String(msg).slice(0,300)});
+    const e=new Error(msg||`Error de Gemini (${response.status})`);
+    e.tipo=response.status>=500?'servidor':'modelo';
+    throw e;
   }
   const data=await response.json();
   const candidato=data.candidates?.[0];
   const finish=String(candidato?.finishReason||'').toUpperCase();
   const texto=(candidato?.content?.parts||[]).map(p=>p.text||'').join('').trim();
   if(texto&&(!finish||finish==='STOP'||finish==='MAX_TOKENS'))return texto;
-  if(finish&&finish!=='STOP'&&finish!=='MAX_TOKENS')throw crearErrorBloqueo(`Gemini bloqueó la respuesta (${finish}).`,texto);
+  if(finish&&finish!=='STOP'&&finish!=='MAX_TOKENS')throw crearErrorBloqueo(`Gemini bloqueó la respuesta (${finish}).`,texto,{tipo:'bloqueo'});
   if(data.promptFeedback?.blockReason){
     console.warn('🛡️ Gemini bloqueó la petición. promptFeedback:',JSON.stringify(data.promptFeedback));
-    throw crearErrorBloqueo(`Gemini bloqueó la petición (${data.promptFeedback.blockReason}).`,texto);
+    throw crearErrorBloqueo(`Gemini bloqueó la petición (${data.promptFeedback.blockReason}).`,texto,{tipo:'bloqueo',detalle:JSON.stringify(data.promptFeedback).slice(0,400)});
   }
   if(texto)return texto;
-  throw new Error('Gemini no devolvió ninguna respuesta. Intenta de nuevo.');
+  const e=new Error('Gemini no devolvió ninguna respuesta. Intenta de nuevo.');
+  e.tipo='generico';
+  throw e;
 }
 
-/* Escalera de reintentos: intensidad elegida → umbral más permisivo →
-   modelos de respaldo. Si todo se bloquea pero hubo texto parcial, se
-   devuelve ese texto en lugar de fallar. */
-async function generarConGeminiResiliente({systemPrompt,contenido,mensajes,instruccion,maxOutputTokens=4096,temperature=.3,nivelInicial=null,modelo=null,avisarFiccion=true}){
-  const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);
-  const nivelBase=normalizarIntensidad(nivelInicial||currentCharacter?.intensidad||parsed.intensidad||'suave');
-  const modelos=[...new Set([modelo||getSummaryModel(),...GEMINI_MODELOS_RESPALDO])].slice(0,3);
-  const planes=[{modelo:modelos[0],nivel:nivelBase}];
-  for(const m of modelos)planes.push({modelo:m,nivel:'bloqueo_minimo'});
-  for(const m of modelos)planes.push({modelo:m,nivel:'off'});
-  const vistos=new Set();
-  let ultimoError=null,mejorParcial='';
-  for(let i=0;i<planes.length;i++){
-    const plan=planes[i];
-    const clave=`${plan.modelo}|${plan.nivel}`;
+/* Escalera: intensidad elegida → umbral más permisivo → modelos de
+   respaldo → texto discretizado → prompt neutro mínimo. */
+function construirPlanesEscalada(nivelBase,modeloBase){
+  const modelos=[...new Set([modeloBase,getGeminiModel(),...GEMINI_MODELOS_RESPALDO].filter(Boolean))].slice(0,4);
+  const base=modelos[0],alterno=modelos[1]||modelos[0];
+  const planes=[
+    {modelo:base,nivel:nivelBase,forma:'normal'},
+    {modelo:base,nivel:'bloqueo_minimo',forma:'normal'},
+    {modelo:alterno,nivel:'bloqueo_minimo',forma:'normal'},
+    {modelo:base,nivel:'bloqueo_minimo',forma:'discreta'},
+    {modelo:alterno,nivel:'bloqueo_minimo',forma:'discreta'},
+    {modelo:base,nivel:'off',forma:'discreta'},
+    {modelo:alterno,nivel:'off',forma:'discreta'},
+    {modelo:base,nivel:'off',forma:'neutra'},
+    {modelo:alterno,nivel:'off',forma:'neutra'}
+  ];
+  const vistos=new Set(),finales=[];
+  for(const plan of planes){
+    const clave=`${plan.modelo}|${plan.nivel}|${plan.forma}`;
     if(vistos.has(clave))continue;
     vistos.add(clave);
-    try{
-      const texto=await peticionGeminiTexto({systemPrompt,contenido,mensajes,instruccion,modelo:plan.modelo,nivelSeguridad:plan.nivel,maxOutputTokens,temperature,avisarFiccion});
-      if(i>0)console.log(`🛡️ Respuesta obtenida tras ${i+1} intentos (${plan.modelo} · ${plan.nivel})`);
-      return {texto,modelo:plan.modelo,nivel:plan.nivel,intentos:i+1,parcial:false};
-    }catch(err){
-      if(err.textoParcial&&err.textoParcial.length>mejorParcial.length)mejorParcial=err.textoParcial;
-      if(!esErrorDeBloqueo(err))throw err;
-      ultimoError=err;
-      console.warn(`🛡️ Intento ${i+1} bloqueado por seguridad (${plan.modelo} · ${plan.nivel}). Reintentando con permisos más amplios…`);
-    }
+    finales.push(plan);
   }
-  if(mejorParcial.trim().length>=400)return {texto:mejorParcial.trim(),modelo:modelos[0],nivel:'parcial',intentos:planes.length,parcial:true};
-  throw ultimoError||new Error('No se pudo obtener respuesta de Gemini.');
+  return finales;
 }
 
-const RESUMEN_PROMPT_SISTEMA=`Eres un asistente experto en resumir conversaciones de roleplay (ficción narrativa entre personajes imaginarios).
-Tu tarea es crear un resumen objetivo, claro y útil para que la historia pueda continuar sin perder contexto. Debe incluir:
-- Puntos clave de la trama y eventos importantes
-- Promesas, compromisos o acuerdos hechos por los personajes
-- Acciones importantes realizadas
-- Decisiones tomadas y sus consecuencias
-- Detalles relevantes del entorno, contexto o escenario
-- Relaciones entre personajes que se hayan establecido
-- Objetivos o metas mencionadas
-
-REGLAS ESTRICTAS:
-- NO inventes nada que no esté en el texto
-- NO agregues opiniones personales ni interpretaciones
-- NO copies diálogos completos: describe acciones, decisiones y emociones
-- Responde ÚNICAMENTE con el resumen, sin introducciones ni explicaciones
-- El resumen debe ser conciso pero sin perder información crítica
-- Describe los hechos tal como ocurren en la historia, sin juzgarlos`;
-const RESUMEN_PROMPT_TRAMO=`${RESUMEN_PROMPT_SISTEMA}
-
-IMPORTANTE: este texto es solo un tramo de una conversación más larga. Resume lo que ocurre en este tramo manteniendo nombres, decisiones y emociones, con lenguaje descriptivo y neutro.`;
-const RESUMEN_PROMPT_UNIR=`Eres un asistente experto en resumir conversaciones de roleplay. Recibirás resúmenes parciales, en orden cronológico, de una misma historia. Únelos en UN ÚNICO resumen coherente y cronológico: elimina repeticiones, conserva todos los hechos, nombres, decisiones, promesas y relaciones importantes, y no añadas nada que no aparezca en los parciales. Responde solo con el resumen final.`;
+async function generarConGeminiResiliente({systemPrompt,sistemaNeutro=null,contenido,mensajes,instruccion,instruccionNeutra=null,maxOutputTokens=4096,temperature=.3,nivelInicial=null,modelo=null,maxIntentos=null}){
+  const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);
+  const nivelBase=normalizarNivelSeguridad(nivelInicial||currentCharacter?.intensidad||parsed.intensidad||'suave');
+  const planes=construirPlanesEscalada(nivelBase,modelo||getSummaryModel());
+  const limite=Math.max(1,Math.min(maxIntentos||planes.length,planes.length));
+  let mejorParcial='',ultimoError=null,intentos=0,seguidos=0,ultimoTipo='';
+  for(let i=0;i<limite;i++){
+    const plan=planes[i];
+    intentos++;
+    const discreto=plan.forma!=='normal';
+    const neutro=plan.forma==='neutra';
+    try{
+      const texto=await peticionGeminiTexto({
+        systemPrompt:neutro?(sistemaNeutro||SISTEMA_NEUTRO):systemPrompt,
+        contenido,
+        mensajes,
+        instruccion:neutro?(instruccionNeutra||instruccion):instruccion,
+        modelo:plan.modelo,
+        nivelSeguridad:plan.nivel,
+        maxOutputTokens,
+        temperature,
+        discreto
+      });
+      registrarDiagnostico({accion:'ok',modelo:plan.modelo,nivel:plan.nivel,forma:plan.forma,intento:intentos});
+      if(intentos>1)console.log(`🛡️ Gemini respondió tras ${intentos} intentos (${plan.modelo} · ${plan.nivel} · ${plan.forma})`);
+      return {texto,modelo:plan.modelo,nivel:plan.nivel,forma:plan.forma,intentos,parcial:false};
+    }catch(err){
+      if(err.textoParcial&&err.textoParcial.length>mejorParcial.length)mejorParcial=err.textoParcial;
+      const tipo=err.tipo||(esErrorDeBloqueo(err)?'bloqueo':'generico');
+      registrarDiagnostico({accion:'fallo',modelo:plan.modelo,nivel:plan.nivel,forma:plan.forma,intento:intentos,tipo,mensaje:String(err.message||'').slice(0,220)});
+      if(tipo==='clave')throw err;
+      if(tipo===ultimoTipo)seguidos++;else{seguidos=1;ultimoTipo=tipo}
+      if(esErrorDeBloqueo(err))console.warn(`🛡️ Intento ${intentos} bloqueado (${plan.modelo} · ${plan.nivel} · ${plan.forma}). Probando otra estrategia…`);
+      else console.warn(`⚠️ Intento ${intentos} con ${plan.modelo} falló (${tipo}): ${err.message}`);
+      if(esErrorDeBloqueo(err))ultimoError=err;
+      else if(!ultimoError)ultimoError=err;
+      if(seguidos>=3&&tipo!=='bloqueo')throw err;
+    }
+  }
+  if(mejorParcial.trim().length>=400)return {texto:mejorParcial.trim(),modelo:planes[0].modelo,nivel:'parcial',forma:'parcial',intentos,parcial:true};
+  if(ultimoError){ultimoError.intentos=intentos;throw ultimoError}
+  const err=new Error('No se pudo obtener respuesta de Gemini. Intenta de nuevo.');
+  err.tipo='generico';
+  err.intentos=intentos;
+  throw err;
+}
 
 /* Divide el texto en tramos por párrafos para poder resumir por partes. */
 function dividirTextoEnTramos(texto,maximo){
@@ -1799,11 +1891,90 @@ function dividirTextoEnTramos(texto,maximo){
   return tramos.filter(t=>t.trim());
 }
 
-/* Último recurso: resumir tramo a tramo los chats largos que Gemini
-   bloquea de golpe y unir después los resúmenes parciales. */
+const RESUMEN_TRAMO_CARACTERES=14000;
+const DIGESTO_TRAMO_CARACTERES=9000;
+const MAX_TRAMOS=40;
+
+function textoDeMensajes(mensajes){
+  const nombreUsuario=userRoleName||'el usuario';
+  const nombrePersonaje=currentCharacter?.nombre||'el personaje principal';
+  return (Array.isArray(mensajes)?mensajes:[])
+    .filter(m=>m&&(m.rol==='user'||m.rol==='assistant'))
+    .map(m=>`${m.rol==='assistant'?nombrePersonaje:nombreUsuario}: ${String(m.contenido||'')}`)
+    .join('\n\n');
+}
+function contextoDigesto(){
+  return `Ficha: en los turnos "user" habla ${userRoleName||'el usuario'}; en los turnos "model" habla ${currentCharacter?.nombre||'el personaje principal'}.`;
+}
+function unirDigestoTramos(partes){
+  return partes.map((p,i)=>`• Tramo ${i+1}: ${p}`).join('\n\n');
+}
+
+const DIGESTO_PROMPT=`Vas a leer un fragmento de una conversación de ficción (turnos "user" y "model") y describir lo que ocurre.
+Reglas:
+- Escribe en tercera persona, de forma objetiva y neutral.
+- Incluye hechos, decisiones, promesas, emociones y cómo cambia la relación entre los personajes.
+- Menciona los nombres de los personajes que aparecen.
+- No copies diálogos largos ni inventes nada que no aparezca en el fragmento.
+- Responde solo con la descripción, en un máximo de 200 palabras.`;
+
+/* Lee la conversación por tramos pequeños (que sí pasan los filtros
+   cuando el chat completo se bloquea) y devuelve las notas de cada uno. */
+async function digestoTramos(mensajes,{nivelInicial='bloqueo_minimo',onProgreso=null,maxIntentosPorTramo=3}={}){
+  const texto=textoDeMensajes(mensajes);
+  const tramos=dividirTextoEnTramos(texto,DIGESTO_TRAMO_CARACTERES).slice(0,MAX_TRAMOS);
+  if(!tramos.length)return {partes:[],omitidos:0,total:0,texto};
+  const partes=[];
+  let omitidos=0;
+  for(let i=0;i<tramos.length;i++){
+    if(onProgreso){try{onProgreso(i+1,tramos.length)}catch{}}
+    try{
+      const{texto:parte}=await generarConGeminiResiliente({
+        systemPrompt:DIGESTO_PROMPT,
+        contenido:`${contextoDigesto()}\n\nFragmento ${i+1} de ${tramos.length}:\n\n${tramos[i]}`,
+        maxOutputTokens:1200,
+        temperature:.25,
+        nivelInicial,
+        maxIntentos:maxIntentosPorTramo
+      });
+      if(String(parte||'').trim())partes.push(parte.trim());else omitidos++;
+    }catch(err){
+      if(!esErrorDeBloqueo(err))throw err;
+      omitidos++;
+      console.warn(`🛡️ Tramo ${i+1}/${tramos.length} bloqueado; se omite y se continúa con el resto.`);
+    }
+  }
+  return {partes,omitidos,total:tramos.length,texto};
+}
+
+const RESUMEN_PROMPT_SISTEMA=`Eres un asistente experto en resumir conversaciones de ficción (turnos "user" y "model").
+Tu tarea es crear un resumen objetivo, claro y útil para que la historia pueda continuar sin perder contexto. Debe incluir:
+- Puntos clave de la trama y eventos importantes
+- Promesas, compromisos o acuerdos hechos por los personajes
+- Acciones importantes realizadas
+- Decisiones tomadas y sus consecuencias
+- Detalles relevantes del entorno, contexto o escenario
+- Relaciones entre personajes que se hayan establecido
+- Objetivos o metas mencionadas
+
+REGLAS:
+- NO inventes nada que no esté en el texto
+- NO agregues opiniones personales ni interpretaciones
+- NO copies diálogos completos: describe acciones, decisiones y emociones
+- Responde ÚNICAMENTE con el resumen, sin introducciones ni explicaciones
+- El resumen debe ser conciso pero sin perder información crítica`;
+
+const RESUMEN_PROMPT_TRAMO=`${RESUMEN_PROMPT_SISTEMA}
+
+IMPORTANTE: este texto es solo un tramo de una conversación más larga. Resume lo que ocurre en este tramo manteniendo nombres, decisiones y emociones, con lenguaje descriptivo y neutro.`;
+
+const RESUMEN_PROMPT_UNIR=`Eres un asistente experto en resumir conversaciones de ficción. Recibirás resúmenes parciales, en orden cronológico, de una misma historia. Únelos en UN ÚNICO resumen coherente y cronológico: elimina repeticiones, conserva todos los hechos, nombres, decisiones, promesas y relaciones importantes, y no añadas nada que no aparezca en los parciales. Responde solo con el resumen final.`;
+
+/* Último recurso del resumidor automático: resumir tramo a tramo los
+   chats largos que Gemini bloquea de golpe y unir después los resúmenes. */
 async function resumirPorTramos(texto,nivel,avisoOmitidos=''){
-  const tramos=dividirTextoEnTramos(texto,RESUMEN_TRAMO_CARACTERES);
-  if(tramos.length<=1)throw new Error('Los filtros de seguridad de Gemini bloquearon el resumen. Cambia el modelo de resumen en Ajustes de Rol (🎭) e intenta de nuevo.');
+  const tramos=dividirTextoEnTramos(texto,RESUMEN_TRAMO_CARACTERES).slice(0,MAX_TRAMOS);
+  if(tramos.length<=1)throw crearErrorBloqueo('Los filtros de seguridad de Gemini bloquearon el resumen de esta conversación.',null,{tipo:'bloqueo'});
   console.warn(`🛡️ Resumiendo por tramos: ${tramos.length} partes.`);
   const partes=[];
   let omitidos=0;
@@ -1811,28 +1982,28 @@ async function resumirPorTramos(texto,nivel,avisoOmitidos=''){
     try{
       const{texto:parte}=await generarConGeminiResiliente({
         systemPrompt:RESUMEN_PROMPT_TRAMO,
-        contenido:`Tramo ${i+1} de ${tramos.length} de una conversación de roleplay:\n\n${tramos[i]}`,
+        contenido:`Tramo ${i+1} de ${tramos.length} de una conversación de ficción:\n\n${tramos[i]}`,
         maxOutputTokens:2048,
         temperature:.25,
         // Ya sabemos que el filtro estándar bloquea este chat: arrancamos
         // con el umbral permisivo para no repetir intentos inútiles.
-        nivelInicial:'bloqueo_minimo'
+        nivelInicial:'bloqueo_minimo',
+        maxIntentos:3
       });
-      partes.push(parte.trim());
+      if(String(parte||'').trim())partes.push(parte.trim());else omitidos++;
     }catch(err){
       if(!esErrorDeBloqueo(err))throw err;
       omitidos++;
-      partes.push('');
       console.warn(`🛡️ Tramo ${i+1}/${tramos.length} bloqueado; se omite y se continúa con el resto.`);
     }
   }
   const utiles=partes.filter(Boolean);
-  if(!utiles.length)throw new Error('Los filtros de seguridad de Gemini bloquearon toda la conversación. Cambia el modelo de resumen en Ajustes de Rol (🎭) e intenta de nuevo.');
-  let resumen=utiles.length===1?utiles[0]:utiles.map((p,i)=>`• Tramo ${i+1}:\n${p}`).join('\n\n');
+  if(!utiles.length)throw crearErrorBloqueo('Los filtros de seguridad de Gemini bloquearon toda la conversación.',null,{tipo:'bloqueo'});
+  let resumen=utiles.length===1?utiles[0]:unirDigestoTramos(utiles);
   if(utiles.length>1){
     try{
-      const{texto:unido}=await generarConGeminiResiliente({systemPrompt:RESUMEN_PROMPT_UNIR,contenido:resumen,maxOutputTokens:4096,temperature:.25,nivelInicial:'bloqueo_minimo'});
-      if(unido.trim())resumen=unido.trim();
+      const{texto:unido}=await generarConGeminiResiliente({systemPrompt:RESUMEN_PROMPT_UNIR,contenido:resumen,maxOutputTokens:4096,temperature:.25,nivelInicial:'bloqueo_minimo',maxIntentos:3});
+      if(String(unido||'').trim())resumen=unido.trim();
     }catch(err){
       if(!esErrorDeBloqueo(err))throw err;
       console.warn('🛡️ No se pudieron unir los tramos; se conservan por separado.');
@@ -1841,8 +2012,6 @@ async function resumirPorTramos(texto,nivel,avisoOmitidos=''){
   if(omitidos>0)resumen+=`\n\n(Nota: ${omitidos} tramo${omitidos!==1?'s':''} de la conversación no se pudo resumir por los filtros del modelo.)${avisoOmitidos}`;
   return resumen;
 }
-
-const RESUMEN_TRAMO_CARACTERES=14000;
 
 async function resumirHistorialConGemini({mensajes,contenido,resumenPrevio='',intensidad=null}={}){
   const lista=Array.isArray(mensajes)?mensajes.filter(m=>m&&(m.rol==='user'||m.rol==='assistant')):[];
@@ -1854,10 +2023,12 @@ async function resumirHistorialConGemini({mensajes,contenido,resumenPrevio='',in
   try{
     const{texto:resumen}=await generarConGeminiResiliente({
       systemPrompt:contextoPrevio+RESUMEN_PROMPT_SISTEMA,
+      sistemaNeutro:SISTEMA_NEUTRO,
       // La conversación se envía como turnos user/model, igual que en el chat.
       mensajes:lista.length?lista:undefined,
-      contenido:lista.length?undefined:`Conversación de roleplay a resumir:\n\n${limpio}`,
-      instruccion:lista.length?'Resume la conversación completa de forma objetiva: hechos, decisiones, promesas y relaciones, sin inventar ni juzgar.':undefined,
+      contenido:lista.length?undefined:`Conversación de ficción a resumir:\n\n${limpio}`,
+      instruccion:lista.length?'Resume la conversación completa de forma objetiva: hechos, decisiones, promesas y relaciones, sin inventar nada.':undefined,
+      instruccionNeutra:lista.length?'Resume de forma objetiva la conversación anterior: hechos, decisiones, promesas y relaciones.':undefined,
       maxOutputTokens:4096,
       temperature:.3,
       nivelInicial:nivelBase
@@ -1867,6 +2038,54 @@ async function resumirHistorialConGemini({mensajes,contenido,resumenPrevio='',in
     if(!esErrorDeBloqueo(err))throw err;
     return await resumirPorTramos(limpio,nivelBase);
   }
+}
+
+/* ── Recapitulación a prueba de bloqueos ───────────────────────────
+   Si la recapitulación normal se bloquea, se lee la historia por tramos
+   y con esas notas se redacta el informe final. */
+const RECAP_PROMPT_SISTEMA=`Analiza una conversación de ficción (turnos "user" y "model") y entrega un informe estructurado en EXACTAMENTE DOS PARTES, separadas por el marcador "===ACTUALMENTE===" (escríbelo tal cual, en mayúsculas y con tres guiones a cada lado).
+
+PARTE 1 - LA HISTORIA (antes del marcador): relata CRONOLÓGICAMENTE todo lo sucedido. Incluye los eventos importantes y puntos de giro, las decisiones clave, los conflictos o momentos emocionales destacados, la evolución de la relación entre los personajes y el contexto relevante. Resalta en **negrita** los momentos más importantes.
+
+===ACTUALMENTE===
+
+PARTE 2 - ACTUALMENTE (después del marcador): describe el estado presente: de qué están hablando en los últimos mensajes, qué están haciendo los personajes, su estado emocional, la situación inmediata y hacia dónde parece dirigirse la conversación.
+
+REGLAS OBLIGATORIAS:
+- NO uses introducciones ni despedidas (nada de "Aquí está el resumen")
+- NO hables en primera persona ni te refieras a ti mismo
+- Responde SOLO con las dos partes, separadas exactamente por el marcador
+- Usa **negritas** para nombres, eventos clave y momentos importantes
+- Usa *cursivas* para emociones, estados de ánimo o detalles sutiles
+- Sé conciso pero completo. Si la conversación es larga, prioriza los puntos de giro`;
+const RECAP_INSTRUCCION='Entrega el informe completo: la historia y, tras el marcador ===ACTUALMENTE===, el estado actual.';
+
+async function recapitularPorTramos(mensajes,{nivelInicial='bloqueo_minimo',onProgreso=null}={}){
+  const{partes,omitidos,total}=await digestoTramos(mensajes,{nivelInicial,onProgreso,maxIntentosPorTramo:3});
+  if(!partes.length)throw crearErrorBloqueo('Los filtros de seguridad de Gemini bloquearon toda la conversación.',null,{tipo:'bloqueo'});
+  const digest=unirDigestoTramos(partes);
+  let textoFinal='';
+  try{
+    const{texto}=await generarConGeminiResiliente({
+      systemPrompt:RECAP_PROMPT_SISTEMA,
+      sistemaNeutro:SISTEMA_NEUTRO,
+      contenido:`NOTAS CRONOLÓGICAS DE LA HISTORIA (resumen por tramos, en orden):\n\n${digest}`,
+      instruccion:RECAP_INSTRUCCION,
+      instruccionNeutra:RECAP_INSTRUCCION,
+      maxOutputTokens:6048,
+      temperature:.4,
+      nivelInicial:'bloqueo_minimo'
+    });
+    textoFinal=String(texto||'').trim();
+  }catch(err){
+    if(!esErrorDeBloqueo(err))throw err;
+    // Último recurso: entregar las notas de los tramos tal cual, con el
+    // último tramo como estado actual.
+    console.warn('🛡️ No se pudo redactar el informe final; se entregan las notas por tramos.');
+    textoFinal=`${partes.join('\n\n')}\n\n===ACTUALMENTE===\n\n${partes[partes.length-1]}`;
+  }
+  if(omitidos>0)textoFinal+=`\n\n(Nota: ${omitidos} de ${total} fragmentos de la conversación no se pudieron leer por los filtros de Gemini.)`;
+  return {texto:textoFinal,omitidos,total};
 }
 
 async function procesarHistorialSiEsNecesario(historial){
@@ -3135,14 +3354,19 @@ openModal('recap-modal');
 document.getElementById('btn-confirm-recap').addEventListener('click',ejecutarRecapitulacion);
 recapContent.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal('recap-modal')));
 }
-function mostrarRecapLoading(){
+function mostrarRecapLoading(textoSub){
 recapContent.innerHTML=`
 <div class="recap-loading">
 <div class="recap-spinner"><div class="recap-spinner-core"></div></div>
 <div class="recap-loading-text">Analizando la conversación...</div>
-<div class="recap-loading-sub">Esto puede tardar unos segundos según la longitud del chat</div>
+<div class="recap-loading-sub">${escapeHtml(textoSub||'Esto puede tardar unos segundos según la longitud del chat')}</div>
 <div class="recap-progress"><div class="recap-progress-bar"></div></div>
 </div>`;
+}
+function mostrarRecapProgreso(i,n){
+const sub=recapContent?.querySelector('.recap-loading-sub');
+if(!sub)return;
+sub.textContent=String(i&&n?`Resumiendo la historia por partes… (${i}/${n})`:'Resumiendo la historia por partes…');
 }
 function mostrarRecapError(msg){
 recapContent.innerHTML=`
@@ -3215,56 +3439,32 @@ async function ejecutarRecapitulacion(){
     // La conversación se envía como turnos user/model (igual que en el chat),
     // limitada por caracteres y conservando el inicio de la historia.
     const mensajesLimitados = limitarMensajesPorLongitud(mensajesUtiles, MAX_TEXT_LENGTH);
-    const systemPrompt=`Eres un analista experto en narrativas de roleplay. Tu tarea es analizar una conversación completa y generar un resumen estructurado en EXACTAMENTE DOS PARTES, usando un tono técnico, directo y profesional.
-
-REGLAS OBLIGATORIAS:
-- NO uses introducciones ni despedidas ("Aquí está el resumen", "Espero que te sirva", etc.)
-- NO hables en primera persona ni te refieras a ti mismo
-- Responde SOLO con las dos partes solicitadas, separadas exactamente por el marcador "===ACTUALMENTE===" (ESCRIBE ESE MARCADOR TAL CUAL, EN MAYÚSCULAS Y CON TRES GUIONES A CADA LADO)
-- Usa **negritas** para resaltar nombres de personajes, eventos clave y momentos importantes
-- Usa *cursivas* para emociones, estados de ánimo o detalles sutiles
-- Sé conciso pero completo. No omitas eventos importantes.
-- Si la conversación es larga, prioriza los puntos de giro y momentos clave.
-
-EJEMPLO DE FORMATO DE RESPUESTA:
-[Contenido de la historia...]
-
-===ACTUALMENTE===
-
-[Contenido del estado actual...]
-
-PARTE 1 - LA HISTORIA (antes del marcador):
-Relata CRONOLÓGICAMENTE todo lo que ha sucedido en la conversación completa. Incluye:
-- Eventos importantes y puntos de giro de la trama
-- Decisiones clave tomadas por los personajes
-- Conflictos, revelaciones o momentos emocionales destacados
-- Evolución de la relación entre los personajes
-- Detalles del entorno y contexto relevantes
-Resalta en **negrita** los momentos más importantes.
-
-===ACTUALMENTE===
-
-PARTE 2 - ACTUALMENTE (después del marcador):
-Describe el estado PRESENTE de la conversación:
-- De qué están hablando en los últimos mensajes
-- Qué están haciendo los personajes ahora mismo
-- Estado emocional actual de cada personaje
-- Situación/contexto inmediato
-- Hacia dónde parece dirigirse la conversación
-Sé específico sobre los últimos intercambios.`+
-`\n\nCONTEXTO DE LA CONVERSACIÓN: participan ${userRoleName||'el usuario'} (turnos del rol "user") y ${currentCharacter?.nombre||'el personaje'} (turnos del rol "model").`;
+    const systemPrompt=`${RECAP_PROMPT_SISTEMA}\n\nCONTEXTO DE LA CONVERSACIÓN: participan ${userRoleName||'el usuario'} (turnos del rol "user") y ${currentCharacter?.nombre||'el personaje'} (turnos del rol "model").`;
     const parsedRecap = parsearSystemPrompt(currentCharacter?.system_prompt);
     const intensidadRecap = currentCharacter?.intensidad || parsedRecap.intensidad || 'maxima';
     // Reintentos escalonados: una recapitulación normal nunca se queda sin
-    // respuesta por un bloqueo puntual de los filtros de Gemini.
-    const {texto:textoCompleto} = await generarConGeminiResiliente({
-      systemPrompt,
-      mensajes:mensajesLimitados,
-      instruccion:'Analiza y genera la recapitulación en las dos partes solicitadas.',
-      maxOutputTokens:6048,
-      temperature:0.4,
-      nivelInicial:intensidadRecap
-    });
+    // respuesta por un bloqueo puntual de los filtros de Gemini. Si la
+    // conversación completa se bloquea, se lee por tramos y el informe se
+    // redacta con esas notas.
+    let textoCompleto='',omitidosRecap=0;
+    try{
+      const respuesta=await generarConGeminiResiliente({
+        systemPrompt,
+        sistemaNeutro:SISTEMA_NEUTRO,
+        mensajes:mensajesLimitados,
+        instruccion:RECAP_INSTRUCCION,
+        instruccionNeutra:RECAP_INSTRUCCION,
+        maxOutputTokens:6048,
+        temperature:0.4,
+        nivelInicial:intensidadRecap
+      });
+      textoCompleto=respuesta.texto;
+    }catch(err){
+      if(!esErrorDeBloqueo(err))throw err;
+      console.warn('🛡️ Recapitulación bloqueada; leyendo la historia por tramos…');
+      const respuesta=await recapitularPorTramos(mensajesLimitados,{nivelInicial:intensidadRecap,onProgreso:(i,n)=>mostrarRecapProgreso(i,n)});
+      textoCompleto=respuesta.texto;omitidosRecap=respuesta.omitidos;
+    }
     let partes = textoCompleto.split(/===\s*ACTUALMENTE\s*===/i);
     let historia, actualmente;
     if (partes.length >= 2) {
@@ -3291,10 +3491,11 @@ Sé específico sobre los últimos intercambios.`+
     historia = historia.replace(/^(?:PARTE 1|La Historia|📜)\s*[:.-]?\s*/i,'').trim();
     actualmente = actualmente.replace(/^(?:PARTE 2|Actualmente|⚡)\s*[:.-]?\s*/i,'').trim();
     mostrarRecapResultado(historia, actualmente);
-    showToast('✅ Recapitulación generada','success');
+    if(omitidosRecap>0)showToast(`⚠️ Recapitulación generada sin ${omitidosRecap} fragmento${omitidosRecap!==1?'s':''} (bloqueados por los filtros)`,'error');
+    else showToast('✅ Recapitulación generada','success');
   }catch(err){
     console.error('Error en recapitulación:',err);
-    mostrarRecapError(err.message||'Error desconocido');
+    mostrarRecapError(esErrorDeBloqueo(err)?mensajeBloqueoConAyuda(err):(err.message||'Error desconocido'));
   }
 }
 document.getElementById('chat-recap-btn').addEventListener('click',mostrarRecapConfirm);
@@ -3738,17 +3939,20 @@ let diarioEnNube=true;
 let diarioGenerando=false;
 let diarioMensajesTimer=null;
 
-const DIARIO_PROMPT=`Eres un escritor experto en roleplay. Vas a redactar el "Diario de Personajes" de una historia de rol: el cuaderno personal e íntimo de cada personaje que ha compartido escena con el usuario.
+const DIARIO_ESQUEMA_JSON='{"personajes":[{"nombre":"Nombre del personaje","rol":"personaje principal / secundario / aliado / rival…","opina":"...","gustaria_saber":"...","siente":"...","como_se_siente":"..."}]}';
+const DIARIO_INSTRUCCION='Escribe ahora el "Diario de Personajes" de los personajes que han compartido escena con el usuario. Responde ÚNICAMENTE con el JSON indicado, sin texto antes ni después.';
+const DIARIO_INSTRUCCION_NEUTRA='Escribe, para cada personaje de las notas anteriores, un diario breve en primera persona con estas cuatro claves: "opina", "gustaria_saber", "siente" y "como_se_siente" (entre 2 y 6 frases cada una). Responde ÚNICAMENTE con este JSON: '+DIARIO_ESQUEMA_JSON;
+const DIARIO_PROMPT=`Eres un escritor experto en ficción. Vas a redactar el "Diario de Personajes" de una historia de rol: el diario personal de cada personaje que ha compartido escena con el usuario.
 
 CONTEXTO:
 - El usuario de la app interpreta a un personaje al que llamamos {{user}}. Los personajes se dirigen a él/ella como "{{user}}".
-- Todo es ficción narrativa entre personajes imaginarios.
+- La historia es ficción narrativa entre personajes imaginarios.
 
 TAREA:
 1) Identifica a los personajes que REALMENTE han interactuado con {{user}} en la historia: quienes hablaron, actuaron o reaccionaron con él/ella. Incluye siempre al personaje principal del chat. NO incluyas a {{user}}, ni a personajes que solo se mencionan de pasada, ni a objetos o lugares. Escribe como máximo 8 personajes, ordenados por importancia en la historia.
-2) Para cada personaje, escribe su diario íntimo en PRIMERA PERSONA, como si ese personaje escribiera en su cuaderno secreto. El tono debe encajar con su personalidad y con lo que ha vivido. El diario debe tener EXACTAMENTE estas cuatro partes:
+2) Para cada personaje, redacta su diario en PRIMERA PERSONA, con la voz de ese personaje y un tono que encaje con su personalidad y con lo que ha vivido. El diario debe tener EXACTAMENTE estas cuatro partes:
    - "opina": Qué opina de {{user}} (su juicio personal: confianza, admiración, celos, molestias, ternura, respeto…).
-   - "gustaria_saber": Qué le gustaría saber de {{user}} (dudas, curiosidades, cosas que intuye y no se atreve a preguntar, secretos que sospecha).
+   - "gustaria_saber": Qué le gustaría saber de {{user}} (dudas, curiosidades, cosas que intuye y no se atreve a preguntar).
    - "siente": Qué siente (emociones, deseos, miedos, nervios, cariño, dolor… hacia {{user}} o por la situación que viven).
    - "como_se_siente": Cómo se siente con {{user}} (cómo es estar a su lado, qué cambia en él/ella, qué le aporta o le cuesta).
 3) Escribe entre 2 y 6 frases por parte, en el mismo idioma de la conversación, y menciona a {{user}} escribiendo exactamente "{{user}}".
@@ -3756,8 +3960,7 @@ TAREA:
 5) No escribas narración externa, acotaciones ni resúmenes de la trama: solo la voz del personaje en su propio diario.
 
 FORMATO DE RESPUESTA: responde ÚNICAMENTE con un JSON válido, sin texto antes ni después, con esta forma exacta:
-{"personajes":[{"nombre":"Nombre del personaje","rol":"personaje principal / secundario / aliado / rival…","opina":"...","gustaria_saber":"...","siente":"...","como_se_siente":"..."}]}`;
-
+`+DIARIO_ESQUEMA_JSON;
 /* Detecta líneas de sección tipo "Qué opina de mí: ...", "**Cómo se siente
    conmigo:** ..." y devuelve la clave y el texto que la sigue. */
 function detectarEtiquetaDiario(linea){
@@ -3968,9 +4171,36 @@ function parsearDiarioGemini(texto){
 
 /* ── Interfaz del diario ── */
 function diarioContenido(){return document.getElementById('diario-content')}
-function detenerMensajesDiario(){if(diarioMensajesTimer){clearInterval(diarioMensajesTimer);diarioMensajesTimer=null}}
+function detenerMensajesDiario(){if(diarioMensajesTimer){clearInterval(diarioMensajesTimer);diarioMensajesTimer=null}diarioProgresoTexto=''}
+
+/* Último recurso: cuando la petición completa se bloquea, la historia se
+   lee por tramos (fragmentos pequeños que sí pasan) y el diario se
+   escribe a partir de esas notas. */
+async function generarDiarioDesdeDigesto({cabecera,utiles,nivelBase,onProgreso}){
+  const{partes,omitidos,total}=await digestoTramos(utiles,{nivelInicial:'bloqueo_minimo',onProgreso,maxIntentosPorTramo:3});
+  if(!partes.length)throw crearErrorBloqueo('Los filtros de seguridad de Gemini bloquearon toda la conversación.',null,{tipo:'bloqueo'});
+  const{texto,modelo,parcial,intentos}=await generarConGeminiResiliente({
+    systemPrompt:`${DIARIO_PROMPT}\n\n${cabecera}`,
+    sistemaNeutro:SISTEMA_NEUTRO,
+    contenido:`NOTAS DE LA HISTORIA (resumen por tramos, en orden cronológico):\n\n${unirDigestoTramos(partes)}`,
+    instruccion:DIARIO_INSTRUCCION,
+    instruccionNeutra:DIARIO_INSTRUCCION_NEUTRA,
+    maxOutputTokens:8192,
+    temperature:.85,
+    nivelInicial:'bloqueo_minimo'
+  });
+  return {texto,modelo,parcial,omitidos,total,intentos};
+}
+
+let diarioProgresoTexto='';
+function actualizarProgresoDiario(texto){
+  diarioProgresoTexto=String(texto||'');
+  const el=document.getElementById('diario-loading-sub');
+  if(el&&diarioProgresoTexto)el.textContent=diarioProgresoTexto;
+}
 
 function mostrarDiarioCargando(){
+  diarioProgresoTexto='';
   const contenedor=diarioContenido();
   if(!contenedor)return;
   const usuario=nombreMostradoUsuario();
@@ -3991,6 +4221,7 @@ function mostrarDiarioCargando(){
   let indice=0;
   detenerMensajesDiario();
   diarioMensajesTimer=setInterval(()=>{
+    if(diarioProgresoTexto)return;
     indice=(indice+1)%mensajes.length;
     const el=document.getElementById('diario-loading-sub');
     if(el)el.textContent=mensajes[indice];
@@ -4114,24 +4345,44 @@ async function generarDiarioPersonajes(){
     const cabecera=construirCabeceraDiario(resumen);
     // Se conserva el final de la conversación (lo más reciente) dentro del límite.
     const mensajesLimitados=limitarMensajesPorLongitud(utiles,Math.max(8000,DIARIO_MAX_TEXTO-cabecera.length),true);
-    const{texto,modelo,parcial}=await generarConGeminiResiliente({
-      systemPrompt:`${DIARIO_PROMPT}\n\n${cabecera}`,
-      mensajes:mensajesLimitados,
-      instruccion:'Escribe ahora el "Diario de Personajes" de los personajes que han compartido escena con el usuario. Responde ÚNICAMENTE con el JSON indicado, sin texto antes ni después.',
-      maxOutputTokens:8192,
-      temperature:.85
-    });
+    const parsedDiario=parsearSystemPrompt(currentCharacter?.system_prompt);
+    const nivelDiario=normalizarIntensidad(currentCharacter?.intensidad||parsedDiario.intensidad||'suave');
+    let texto='',modelo='',parcial=false,omitidosDiario=0;
+    try{
+      const respuesta=await generarConGeminiResiliente({
+        systemPrompt:`${DIARIO_PROMPT}\n\n${cabecera}`,
+        sistemaNeutro:SISTEMA_NEUTRO,
+        mensajes:mensajesLimitados,
+        instruccion:DIARIO_INSTRUCCION,
+        instruccionNeutra:DIARIO_INSTRUCCION_NEUTRA,
+        maxOutputTokens:8192,
+        temperature:.85,
+        nivelInicial:nivelDiario
+      });
+      texto=respuesta.texto;modelo=respuesta.modelo;parcial=respuesta.parcial;
+    }catch(err){
+      if(!esErrorDeBloqueo(err))throw err;
+      console.warn('🛡️ Diario: la petición completa fue bloqueada; leyendo la historia por tramos…');
+      const respuesta=await generarDiarioDesdeDigesto({
+        cabecera,
+        utiles:mensajesLimitados,
+        nivelBase:nivelDiario,
+        onProgreso:(i,n)=>actualizarProgresoDiario(`Leyendo la historia por partes… (${i}/${n})`)
+      });
+      texto=respuesta.texto;modelo=respuesta.modelo;parcial=respuesta.parcial;omitidosDiario=respuesta.omitidos;
+    }
     const diario=parsearDiarioGemini(texto);
     diario.modelo=diario.modelo||modelo||'';
     diario.generado_en=new Date().toISOString();
     const sincronizado=await guardarDiario(currentChatId,diario);
     renderizarDiario(diario);
-    if(parcial)showToast('📖 Diario escrito (puede haber quedado algo corto por los filtros)','success');
+    if(omitidosDiario>0)showToast(`📖 Diario escrito (no se pudieron leer ${omitidosDiario} fragmento${omitidosDiario!==1?'s':''} por los filtros)`,'success');
+    else if(parcial)showToast('📖 Diario escrito (puede haber quedado algo corto por los filtros)','success');
     else if(sincronizado)showToast('📖 Diario de Personajes actualizado','success');
     else showToast('📖 Diario guardado solo en este dispositivo','success');
   }catch(err){
     console.error('Error generando el Diario de Personajes:',err);
-    mostrarDiarioError(err.message||'Error desconocido');
+    mostrarDiarioError(esErrorDeBloqueo(err)?mensajeBloqueoConAyuda(err):(err.message||'Error desconocido'));
   }finally{
     diarioGenerando=false;
   }
