@@ -2,6 +2,51 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[3.0.0 Preview H] — 2026-10-07
+
+✨ Novedades
+- 📝 Notas para Rol: cada chat tiene su propio cuaderno de contexto.
+  Abre “Notas para Rol” en la barra lateral del chat y escribe lo que la
+  IA debe recordar siempre en esa conversación, por ejemplo:
+  “Este personaje está enamorado de X”, “A este personaje le gusta
+  coquetear con Y”, “Este personaje odia el café con azúcar”.
+  Las notas se envían como contexto adicional en CADA respuesta de ese
+  chat, solo en ese chat, y tienen prioridad sobre cualquier
+  improvisación anterior de la IA
+- Las Notas para Rol se guardan en la nube (supabase_notas_rol.sql), se
+  exportan e importan junto al chat y se heredan automáticamente al
+  crear un chat nuevo del mismo personaje
+- Indicador en el botón “Notas para Rol”: se ilumina cuando el chat
+  tiene notas activas
+
+🐛 Correcciones
+- Arreglada la respuesta que se cortaba a la mitad al regenerar un
+  mensaje o al editar un mensaje propio: la app ahora detecta el corte
+  (límite de tokens, filtros de seguridad o stream interrumpido),
+  conserva el texto recibido y pide la continuación a Gemini de forma
+  automática hasta que la respuesta termina sola (máx. 3 continuaciones
+  o 40.000 caracteres por turno)
+- Las continuaciones se unen sin repetir el tramo que Gemini vuelve a
+  escribir al retomar (solape detectado y recortado)
+- Si una respuesta sigue incompleta, la burbuja muestra un aviso con el
+  motivo y un botón “✂️ Continuar respuesta” para retomarla a mano
+
+🎨 Experiencia de usuario
+- La longitud de respuesta de los personajes ahora admite hasta
+  16.384 tokens (antes 8.192)
+- El tiempo de espera de Gemini sube a 5 minutos para que las respuestas
+  largas no se corten por lentitud de la red
+- El texto ya recibido nunca se descarta: si Gemini falla a mitad de la
+  respuesta, ves exactamente hasta dónde llegó y puedes continuar desde ahí
+- Indicadores de versión actualizados a 3.0.0 Preview H
+
+🧩 Requiere ejecutar SQL (una sola vez)
+- supabase_notas_rol.sql: crea la columna chats.notas_rol y la función
+  guardar_notas_rol_chat. Sin este script las Notas para Rol funcionan
+  solo en el navegador actual (no se sincronizan entre dispositivos)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [3.0.0 Preview G] — 2026-09-29
 
 ✨ Novedades
