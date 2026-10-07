@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sair-v3.0.0-preview-h';
+const CACHE_NAME = 'sair-v3.1.0-oficial-a';
 const STATIC_ASSETS = [
   './',
   './index.html',

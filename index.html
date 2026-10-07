@@ -971,6 +971,7 @@ body.performance-light .chat-bg-img { display:none!important; }
   *,*::before,*::after { animation-duration:.01ms!important; animation-delay:0s!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; }
 }
 /* ── Notas para Rol + respuestas incompletas (3.0.0 Preview H) ── */
+/* ── Diario de Personajes + resumidor a prueba de filtros (3.1.0 Oficial A) ── */
 .chat-new-btn.notas-rol-active{color:var(--pink);border-color:var(--pink);background:rgba(255,77,143,.12)}
 .notas-rol-dot{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 8px var(--pink-glow);margin-left:.4rem;display:none;flex-shrink:0}
 .chat-new-btn.notas-rol-active .notas-rol-dot{display:inline-block}
@@ -980,6 +981,34 @@ body.performance-light .chat-bg-img { display:none!important; }
 .notas-rol-footer{display:flex;justify-content:space-between;align-items:center;gap:.6rem;font-size:.72rem;color:var(--text-4);margin-top:.4rem}
 .notas-rol-actions{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap;margin-top:1.2rem}
 .notas-rol-example{display:block;margin-top:.35rem;color:var(--text-4);font-size:.74rem;line-height:1.6}
+/* ── Diario de Personajes ── */
+.chat-new-btn.notas-rol-active{color:var(--pink)!important;border-color:var(--pink)!important;background:rgba(255,77,143,.12)!important}
+.chat-new-btn.diario-activo{color:var(--purple)!important;border-color:var(--purple)!important;background:rgba(168,85,247,.14)!important}
+.diario-dot{width:8px;height:8px;border-radius:50%;background:var(--purple);box-shadow:0 0 8px var(--purple-glow);margin-left:.4rem;display:none;flex-shrink:0}
+.chat-new-btn.diario-activo .diario-dot{display:inline-block}
+.diario-modal{max-width:760px;width:100%}
+.diario-hint{color:var(--text-3);font-size:.85rem;line-height:1.65;margin:.2rem 0 .9rem}
+.diario-loading .recap-loading-sub{min-height:2.6em}
+.diario-header{text-align:center;margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.diario-titulo{font-family:var(--font-display);font-size:1.35rem;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.25rem}
+.diario-sub{font-size:.8rem;color:var(--text-3)}
+.diario-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem;margin-bottom:1rem;position:relative;overflow:hidden;animation:diarioEntra .45s ease both}
+.diario-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--pink),var(--purple),var(--blue))}
+@keyframes diarioEntra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.diario-card-head{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem}
+.diario-avatar{width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,77,143,.25),rgba(168,85,247,.25));font-family:var(--font-display);font-weight:700;color:var(--text-1)}
+.diario-avatar img{width:100%;height:100%;object-fit:cover}
+.diario-nombre{font-family:var(--font-display);font-weight:700;color:var(--text-1);font-size:1.02rem}
+.diario-rol{font-size:.74rem;color:var(--text-4)}
+.diario-seccion{margin-bottom:.7rem}
+.diario-seccion:last-child{margin-bottom:0}
+.diario-seccion-titulo{font-size:.78rem;font-weight:700;letter-spacing:.03em;color:var(--pink);margin-bottom:.2rem;display:flex;align-items:center;gap:.35rem}
+.diario-seccion-cuerpo{font-size:.9rem;line-height:1.7;color:var(--text-2);white-space:pre-wrap;word-wrap:break-word}
+.diario-acciones{display:flex;gap:.55rem;justify-content:flex-end;flex-wrap:wrap;margin-top:1.1rem}
+.diario-acciones .btn{padding:.7rem 1rem;font-size:.84rem}
+.diario-acciones .btn-danger{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.45);color:#fca5a5}
+.diario-acciones .btn-danger:hover{background:rgba(239,68,68,.22)}
+@media (max-width:700px){.diario-modal{max-width:100%}.diario-card{padding:.9rem}.diario-acciones .btn{flex:1 1 auto}}
 .respuesta-incompleta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem;margin-top:.75rem;padding:.55rem .75rem;border:1px dashed rgba(245,158,11,.55);background:rgba(245,158,11,.08);border-radius:10px;font-size:.76rem;line-height:1.5;color:#fcd34d}
 .respuesta-incompleta.bloqueo{border-color:rgba(239,68,68,.55);background:rgba(239,68,68,.08);color:#fca5a5}
 .btn-continuar-respuesta{background:rgba(255,77,143,.16);border:1px solid var(--pink);color:var(--pink);padding:.32rem .65rem;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:background .2s ease;white-space:nowrap}
@@ -993,10 +1022,10 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div id="intro-veil" aria-hidden="true">
 <div class="intro-brand">SAIR3</div>
 <div class="intro-line"></div>
-<div class="intro-sub">3.0.0 Preview H</div>
+<div class="intro-sub">3.1.0 Oficial A</div>
 </div>
 
-<div class="app-version">3.0.0 Preview H</div>
+<div class="app-version">3.1.0 Oficial A</div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="auto"></audio>
 
@@ -1371,6 +1400,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 <button class="chat-new-btn" id="chat-import-btn" style="background:var(--bg-card);color:var(--text-2);border:1px solid var(--border);box-shadow:none;margin-top:.5rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Importar chat</button>
 <input type="file" id="chat-import-file" accept=".json" style="display:none;">
 <button type="button" class="chat-new-btn" id="chat-notas-btn" style="background:var(--bg-card);color:var(--text-2);border:1px solid var(--border);box-shadow:none;margin-top:.5rem;" title="Notas para Rol"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg>Notas para Rol<span class="notas-rol-dot" aria-hidden="true"></span></button>
+<button type="button" class="chat-new-btn" id="chat-diario-btn" style="background:var(--bg-card);color:var(--text-2);border:1px solid var(--border);box-shadow:none;margin-top:.5rem;" title="Diario de Personajes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Diario de Personajes<span class="diario-dot" aria-hidden="true"></span></button>
 <div class="chat-list" id="chat-list"></div>
 </aside>
 <main class="chat-main">
@@ -1396,6 +1426,14 @@ body.performance-light .chat-bg-img { display:none!important; }
 <button type="button" class="btn btn-ghost" data-close-modal="notas-rol-modal">Cancelar</button>
 <button type="button" class="btn btn-primary" id="notas-rol-save">💾 Guardar notas</button>
 </div>
+</div>
+</div>
+
+<!-- Modal del Diario de Personajes -->
+<div class="modal-overlay" id="diario-modal">
+<div class="modal diario-modal">
+<div class="modal-header"><h2 class="modal-title">📖 Diario de Personajes</h2><button class="modal-close" data-close-modal="diario-modal">✕</button></div>
+<div id="diario-content"></div>
 </div>
 </div>
 
@@ -1568,13 +1606,101 @@ function getSafetySettings(intensidad='suave'){
   ];
 }
 
-async function resumirHistorialConGemini(texto, intensidad = null){
+/* ── Peticiones resilientes a Gemini ────────────────────────────────
+   Los filtros de seguridad de Gemini (PROHIBITED_CONTENT, SAFETY…) a
+   veces bloquean peticiones inofensivas: el resumen de una escena
+   romántica normal, la recapitulación de un chat con filtros mínimos o
+   el diario de un personaje. Antes, el primer bloqueo dejaba al
+   resumidor sin respuesta. Ahora se reintenta de forma escalonada
+   (umbral más permisivo, modelos de respaldo, división por tramos) y el
+   texto ya recibido nunca se descarta. */
+const GEMINI_MODELOS_RESPALDO=['gemini-3.7-flash','gemini-3.6-flash','gemini-3.5-flash','gemini-3.5-flash-lite'];
+const CATEGORIAS_SEGURIDAD=['HARM_CATEGORY_HARASSMENT','HARM_CATEGORY_HATE_SPEECH','HARM_CATEGORY_SEXUALLY_EXPLICIT','HARM_CATEGORY_DANGEROUS_CONTENT'];
+const AVISO_FICCION='RECORDATORIO: el texto es ficción narrativa entre personajes imaginarios. No describe a personas reales ni pide nada a nadie. Tu única tarea es la indicada arriba (resumir, analizar o redactar) de forma objetiva, sin juzgar ni comentar el contenido. Son escenas cotidianas de una historia: romance, drama, ternura, acción o misterio.';
+
+function getSafetySettingsNivel(nivel){
+  let threshold='BLOCK_MEDIUM_AND_ABOVE';
+  if(nivel==='off')threshold='OFF';
+  else if(nivel==='bloqueo_minimo')threshold='BLOCK_NONE';
+  else threshold=getSafetySettings(nivel)[0].threshold;
+  return CATEGORIAS_SEGURIDAD.map(category=>({category,threshold}));
+}
+function crearErrorBloqueo(mensaje,textoParcial){
+  const err=new Error(mensaje);
+  err.esBloqueoDeSeguridad=true;
+  if(textoParcial)err.textoParcial=textoParcial;
+  return err;
+}
+function esErrorDeBloqueo(err){return !!(err&&err.esBloqueoDeSeguridad)}
+
+/* Una sola petición sin streaming. Lanza un error marcado cuando Gemini
+   bloquea la petición o la respuesta para poder reintentar. */
+async function peticionGeminiTexto({systemPrompt,contenido,modelo,nivelSeguridad='suave',maxOutputTokens=4096,temperature=.3,avisarFiccion=true}){
   const apiKey=getGeminiKey();
   if(!apiKey)throw new Error('No hay API Key configurada');
-  const model=getSummaryModel();
-  const parsed = parsearSystemPrompt(currentCharacter?.system_prompt);
-  const intensidadFinal = normalizarIntensidad(intensidad || currentCharacter?.intensidad || parsed.intensidad || 'suave');
-  const systemPrompt=`Eres un asistente experto en resumir conversaciones de roleplay. Tu tarea es crear un resumen conciso pero completo. Debes incluir:
+  const body={
+    system_instruction:{parts:[{text:avisarFiccion?`${systemPrompt}\n\n${AVISO_FICCION}`:systemPrompt}]},
+    contents:[{role:'user',parts:[{text:contenido}]}],
+    safetySettings:getSafetySettingsNivel(nivelSeguridad),
+    generationConfig:{temperature,topP:.9,topK:40,maxOutputTokens}
+  };
+  let response;
+  try{response=await fetch(geminiUrl(modelo,false),{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body)})}
+  catch(err){throw new Error('No se pudo conectar con Gemini. Revisa tu conexión e intenta de nuevo.')}
+  if(!response.ok){
+    const errText=await response.text();
+    let msg='';
+    try{const errJson=JSON.parse(errText);msg=errJson.error?.message||''}catch{}
+    if(/API key not valid|invalid authentication|API_KEY_INVALID/i.test(msg))throw new Error('Tu API Key de Gemini es inválida o fue revocada. Reconfígurala en Ajustes de Rol (🎭)');
+    if(response.status===429||/quota|rate limit|too many requests|resource_exhausted/i.test(msg))throw new Error('Límite de peticiones alcanzado. Espera unos segundos y reintenta.');
+    if(response.status===400&&/safety|block|threshold|harm|prohibited/i.test(msg))throw crearErrorBloqueo('La petición fue rechazada por los filtros de seguridad de Gemini.');
+    throw new Error(msg||`Error de Gemini (${response.status})`);
+  }
+  const data=await response.json();
+  const candidato=data.candidates?.[0];
+  const finish=String(candidato?.finishReason||'').toUpperCase();
+  const texto=(candidato?.content?.parts||[]).map(p=>p.text||'').join('').trim();
+  if(texto&&(!finish||finish==='STOP'||finish==='MAX_TOKENS'))return texto;
+  if(finish&&finish!=='STOP'&&finish!=='MAX_TOKENS')throw crearErrorBloqueo(`Gemini bloqueó la respuesta (${finish}).`,texto);
+  if(data.promptFeedback?.blockReason)throw crearErrorBloqueo(`Gemini bloqueó la petición (${data.promptFeedback.blockReason}).`,texto);
+  if(texto)return texto;
+  throw new Error('Gemini no devolvió ninguna respuesta. Intenta de nuevo.');
+}
+
+/* Escalera de reintentos: intensidad elegida → umbral más permisivo →
+   modelos de respaldo. Si todo se bloquea pero hubo texto parcial, se
+   devuelve ese texto en lugar de fallar. */
+async function generarConGeminiResiliente({systemPrompt,contenido,maxOutputTokens=4096,temperature=.3,nivelInicial=null,modelo=null,avisarFiccion=true}){
+  const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);
+  const nivelBase=normalizarIntensidad(nivelInicial||currentCharacter?.intensidad||parsed.intensidad||'suave');
+  const modelos=[...new Set([modelo||getSummaryModel(),...GEMINI_MODELOS_RESPALDO])].slice(0,3);
+  const planes=[{modelo:modelos[0],nivel:nivelBase}];
+  for(const m of modelos)planes.push({modelo:m,nivel:'bloqueo_minimo'});
+  for(const m of modelos)planes.push({modelo:m,nivel:'off'});
+  const vistos=new Set();
+  let ultimoError=null,mejorParcial='';
+  for(let i=0;i<planes.length;i++){
+    const plan=planes[i];
+    const clave=`${plan.modelo}|${plan.nivel}`;
+    if(vistos.has(clave))continue;
+    vistos.add(clave);
+    try{
+      const texto=await peticionGeminiTexto({systemPrompt,contenido,modelo:plan.modelo,nivelSeguridad:plan.nivel,maxOutputTokens,temperature,avisarFiccion});
+      if(i>0)console.log(`🛡️ Respuesta obtenida tras ${i+1} intentos (${plan.modelo} · ${plan.nivel})`);
+      return {texto,modelo:plan.modelo,nivel:plan.nivel,intentos:i+1,parcial:false};
+    }catch(err){
+      if(err.textoParcial&&err.textoParcial.length>mejorParcial.length)mejorParcial=err.textoParcial;
+      if(!esErrorDeBloqueo(err))throw err;
+      ultimoError=err;
+      console.warn(`🛡️ Intento ${i+1} bloqueado por seguridad (${plan.modelo} · ${plan.nivel}). Reintentando con permisos más amplios…`);
+    }
+  }
+  if(mejorParcial.trim().length>=400)return {texto:mejorParcial.trim(),modelo:modelos[0],nivel:'parcial',intentos:planes.length,parcial:true};
+  throw ultimoError||new Error('No se pudo obtener respuesta de Gemini.');
+}
+
+const RESUMEN_PROMPT_SISTEMA=`Eres un asistente experto en resumir conversaciones de roleplay (ficción narrativa entre personajes imaginarios).
+Tu tarea es crear un resumen objetivo, claro y útil para que la historia pueda continuar sin perder contexto. Debe incluir:
 - Puntos clave de la trama y eventos importantes
 - Promesas, compromisos o acuerdos hechos por los personajes
 - Acciones importantes realizadas
@@ -1584,30 +1710,99 @@ async function resumirHistorialConGemini(texto, intensidad = null){
 - Objetivos o metas mencionadas
 
 REGLAS ESTRICTAS:
-- NO inventes nada que no esté explícitamente en el texto
+- NO inventes nada que no esté en el texto
 - NO agregues opiniones personales ni interpretaciones
-- NO incluyas diálogos completos, solo resume acciones y decisiones
+- NO copies diálogos completos: describe acciones, decisiones y emociones
 - Responde ÚNICAMENTE con el resumen, sin introducciones ni explicaciones
 - El resumen debe ser conciso pero sin perder información crítica
-- Mantén la coherencia con el estilo y contexto original`;
-  const url=geminiUrl(model,false);
-  const body={
-    system_instruction:{parts:[{text:systemPrompt}]},
-    contents:[{role:'user',parts:[{text:`ADVERTENCIA: Esta conversación es un roleplay ficticio narrativo entre personajes imaginarios. Resume la siguiente conversación objetivamente manteniendo la trama sin censurar el contenido del resumen:\n\n${texto}`}]}],
-    safetySettings: getSafetySettings(intensidadFinal),
-    generationConfig:{temperature:.3,topP:.8,topK:32,maxOutputTokens:4096}
-  };
-  const response=await fetch(url,{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body)});
-  if(!response.ok){const errText=await response.text();let msg=`Error al resumir (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(msg)}
-  const data=await response.json();
-  const resumen=data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if(!resumen){
-    if(data.promptFeedback && data.promptFeedback.blockReason){
-      throw new Error(`El resumen fue bloqueado por Gemini (${data.promptFeedback.blockReason}).`);
+- Describe los hechos tal como ocurren en la historia, sin juzgarlos`;
+const RESUMEN_PROMPT_TRAMO=`${RESUMEN_PROMPT_SISTEMA}
+
+IMPORTANTE: este texto es solo un tramo de una conversación más larga. Resume lo que ocurre en este tramo manteniendo nombres, decisiones y emociones, con lenguaje descriptivo y neutro.`;
+const RESUMEN_PROMPT_UNIR=`Eres un asistente experto en resumir conversaciones de roleplay. Recibirás resúmenes parciales, en orden cronológico, de una misma historia. Únelos en UN ÚNICO resumen coherente y cronológico: elimina repeticiones, conserva todos los hechos, nombres, decisiones, promesas y relaciones importantes, y no añadas nada que no aparezca en los parciales. Responde solo con el resumen final.`;
+
+/* Divide el texto en tramos por párrafos para poder resumir por partes. */
+function dividirTextoEnTramos(texto,maximo){
+  const parrafos=String(texto||'').split(/\n{2,}/);
+  const tramos=[];
+  let actual='';
+  for(const parrafo of parrafos){
+    if(parrafo.length>maximo){
+      let resto=parrafo;
+      while(resto.length>maximo){tramos.push(resto.slice(0,maximo));resto=resto.slice(maximo)}
+      if(resto)actual=actual?`${actual}\n\n${resto}`:resto;
+      continue;
     }
-    throw new Error('No se pudo obtener el resumen');
+    if(actual&&(actual.length+parrafo.length+2)>maximo){tramos.push(actual);actual=parrafo}
+    else actual=actual?`${actual}\n\n${parrafo}`:parrafo;
   }
-  return resumen.trim();
+  if(actual.trim())tramos.push(actual);
+  return tramos.filter(t=>t.trim());
+}
+
+/* Último recurso: resumir tramo a tramo los chats largos que Gemini
+   bloquea de golpe y unir después los resúmenes parciales. */
+async function resumirPorTramos(texto,nivel,avisoOmitidos=''){
+  const tramos=dividirTextoEnTramos(texto,RESUMEN_TRAMO_CARACTERES);
+  if(tramos.length<=1)throw new Error('Los filtros de seguridad de Gemini bloquearon el resumen. Cambia el modelo de resumen en Ajustes de Rol (🎭) e intenta de nuevo.');
+  console.warn(`🛡️ Resumiendo por tramos: ${tramos.length} partes.`);
+  const partes=[];
+  let omitidos=0;
+  for(let i=0;i<tramos.length;i++){
+    try{
+      const{texto:parte}=await generarConGeminiResiliente({
+        systemPrompt:RESUMEN_PROMPT_TRAMO,
+        contenido:`Tramo ${i+1} de ${tramos.length} de una conversación de roleplay:\n\n${tramos[i]}`,
+        maxOutputTokens:2048,
+        temperature:.25,
+        // Ya sabemos que el filtro estándar bloquea este chat: arrancamos
+        // con el umbral permisivo para no repetir intentos inútiles.
+        nivelInicial:'bloqueo_minimo'
+      });
+      partes.push(parte.trim());
+    }catch(err){
+      if(!esErrorDeBloqueo(err))throw err;
+      omitidos++;
+      partes.push('');
+      console.warn(`🛡️ Tramo ${i+1}/${tramos.length} bloqueado; se omite y se continúa con el resto.`);
+    }
+  }
+  const utiles=partes.filter(Boolean);
+  if(!utiles.length)throw new Error('Los filtros de seguridad de Gemini bloquearon toda la conversación. Cambia el modelo de resumen en Ajustes de Rol (🎭) e intenta de nuevo.');
+  let resumen=utiles.length===1?utiles[0]:utiles.map((p,i)=>`• Tramo ${i+1}:\n${p}`).join('\n\n');
+  if(utiles.length>1){
+    try{
+      const{texto:unido}=await generarConGeminiResiliente({systemPrompt:RESUMEN_PROMPT_UNIR,contenido:resumen,maxOutputTokens:4096,temperature:.25,nivelInicial:'bloqueo_minimo'});
+      if(unido.trim())resumen=unido.trim();
+    }catch(err){
+      if(!esErrorDeBloqueo(err))throw err;
+      console.warn('🛡️ No se pudieron unir los tramos; se conservan por separado.');
+    }
+  }
+  if(omitidos>0)resumen+=`\n\n(Nota: ${omitidos} tramo${omitidos!==1?'s':''} de la conversación no se pudo resumir por los filtros del modelo.)${avisoOmitidos}`;
+  return resumen;
+}
+
+const RESUMEN_TRAMO_CARACTERES=14000;
+
+async function resumirHistorialConGemini(texto, intensidad = null){
+  const limpio=String(texto||'').trim();
+  if(!limpio)throw new Error('No hay texto para resumir');
+  const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);
+  const nivelBase=normalizarIntensidad(intensidad||currentCharacter?.intensidad||parsed.intensidad||'suave');
+  try{
+    const{texto:resumen}=await generarConGeminiResiliente({
+      systemPrompt:RESUMEN_PROMPT_SISTEMA,
+      contenido:`Conversación de roleplay a resumir:\n\n${limpio}`,
+      maxOutputTokens:4096,
+      temperature:.3,
+      nivelInicial:nivelBase
+    });
+    return resumen.trim();
+  }catch(err){
+    if(!esErrorDeBloqueo(err))throw err;
+    return await resumirPorTramos(limpio,nivelBase);
+  }
 }
 
 async function procesarHistorialSiEsNecesario(historial){
@@ -2227,11 +2422,12 @@ chatViewEl.style.setProperty('--grad-main', `linear-gradient(135deg, ${themeColo
 chatViewEl.style.setProperty('--grad-main-hover', `linear-gradient(135deg, ${hoverColor} 0%, var(--purple) 50%, var(--blue) 100%)`);
 
 aplicarFondoChat();await renderChatList();mostrarChatVacio()}catch(err){showToast(err.message,'error')}}
-async function renderChatList(){const list=document.getElementById('chat-list');try{const chats=await listarChats(currentCharacter.id);document.getElementById('chat-char-sub').textContent=`${chats.length} chat${chats.length!==1?'s':''}`;if(chats.length===0){list.innerHTML=`<p style="text-align:center;color:var(--text-4);font-size:.85rem;padding:1rem">Sin chats aún</p>`;return}list.innerHTML=chats.map(c=>`<div class="chat-list-item ${c.id===currentChatId?'active':''}" data-id="${c.id}"><div class="chat-list-title">Chat ${c.id.substring(0,6)}</div><div class="chat-list-date">${formatDate(c.creado_en)}</div><button class="chat-list-delete" data-id="${c.id}" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></button></div>`).join('');list.querySelectorAll('.chat-list-item').forEach(item=>{item.addEventListener('click',e=>{if(e.target.closest('.chat-list-delete'))return;seleccionarChat(item.dataset.id)})});list.querySelectorAll('.chat-list-delete').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();if(confirm('¿Eliminar este chat?')){try{await eliminarChat(btn.dataset.id);borrarNotasRolLocal(btn.dataset.id);if(currentChatId===btn.dataset.id){currentChatId=null;notasRolCache={chatId:null,texto:''};actualizarIndicadorNotasRol();mostrarChatVacio()}renderChatList();showToast('Chat eliminado')}catch(err){showToast(err.message,'error')}}})})}catch(err){console.error('Error en renderChatList:',err);list.innerHTML=`<p style="color:#fca5a5;padding:1rem;font-size:.85rem">Error al cargar chats</p>`}}
+async function renderChatList(){const list=document.getElementById('chat-list');try{const chats=await listarChats(currentCharacter.id);document.getElementById('chat-char-sub').textContent=`${chats.length} chat${chats.length!==1?'s':''}`;if(chats.length===0){list.innerHTML=`<p style="text-align:center;color:var(--text-4);font-size:.85rem;padding:1rem">Sin chats aún</p>`;return}list.innerHTML=chats.map(c=>`<div class="chat-list-item ${c.id===currentChatId?'active':''}" data-id="${c.id}"><div class="chat-list-title">Chat ${c.id.substring(0,6)}</div><div class="chat-list-date">${formatDate(c.creado_en)}</div><button class="chat-list-delete" data-id="${c.id}" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></button></div>`).join('');list.querySelectorAll('.chat-list-item').forEach(item=>{item.addEventListener('click',e=>{if(e.target.closest('.chat-list-delete'))return;seleccionarChat(item.dataset.id)})});list.querySelectorAll('.chat-list-delete').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();if(confirm('¿Eliminar este chat?')){try{await eliminarChat(btn.dataset.id);borrarNotasRolLocal(btn.dataset.id);borrarDiarioLocal(btn.dataset.id);if(currentChatId===btn.dataset.id){currentChatId=null;notasRolCache={chatId:null,texto:''};diarioCache={chatId:null,diario:null};actualizarIndicadorNotasRol();actualizarIndicadorDiario();mostrarChatVacio()}renderChatList();showToast('Chat eliminado')}catch(err){showToast(err.message,'error')}}})})}catch(err){console.error('Error en renderChatList:',err);list.innerHTML=`<p style="color:#fca5a5;padding:1rem;font-size:.85rem">Error al cargar chats</p>`}}
 function mostrarChatVacio(){const messages=document.getElementById('chat-messages');messages.innerHTML=`<div class="chat-empty" id="chat-empty"><div class="chat-empty-icon">💬</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Comienza una conversación</h3><p>Selecciona un chat o crea uno nuevo</p></div>`}
 async function seleccionarChat(chatId){
 currentChatId=chatId;
 cargarNotasRol(chatId);
+prepararDiarioLocal(chatId);
 document.querySelectorAll('.chat-list-item').forEach(i=>{i.classList.toggle('active',i.dataset.id===chatId)});
 const messages=document.getElementById('chat-messages');
 messages.innerHTML='<div style="text-align:center;color:var(--text-3);padding:2rem">Cargando mensajes...</div>';
@@ -2287,13 +2483,13 @@ document.getElementById('chat-back-btn').addEventListener('click',()=>{
 });
 document.getElementById('btn-immersive').addEventListener('click',()=>{const chatView=document.getElementById('chat-view'),btn=document.getElementById('btn-immersive');chatView.classList.toggle('immersive');if(chatView.classList.contains('immersive')){btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>`;btn.title='Salir del modo inmersivo';showToast('🎯 Modo inmersivo activado')}else{btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;btn.title='Modo inmersivo'}});
 document.addEventListener('keydown',e=>{if(e.key==='F11'&&document.getElementById('chat-view').classList.contains('visible')){e.preventDefault();document.getElementById('btn-immersive').click()}});
-document.getElementById('chat-export-btn').addEventListener('click',async()=>{if(!currentChatId){showToast('Selecciona un chat primero','error');return}try{const{mensajes}=await cargarHistorialCompleto(currentChatId),fecha=new Date().toISOString().split('T')[0],nombreChar=currentCharacter?.nombre||'chat',nombreArchivo=`${nombreChar}_${currentChatId.substring(0,8)}_${fecha}`;const data={format_version:2,character:{id:currentCharacter.id,name:currentCharacter.nombre,system_prompt:currentCharacter.system_prompt},export_date:new Date().toISOString(),notes:obtenerNotasRolActual(),messages:mensajes.map(m=>({id:m.id||null,role:m.rol,content:m.contenido,timestamp:m.creado_en||null,summary_version:m.summary_version||null}))};const contenido=JSON.stringify(data,null,2),blob=new Blob([contenido],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${nombreArchivo}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast('✅ Chat exportado como JSON')}catch(err){console.error('Error al exportar:',err);showToast('❌ Error al exportar','error')}});
+document.getElementById('chat-export-btn').addEventListener('click',async()=>{if(!currentChatId){showToast('Selecciona un chat primero','error');return}try{const{mensajes}=await cargarHistorialCompleto(currentChatId),fecha=new Date().toISOString().split('T')[0],nombreChar=currentCharacter?.nombre||'chat',nombreArchivo=`${nombreChar}_${currentChatId.substring(0,8)}_${fecha}`;const data={format_version:3,character:{id:currentCharacter.id,name:currentCharacter.nombre,system_prompt:currentCharacter.system_prompt},export_date:new Date().toISOString(),notes:obtenerNotasRolActual(),diary:obtenerDiarioActual(),messages:mensajes.map(m=>({id:m.id||null,role:m.rol,content:m.contenido,timestamp:m.creado_en||null,summary_version:m.summary_version||null}))};const contenido=JSON.stringify(data,null,2),blob=new Blob([contenido],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${nombreArchivo}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast('✅ Chat exportado como JSON')}catch(err){console.error('Error al exportar:',err);showToast('❌ Error al exportar','error')}});
 const chatInput=document.getElementById('chat-input'),chatSendBtn=document.getElementById('chat-send-btn');
 chatInput.addEventListener('input',()=>{chatInput.style.height='auto';chatInput.style.height=Math.min(chatInput.scrollHeight,150)+'px';chatSendBtn.disabled=!chatInput.value.trim()||isStreaming||!currentChatId});
 chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!chatSendBtn.disabled)enviarMensaje()}});
 chatSendBtn.addEventListener('click',enviarMensaje);
 document.getElementById('chat-import-btn').addEventListener('click',()=>{document.getElementById('chat-import-file').click()});
-document.getElementById('chat-import-file').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;if(!file.name.endsWith('.json')){showToast('❌ Solo se permiten archivos JSON','error');e.target.value='';return}if(file.size>5*1024*1024){showToast('❌ Archivo demasiado grande (máx. 5MB)','error');e.target.value='';return}const reader=new FileReader();reader.onload=async(ev)=>{try{const data=JSON.parse(ev.target.result);if(!data.character||!data.messages||!Array.isArray(data.messages)){throw new Error('Estructura JSON inválida');}if(data.messages.length>5000){throw new Error('Demasiados mensajes (máx. 5000)');}if(!currentCharacter){showToast('❌ Selecciona un personaje primero','error');return}if(data.character.id!==currentCharacter.id){if(!confirm(`Este chat es de "${data.character.name}" pero estás en "${currentCharacter.nombre}". ¿Importar de todos modos?`)){return}}const rolesPermitidos=['user','assistant','summary'];const historial=data.messages.filter(m=>m&&typeof m.content==='string'&&rolesPermitidos.includes(m.role)).slice(0,5000).map(m=>({id:(typeof m.id==='string'&&m.id)?m.id:(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5)),rol:m.role,contenido:String(m.content).slice(0,m.role==='summary'?20000:8000),creado_en:m.timestamp||null,summary_version:m.role==='summary'?(Number(m.summary_version)||1):undefined}));if(!historial.some(m=>m.rol==='user'||m.rol==='assistant')){throw new Error('No hay mensajes válidos para importar');}const nuevoChat=await crearNuevoChat(currentCharacter.id);await actualizarHistorialChat(nuevoChat.id,historial);if(typeof data.notes==='string'&&data.notes.trim())await guardarNotasRol(nuevoChat.id,data.notes.slice(0,8000));await renderChatList();await seleccionarChat(nuevoChat.id);showToast(`✅ Chat importado (${historial.filter(m=>m.rol!=='summary').length} mensajes${historial.some(m=>m.rol==='summary')?' + resumen':''})`)}catch(err){console.error('Error al importar:',err);showToast(`❌ Error al importar: ${err.message}`,'error')}};reader.readAsText(file);e.target.value=''});
+document.getElementById('chat-import-file').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;if(!file.name.endsWith('.json')){showToast('❌ Solo se permiten archivos JSON','error');e.target.value='';return}if(file.size>5*1024*1024){showToast('❌ Archivo demasiado grande (máx. 5MB)','error');e.target.value='';return}const reader=new FileReader();reader.onload=async(ev)=>{try{const data=JSON.parse(ev.target.result);if(!data.character||!data.messages||!Array.isArray(data.messages)){throw new Error('Estructura JSON inválida');}if(data.messages.length>5000){throw new Error('Demasiados mensajes (máx. 5000)');}if(!currentCharacter){showToast('❌ Selecciona un personaje primero','error');return}if(data.character.id!==currentCharacter.id){if(!confirm(`Este chat es de "${data.character.name}" pero estás en "${currentCharacter.nombre}". ¿Importar de todos modos?`)){return}}const rolesPermitidos=['user','assistant','summary'];const historial=data.messages.filter(m=>m&&typeof m.content==='string'&&rolesPermitidos.includes(m.role)).slice(0,5000).map(m=>({id:(typeof m.id==='string'&&m.id)?m.id:(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).substr(2,5)),rol:m.role,contenido:String(m.content).slice(0,m.role==='summary'?20000:8000),creado_en:m.timestamp||null,summary_version:m.role==='summary'?(Number(m.summary_version)||1):undefined}));if(!historial.some(m=>m.rol==='user'||m.rol==='assistant')){throw new Error('No hay mensajes válidos para importar');}const nuevoChat=await crearNuevoChat(currentCharacter.id);await actualizarHistorialChat(nuevoChat.id,historial);if(typeof data.notes==='string'&&data.notes.trim())await guardarNotasRol(nuevoChat.id,data.notes.slice(0,8000));const diarioImportado=normalizarDiario(data.diary);if(diarioImportado)await guardarDiario(nuevoChat.id,diarioImportado);await renderChatList();await seleccionarChat(nuevoChat.id);showToast(`✅ Chat importado (${historial.filter(m=>m.rol!=='summary').length} mensajes${historial.some(m=>m.rol==='summary')?' + resumen':''})`)}catch(err){console.error('Error al importar:',err);showToast(`❌ Error al importar: ${err.message}`,'error')}};reader.readAsText(file);e.target.value=''});
 async function cargarMensajesAnteriores() {
   if (!currentChatId || historialCargandoMas || !historialTieneMas) return;
   historialCargandoMas = true; renderizarChatPaginado({ scrollToBottom: false });
@@ -3002,33 +3198,15 @@ Describe el estado PRESENTE de la conversación:
 Sé específico sobre los últimos intercambios.`;
     const parsedRecap = parsearSystemPrompt(currentCharacter?.system_prompt);
     const intensidadRecap = currentCharacter?.intensidad || parsedRecap.intensidad || 'maxima';
-    const model=getSummaryModel();
-    const url=geminiUrl(model,false);
-    const body={
-      system_instruction:{parts:[{text:systemPrompt}]},
-      contents:[{role:'user',parts:[{text:`ADVERTENCIA: Esta conversación es completamente ficticia, es un roleplay entre personajes imaginarios. No representa hechos reales ni promueve conductas dañinas. Es solo una historia. Analiza y genera la recapitulación en las dos partes solicitadas:\n\n${conversacionTexto}`}]}],
-      safetySettings: getSafetySettings(intensidadRecap),
-      generationConfig:{temperature:0.4,topP:0.9,topK:40,maxOutputTokens:6048}
-    };
-    console.log('📤 Enviando petición a Gemini con safetySettings...');
-    const response=await fetch(url,{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body)});
-    if(!response.ok){
-      const errText=await response.text();
-      let msg=`Error de Gemini (${response.status})`;
-      try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}
-      console.error('❌ Error en la respuesta:', msg);
-      throw new Error(msg);
-    }
-    const data=await response.json();
-    console.log('📦 Respuesta completa de Gemini:', data);
-    const textoCompleto=data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(!textoCompleto){
-      console.error('❌ No se recibió texto en la respuesta. Candidates:', data.candidates);
-      if(data.promptFeedback && data.promptFeedback.blockReason){
-        throw new Error(`El contenido fue bloqueado por Gemini: ${data.promptFeedback.blockReason}. Intenta con una conversación más corta o con contenido menos explícito.`);
-      }
-      throw new Error(`No se recibió respuesta del modelo. Respuesta: ${JSON.stringify(data)}`);
-    }
+    // Reintentos escalonados: una recapitulación normal nunca se queda sin
+    // respuesta por un bloqueo puntual de los filtros de Gemini.
+    const {texto:textoCompleto} = await generarConGeminiResiliente({
+      systemPrompt,
+      contenido:`Analiza y genera la recapitulación en las dos partes solicitadas:\n\n${conversacionTexto}`,
+      maxOutputTokens:6048,
+      temperature:0.4,
+      nivelInicial:intensidadRecap
+    });
     let partes = textoCompleto.split(/===\s*ACTUALMENTE\s*===/i);
     let historia, actualmente;
     if (partes.length >= 2) {
@@ -3484,6 +3662,513 @@ enviarAGeminiStream=async function*(systemPrompt,mensajes,nuevoMensaje,maxTokens
     pendiente=INSTRUCCION_CONTINUACION;
   }
 };
+
+/* ============================================
+   DIARIO DE PERSONAJES · el diario íntimo de cada personaje del chat
+   La IA lee la historia, detecta quiénes han interactuado con {{user}}
+   y escribe el diario de cada uno: qué opina, qué le gustaría saber,
+   qué siente y cómo se siente contigo.
+   ============================================ */
+const DIARIO_PREFIX='sair1_diario_';
+const DIARIO_VERSION=1;
+const DIARIO_MAX_PERSONAJES=8;
+const DIARIO_MAX_SECCION=2200;
+const DIARIO_MAX_TEXTO=60000;
+const DIARIO_COLORES=['#ff4d8f','#a855f7','#4d79ff','#22c1a6','#f59e0b','#ef4444','#06b6d4','#84cc16'];
+let diarioCache={chatId:null,diario:null};
+let diarioEnNube=true;
+let diarioGenerando=false;
+let diarioMensajesTimer=null;
+
+const DIARIO_PROMPT=`Eres un escritor experto en roleplay. Vas a redactar el "Diario de Personajes" de una historia de rol: el cuaderno personal e íntimo de cada personaje que ha compartido escena con el usuario.
+
+CONTEXTO:
+- El usuario de la app interpreta a un personaje al que llamamos {{user}}. Los personajes se dirigen a él/ella como "{{user}}".
+- Todo es ficción narrativa entre personajes imaginarios.
+
+TAREA:
+1) Identifica a los personajes que REALMENTE han interactuado con {{user}} en la historia: quienes hablaron, actuaron o reaccionaron con él/ella. Incluye siempre al personaje principal del chat. NO incluyas a {{user}}, ni a personajes que solo se mencionan de pasada, ni a objetos o lugares. Escribe como máximo 8 personajes, ordenados por importancia en la historia.
+2) Para cada personaje, escribe su diario íntimo en PRIMERA PERSONA, como si ese personaje escribiera en su cuaderno secreto. El tono debe encajar con su personalidad y con lo que ha vivido. El diario debe tener EXACTAMENTE estas cuatro partes:
+   - "opina": Qué opina de {{user}} (su juicio personal: confianza, admiración, celos, molestias, ternura, respeto…).
+   - "gustaria_saber": Qué le gustaría saber de {{user}} (dudas, curiosidades, cosas que intuye y no se atreve a preguntar, secretos que sospecha).
+   - "siente": Qué siente (emociones, deseos, miedos, nervios, cariño, dolor… hacia {{user}} o por la situación que viven).
+   - "como_se_siente": Cómo se siente con {{user}} (cómo es estar a su lado, qué cambia en él/ella, qué le aporta o le cuesta).
+3) Escribe entre 2 y 6 frases por parte, en el mismo idioma de la conversación, y menciona a {{user}} escribiendo exactamente "{{user}}".
+4) Básate SOLO en lo que ocurre en la historia. No contradigas los hechos ni inventes sucesos nuevos; lo que no se ha contado, exprésalo como duda o suposición.
+5) No escribas narración externa, acotaciones ni resúmenes de la trama: solo la voz del personaje en su propio diario.
+
+FORMATO DE RESPUESTA: responde ÚNICAMENTE con un JSON válido, sin texto antes ni después, con esta forma exacta:
+{"personajes":[{"nombre":"Nombre del personaje","rol":"personaje principal / secundario / aliado / rival…","opina":"...","gustaria_saber":"...","siente":"...","como_se_siente":"..."}]}`;
+
+/* Detecta líneas de sección tipo "Qué opina de mí: ...", "**Cómo se siente
+   conmigo:** ..." y devuelve la clave y el texto que la sigue. */
+function detectarEtiquetaDiario(linea){
+  const limpia=String(linea||'').replace(/^[-•*\s]+/,'').replace(/\*\*/g,'').trim();
+  const coincidencia=limpia.match(/^([^:：]{2,70})\s*[:：]\s*(.*)$/);
+  if(!coincidencia)return null;
+  const etiqueta=coincidencia[1].toLowerCase();
+  const resto=coincidencia[2].trim();
+  if(/c[oó]mo (?:se siente|me siento|te sientes|se sienten)|se siente con|qu[eé] siente con/.test(etiqueta))return{clave:'como_se_siente',resto};
+  if(/gustar[ií]a (?:saber|conocer|preguntar)|quiere saber|le da curiosidad|curiosidad|dudas|qu[eé] le preguntar/.test(etiqueta))return{clave:'gustaria_saber',resto};
+  if(/opina|opini[oó]n|piensa|impresi[oó]n|le parece|qu[eé] le parece/.test(etiqueta))return{clave:'opina',resto};
+  if(/siente|sentimientos|sentir/.test(etiqueta))return{clave:'siente',resto};
+  return null;
+}
+function limpiarCampoDiario(valor,maximo=DIARIO_MAX_SECCION){
+  return String(valor==null?'':valor).replace(/\s+\n/g,'\n').trim().slice(0,maximo);
+}
+
+function normalizarDiario(valor){
+  let data=valor;
+  if(typeof data==='string'){try{data=JSON.parse(data)}catch{return null}}
+  if(!data||typeof data!=='object')return null;
+  const lista=Array.isArray(data.personajes)?data.personajes:(Array.isArray(data.entradas)?data.entradas:(Array.isArray(data.characters)?data.characters:null));
+  if(!lista)return null;
+  const personajes=lista.map(item=>{
+    if(!item||typeof item!=='object')return null;
+    const nombre=limpiarCampoDiario(item.nombre||item.personaje||item.name,80);
+    const p={
+      nombre,
+      rol:limpiarCampoDiario(item.rol||item.rol_en_la_historia||item.tipo,140),
+      opina:limpiarCampoDiario(item.opina||item.que_opina||item.opinion),
+      gustaria_saber:limpiarCampoDiario(item.gustaria_saber||item.le_gustaria_saber||item.quiere_saber||item.curiosidad),
+      siente:limpiarCampoDiario(item.siente||item.que_siente||item.sentimientos),
+      como_se_siente:limpiarCampoDiario(item.como_se_siente||item.se_siente||item.como_se_siente_con_el_usuario||item.con_el_usuario)
+    };
+    if(!p.nombre||!(p.opina||p.gustaria_saber||p.siente||p.como_se_siente))return null;
+    return p;
+  }).filter(Boolean).slice(0,DIARIO_MAX_PERSONAJES);
+  if(!personajes.length)return null;
+  return {
+    version:Number(data.version)||DIARIO_VERSION,
+    generado_en:limpiarCampoDiario(data.generado_en||data.fecha,40)||new Date().toISOString(),
+    modelo:limpiarCampoDiario(data.modelo,60),
+    personajes
+  };
+}
+
+function leerDiarioLocal(chatId){try{const raw=localStorage.getItem(DIARIO_PREFIX+chatId);return raw?normalizarDiario(raw):null}catch{return null}}
+function guardarDiarioLocal(chatId,diario){try{if(diario)localStorage.setItem(DIARIO_PREFIX+chatId,JSON.stringify(diario));else localStorage.removeItem(DIARIO_PREFIX+chatId)}catch{}}
+function borrarDiarioLocal(chatId){try{localStorage.removeItem(DIARIO_PREFIX+chatId)}catch{}}
+
+function obtenerDiarioActual(){
+  if(!currentChatId)return null;
+  if(diarioCache.chatId===currentChatId&&diarioCache.diario)return diarioCache.diario;
+  const local=leerDiarioLocal(currentChatId);
+  if(local)diarioCache={chatId:currentChatId,diario:local};
+  return local;
+}
+
+function actualizarIndicadorDiario(){
+  const btn=document.getElementById('chat-diario-btn');
+  if(!btn)return;
+  const activo=diarioCache.chatId===currentChatId&&!!diarioCache.diario;
+  btn.classList.toggle('diario-activo',activo);
+  btn.title=activo?'Diario de Personajes: ya escrito para este chat':'Diario de Personajes: mira qué piensan de ti';
+}
+
+function prepararDiarioLocal(chatId){
+  if(!chatId){diarioCache={chatId:null,diario:null};actualizarIndicadorDiario();return}
+  diarioCache={chatId,diario:leerDiarioLocal(chatId)};
+  actualizarIndicadorDiario();
+}
+
+async function cargarDiario(chatId){
+  if(!chatId){diarioCache={chatId:null,diario:null};actualizarIndicadorDiario();return null}
+  const local=leerDiarioLocal(chatId);
+  diarioCache={chatId,diario:local};
+  actualizarIndicadorDiario();
+  try{
+    const{data,error}=await sbClient.from('chats').select('diario_personajes').eq('id',chatId).eq('user_id',currentUser.id).single();
+    if(error)throw new Error(error.message);
+    diarioEnNube=true;
+    const nube=normalizarDiario(data?.diario_personajes);
+    if(nube){diarioCache={chatId,diario:nube};guardarDiarioLocal(chatId,nube)}
+    else if(local){
+      // El diario se escribió en este dispositivo: lo subimos a la nube.
+      const{error:uploadError}=await sbClient.from('chats').update({diario_personajes:local}).eq('id',chatId).eq('user_id',currentUser.id);
+      if(uploadError)throw new Error(uploadError.message);
+    }
+  }catch(err){
+    diarioEnNube=false;
+    console.warn('📖 Diario de Personajes sin sincronización en la nube:',err.message);
+    diarioCache={chatId,diario:local};
+  }
+  actualizarIndicadorDiario();
+  return diarioCache.diario;
+}
+
+async function guardarDiario(chatId,diario){
+  if(!chatId)return false;
+  const limpio=normalizarDiario(diario);
+  if(!limpio)return false;
+  guardarDiarioLocal(chatId,limpio);
+  diarioCache={chatId,diario:limpio};
+  actualizarIndicadorDiario();
+  try{
+    const{error}=await sbClient.from('chats').update({diario_personajes:limpio}).eq('id',chatId).eq('user_id',currentUser.id);
+    if(error)throw new Error(error.message);
+    diarioEnNube=true;
+    return true;
+  }catch(err){
+    diarioEnNube=false;
+    console.warn('📖 Diario guardado solo en este dispositivo:',err.message);
+    return false;
+  }
+}
+
+function nombreMostradoUsuario(){return userRoleName||'ti'}
+function textoDiario(valor){
+  const limpio=reemplazarUserEnTexto(String(valor||'')).trim();
+  return limpio.replace(/\{\{\s*user\s*\}\}/gi,nombreMostradoUsuario());
+}
+
+/* ── Lectura de la historia para el prompt ── */
+function construirTranscripcionDiario(mensajes,resumen){
+  const nombreUsuario=userRoleName||'{{user}}';
+  const nombrePersonaje=currentCharacter?.nombre||'Personaje';
+  const cabecera=['DATOS DE LA HISTORIA'];
+  if(currentCharacter){
+    cabecera.push(`- Personaje principal del chat: ${currentCharacter.nombre}`);
+    const parsed=parsearSystemPrompt(currentCharacter.system_prompt||'');
+    if(parsed.personalidad)cabecera.push(`- Personalidad de ${currentCharacter.nombre}: ${parsed.personalidad.slice(0,1200)}`);
+    if(parsed.escenario)cabecera.push(`- Escenario: ${parsed.escenario.slice(0,900)}`);
+  }
+  cabecera.push(`- El usuario interpreta a: ${nombreUsuario}`);
+  const notas=obtenerNotasRolActual();
+  if(notas)cabecera.push(`- Notas canónicas del usuario sobre la historia: ${notas.slice(0,2500)}`);
+  if(resumen)cabecera.push(`- Resumen de la historia anterior: ${String(resumen).slice(0,6000)}`);
+
+  const conversacion=mensajes.map(m=>`[${m.rol==='user'?nombreUsuario:nombrePersonaje}]: ${String(m.contenido||'')}`).join('\n\n');
+  const disponible=Math.max(8000,DIARIO_MAX_TEXTO-cabecera.join('\n').length);
+  const recorte=conversacion.length>disponible?`[...parte inicial del chat omitida por longitud...]\n\n${conversacion.slice(conversacion.length-disponible)}`:conversacion;
+  cabecera.push('','CONVERSACIÓN DEL ROLEPLAY','',recorte);
+  return cabecera.join('\n');
+}
+
+/* ── Interpretar la respuesta de la IA ── */
+function extraerJsonDeTexto(texto){
+  const limpio=String(texto||'').replace(/```json/gi,'```').trim();
+  const candidatos=[];
+  const bloque=limpio.match(/```([\s\S]*?)```/);
+  if(bloque)candidatos.push(bloque[1].trim());
+  candidatos.push(limpio);
+  const inicio=limpio.indexOf('{'),fin=limpio.lastIndexOf('}');
+  if(inicio>=0&&fin>inicio)candidatos.push(limpio.slice(inicio,fin+1));
+  for(const candidato of candidatos){
+    try{const data=JSON.parse(candidato);if(data&&typeof data==='object')return data}catch{}
+  }
+  return null;
+}
+
+function pareceEncabezadoPersonaje(linea){
+  const l=linea.trim();
+  if(!l||l.length>70)return false;
+  if(/^#{1,4}\s+\S/.test(l))return true;
+  if(/^\*\*[^*]{2,60}\*\*:?$/.test(l))return true;
+  if(/^[A-Za-zÁÉÍÓÚÑÜáéíóúñü0-9][^:]{1,58}:$/.test(l))return true;
+  return false;
+}
+
+function parsearDiarioEnTexto(texto){
+  const lineas=String(texto||'').replace(/\r/g,'').split('\n');
+  const personajes=[];
+  let actual=null,seccion=null,parrafo='';
+  const volcar=()=>{
+    if(actual&&seccion&&parrafo.trim())actual[seccion]=actual[seccion]?`${actual[seccion]}\n${parrafo.trim()}`:parrafo.trim();
+    parrafo='';
+  };
+  const cerrar=()=>{volcar();if(actual)personajes.push(actual);actual=null;seccion=null};
+  for(const linea of lineas){
+    const limpia=linea.trim();
+    if(!limpia){volcar();continue}
+    const etiqueta=detectarEtiquetaDiario(limpia);
+    if(etiqueta){volcar();seccion=etiqueta.clave;parrafo=etiqueta.resto;continue}
+    if(pareceEncabezadoPersonaje(limpia)){
+      cerrar();
+      actual={nombre:limpia.replace(/^#{1,4}\s+/,'').replace(/\*\*/g,'').replace(/:$/,'').trim(),rol:'',opina:'',gustaria_saber:'',siente:'',como_se_siente:''};
+      continue;
+    }
+    if(actual&&seccion)parrafo=parrafo?`${parrafo} ${limpia}`:limpia;
+  }
+  cerrar();
+  return personajes.filter(p=>p.nombre&&(p.opina||p.gustaria_saber||p.siente||p.como_se_siente));
+}
+
+function parsearDiarioGemini(texto){
+  const json=extraerJsonDeTexto(texto);
+  if(json){
+    const diario=normalizarDiario(json);
+    if(diario)return diario;
+  }
+  const heuristica=parsearDiarioEnTexto(texto);
+  const diario=normalizarDiario({personajes:heuristica,generado_en:new Date().toISOString()});
+  if(diario)return diario;
+  throw new Error('La IA no devolvió el diario en un formato legible. Pulsa “🔄 Actualizar diario” para intentarlo de nuevo.');
+}
+
+/* ── Interfaz del diario ── */
+function diarioContenido(){return document.getElementById('diario-content')}
+function detenerMensajesDiario(){if(diarioMensajesTimer){clearInterval(diarioMensajesTimer);diarioMensajesTimer=null}}
+
+function mostrarDiarioCargando(){
+  const contenedor=diarioContenido();
+  if(!contenedor)return;
+  const usuario=nombreMostradoUsuario();
+  contenedor.innerHTML=`
+    <div class="recap-loading diario-loading">
+      <div class="recap-spinner"><div class="recap-spinner-core"></div></div>
+      <div class="recap-loading-text">La IA está escribiendo los diarios…</div>
+      <div class="recap-loading-sub" id="diario-loading-sub">Buscando a los personajes que han interactuado contigo</div>
+      <div class="recap-progress"><div class="recap-progress-bar"></div></div>
+    </div>`;
+  const mensajes=[
+    'Buscando a los personajes que han interactuado contigo',
+    `Leyendo lo que cada personaje ha vivido con ${usuario}`,
+    'Anotando qué opinan de ti en secreto',
+    'Escribiendo lo que sienten y lo que no se atreven a decirte',
+    'Casi listo: cerrando los diarios con llave'
+  ];
+  let indice=0;
+  detenerMensajesDiario();
+  diarioMensajesTimer=setInterval(()=>{
+    indice=(indice+1)%mensajes.length;
+    const el=document.getElementById('diario-loading-sub');
+    if(el)el.textContent=mensajes[indice];
+  },2600);
+}
+
+function mostrarDiarioError(mensaje){
+  detenerMensajesDiario();
+  const contenedor=diarioContenido();
+  if(!contenedor)return;
+  contenedor.innerHTML=`
+    <div class="recap-confirm" style="padding:1.8rem 1rem;">
+      <div class="recap-icon-wrapper" style="background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.1));margin-bottom:1rem;">
+        <svg viewBox="0 0 24 24" style="stroke:#fca5a5;width:42px;height:42px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="recap-title" style="background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;background-clip:text;font-size:1.25rem;">No se pudo escribir el diario</div>
+      <div class="recap-subtitle" style="color:#fca5a5;font-size:.88rem;">${escapeHtml(mensaje||'Error desconocido')}</div>
+      <div class="diario-acciones" style="justify-content:center;">
+        <button class="btn btn-ghost" data-diario-accion="cerrar">Cerrar</button>
+        <button class="btn btn-primary" data-diario-accion="generar">🔄 Reintentar</button>
+      </div>
+    </div>`;
+}
+
+function mostrarDiarioVacio(){
+  detenerMensajesDiario();
+  const contenedor=diarioContenido();
+  if(!contenedor)return;
+  contenedor.innerHTML=`
+    <div class="recap-confirm" style="padding:1.8rem 1rem;">
+      <div class="recap-icon-wrapper" style="margin-bottom:1rem;">
+        <svg viewBox="0 0 24 24" style="stroke:url(#recapGradient);width:42px;height:42px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <div class="recap-title" style="font-size:1.25rem;">Aún no hay historia que contar</div>
+      <div class="recap-subtitle" style="font-size:.88rem;">Habla un poco más con ${escapeHtml(currentCharacter?.nombre||'el personaje')} y vuelve a abrir el diario: necesito algo de conversación para saber qué piensan de ti.</div>
+      <div class="diario-acciones" style="justify-content:center;">
+        <button class="btn btn-ghost" data-diario-accion="cerrar">Cerrar</button>
+      </div>
+    </div>`;
+}
+
+function avatarDiario(personaje,indice){
+  const nombreNormalizado=String(personaje.nombre||'').toLowerCase().trim();
+  const principal=String(currentCharacter?.nombre||'').toLowerCase().trim();
+  const url=nombreNormalizado&&principal&&(nombreNormalizado===principal||nombreNormalizado.includes(principal)||principal.includes(nombreNormalizado))?sanitizeImageUrl(currentCharacter?.avatar_url):'';
+  if(url)return `<div class="diario-avatar"><img src="${url.replace(/"/g,'&quot;')}" alt=""></div>`;
+  const inicial=escapeHtml((personaje.nombre||'?').charAt(0).toUpperCase());
+  const color=DIARIO_COLORES[indice%DIARIO_COLORES.length];
+  return `<div class="diario-avatar" style="background:linear-gradient(135deg,${color}55,${color}22);color:${color}">${inicial}</div>`;
+}
+
+function fechaDiario(valor){
+  const fecha=valor?new Date(valor):new Date();
+  if(isNaN(fecha.getTime()))return 'hace un momento';
+  try{return fecha.toLocaleString('es',{dateStyle:'medium',timeStyle:'short'})}catch{return fecha.toLocaleString()}
+}
+
+function renderizarDiario(diario,fechaTexto){
+  detenerMensajesDiario();
+  const contenedor=diarioContenido();
+  if(!contenedor||!diario)return;
+  const usuario=escapeHtml(nombreMostradoUsuario());
+  const tarjetas=diario.personajes.map((personaje,indice)=>{
+    const seccion=(icono,titulo,valor)=>valor?`<section class="diario-seccion"><div class="diario-seccion-titulo">${icono} ${titulo}</div><div class="diario-seccion-cuerpo">${renderMarkdown(textoDiario(valor))}</div></section>`:'';
+    return `<article class="diario-card" style="animation-delay:${Math.min(indice,8)*60}ms">
+      <div class="diario-card-head">
+        ${avatarDiario(personaje,indice)}
+        <div><div class="diario-nombre">${escapeHtml(personaje.nombre)}</div>${personaje.rol?`<div class="diario-rol">${escapeHtml(textoDiario(personaje.rol))}</div>`:''}</div>
+      </div>
+      ${seccion('💭',`Lo que opina de ${usuario}`,personaje.opina)}
+      ${seccion('❓',`Lo que le gustaría saber de ${usuario}`,personaje.gustaria_saber)}
+      ${seccion('💗','Lo que siente',personaje.siente)}
+      ${seccion('🫧',`Cómo se siente con ${usuario}`,personaje.como_se_siente)}
+    </article>`;
+  }).join('');
+  contenedor.innerHTML=`
+    <div class="diario-header">
+      <div class="diario-titulo">📖 Diario de Personajes</div>
+      <div class="diario-sub">${diario.personajes.length} personaje${diario.personajes.length!==1?'s':''} escribieron sobre ${usuario} · ${escapeHtml(fechaTexto||fechaDiario(diario.generado_en))}</div>
+      ${diarioEnNube?'':'<div class="diario-sub" style="color:#fcd34d;margin-top:.25rem;">Guardado solo en este dispositivo (pendiente de sincronizar)</div>'}
+    </div>
+    ${tarjetas}
+    <div class="diario-acciones">
+      <button class="btn btn-ghost btn-danger" data-diario-accion="borrar">🗑️ Borrar</button>
+      <button class="btn btn-ghost" data-diario-accion="descargar">⬇️ Descargar</button>
+      <button class="btn btn-ghost" data-diario-accion="copiar">📋 Copiar</button>
+      <button class="btn btn-primary" data-diario-accion="generar">🔄 Actualizar diario</button>
+    </div>`;
+}
+
+function diarioATextoPlano(diario){
+  const usuario=nombreMostradoUsuario();
+  const lineas=[`📖 DIARIO DE PERSONAJES — ${currentCharacter?.nombre||'Chat'}`,fechaDiario(diario.generado_en),''];
+  diario.personajes.forEach(personaje=>{
+    lineas.push(`── ${personaje.nombre}${personaje.rol?` (${textoDiario(personaje.rol)})`:''} ──`);
+    if(personaje.opina)lineas.push(`💭 Lo que opina de ${usuario}: ${textoDiario(personaje.opina)}`);
+    if(personaje.gustaria_saber)lineas.push(`❓ Lo que le gustaría saber de ${usuario}: ${textoDiario(personaje.gustaria_saber)}`);
+    if(personaje.siente)lineas.push(`💗 Lo que siente: ${textoDiario(personaje.siente)}`);
+    if(personaje.como_se_siente)lineas.push(`🫧 Cómo se siente con ${usuario}: ${textoDiario(personaje.como_se_siente)}`);
+    lineas.push('');
+  });
+  return lineas.join('\n');
+}
+
+/* ── Generación ── */
+async function generarDiarioPersonajes(){
+  if(diarioGenerando)return;
+  if(!currentChatId){showToast('⚠️ Selecciona un chat primero','error');return}
+  if(!getGeminiKey()){mostrarDiarioError('Configura tu API Key de Gemini en los Ajustes de Rol (🎭) para escribir el diario.');return}
+  diarioGenerando=true;
+  mostrarDiarioCargando();
+  try{
+    const{mensajes}=await cargarHistorialCompleto(currentChatId);
+    const utiles=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant');
+    const tuyos=utiles.filter(m=>m.rol==='user').length;
+    if(!utiles.length||!tuyos){
+      mostrarDiarioVacio();
+      return;
+    }
+    const resumen=mensajes.find(m=>m.rol==='summary')?.contenido||'';
+    const transcripcion=construirTranscripcionDiario(utiles,resumen);
+    const{texto,modelo,parcial}=await generarConGeminiResiliente({
+      systemPrompt:DIARIO_PROMPT,
+      contenido:transcripcion,
+      maxOutputTokens:8192,
+      temperature:.85
+    });
+    const diario=parsearDiarioGemini(texto);
+    diario.modelo=diario.modelo||modelo||'';
+    diario.generado_en=new Date().toISOString();
+    const sincronizado=await guardarDiario(currentChatId,diario);
+    renderizarDiario(diario);
+    if(parcial)showToast('📖 Diario escrito (puede haber quedado algo corto por los filtros)','success');
+    else if(sincronizado)showToast('📖 Diario de Personajes actualizado','success');
+    else showToast('📖 Diario guardado solo en este dispositivo','success');
+  }catch(err){
+    console.error('Error generando el Diario de Personajes:',err);
+    mostrarDiarioError(err.message||'Error desconocido');
+  }finally{
+    diarioGenerando=false;
+  }
+}
+
+async function abrirDiario(){
+  if(!currentChatId){showToast('⚠️ Selecciona un chat primero','error');return}
+  detenerMensajesDiario();
+  const guardado=obtenerDiarioActual();
+  if(guardado){
+    openModal('diario-modal');
+    const contenedor=diarioContenido();
+    if(contenedor)contenedor.innerHTML='<div class="recap-loading"><div class="recap-spinner"><div class="recap-spinner-core"></div></div><div class="recap-loading-text">Abriendo el diario…</div></div>';
+    const enNube=await cargarDiario(currentChatId);
+    renderizarDiario(enNube||guardado);
+    return;
+  }
+  openModal('diario-modal');
+  mostrarDiarioCargando();
+  const enNube=await cargarDiario(currentChatId);
+  if(enNube){renderizarDiario(enNube);return}
+  await generarDiarioPersonajes();
+}
+
+async function copiarDiario(){
+  const diario=obtenerDiarioActual();
+  if(!diario)return;
+  const texto=diarioATextoPlano(diario);
+  try{
+    if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(texto);
+    else{
+      const area=document.createElement('textarea');
+      area.value=texto;area.style.position='fixed';area.style.opacity='0';
+      document.body.appendChild(area);area.select();document.execCommand('copy');document.body.removeChild(area);
+    }
+    showToast('📋 Diario copiado');
+  }catch(err){
+    console.error('No se pudo copiar el diario:',err);
+    showToast('No se pudo copiar el diario','error');
+  }
+}
+
+function descargarDiario(){
+  const diario=obtenerDiarioActual();
+  if(!diario)return;
+  const nombre=`diario_${(currentCharacter?.nombre||'chat').replace(/[^\w\-]+/g,'_')}_${new Date().toISOString().split('T')[0]}.md`;
+  const blob=new Blob([diarioATextoPlano(diario)],{type:'text/markdown;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const enlace=document.createElement('a');
+  enlace.href=url;enlace.download=nombre;
+  document.body.appendChild(enlace);enlace.click();document.body.removeChild(enlace);
+  URL.revokeObjectURL(url);
+  showToast('⬇️ Diario descargado');
+}
+
+async function borrarDiarioActual(){
+  if(!currentChatId||!obtenerDiarioActual())return;
+  if(!confirm('¿Borrar el Diario de Personajes de este chat?'))return;
+  borrarDiarioLocal(currentChatId);
+  diarioCache={chatId:currentChatId,diario:null};
+  actualizarIndicadorDiario();
+  try{
+    const{error}=await sbClient.from('chats').update({diario_personajes:null}).eq('id',currentChatId).eq('user_id',currentUser.id);
+    if(error)throw new Error(error.message);
+    diarioEnNube=true;
+  }catch(err){
+    diarioEnNube=false;
+    console.warn('📖 No se pudo borrar el diario en la nube:',err.message);
+  }
+  const contenedor=diarioContenido();
+  if(contenedor)contenedor.innerHTML=`
+    <div class="recap-confirm" style="padding:1.8rem 1rem;">
+      <div class="recap-icon-wrapper" style="margin-bottom:1rem;"><svg viewBox="0 0 24 24" style="stroke:url(#recapGradient);width:42px;height:42px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+      <div class="recap-title" style="font-size:1.25rem;">Diario borrado</div>
+      <div class="recap-subtitle" style="font-size:.88rem;">Puedes volver a escribirlo cuando quieras.</div>
+      <div class="diario-acciones" style="justify-content:center;">
+        <button class="btn btn-ghost" data-diario-accion="cerrar">Cerrar</button>
+        <button class="btn btn-primary" data-diario-accion="generar">✍️ Escribir de nuevo</button>
+      </div>
+    </div>`;
+  showToast('🗑️ Diario borrado');
+}
+
+document.getElementById('chat-diario-btn')?.addEventListener('click',abrirDiario);
+document.getElementById('chat-diario-btn')?.addEventListener('contextmenu',e=>{e.preventDefault();abrirDiario()});
+document.getElementById('diario-modal')?.addEventListener('click',e=>{
+  const boton=e.target.closest('[data-diario-accion]');
+  if(!boton)return;
+  const accion=boton.dataset.diarioAccion;
+  if(accion==='generar')generarDiarioPersonajes();
+  else if(accion==='copiar')copiarDiario();
+  else if(accion==='descargar')descargarDiario();
+  else if(accion==='borrar')borrarDiarioActual();
+  else if(accion==='cerrar')closeModal('diario-modal');
+});
+document.getElementById('diario-modal')?.addEventListener('click',e=>{
+  if(e.target===document.getElementById('diario-modal'))closeModal('diario-modal');
+});
+
 </script>
 </body>
 </html>
