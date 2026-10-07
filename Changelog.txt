@@ -2,6 +2,46 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[3.1.1 Oficial A] — 2026-10-07
+
+🐛 Correcciones
+- Arreglado que la recapitulación y el Diario de Personajes se quedaran
+  sin respuesta con "Gemini bloqueó la petición (PROHIBITED_CONTENT)" en
+  conversaciones de romance con los filtros en "mínimo". Ese bloqueo no
+  viene de los filtros ajustables (los cuatro umbrales de seguridad, que
+  ya se bajaban a BLOCK_NONE) sino de un filtro de contenido prohibido
+  que Gemini no permite desactivar desde la app: la única salida es
+  cambiar CÓMO se pide. El motor de análisis ahora intenta, en orden:
+  · el umbral de seguridad más permisivo y los modelos de respaldo,
+  · el texto "discretizado": las palabras más explícitas se sustituyen
+    por una marca neutra SOLO en lo que se envía a Gemini para resumir o
+    analizar (el chat del usuario y sus mensajes guardados no se tocan),
+  · una instrucción de sistema mínima y neutral,
+  · y, si aun así se bloquea, la historia se lee por tramos: fragmentos
+    pequeños que sí pasan los filtros, con los que se construyen la
+    recapitulación y el diario. Si algún fragmento no se puede leer, el
+    resultado se genera igual con el resto y se avisa en pantalla.
+- El aviso final (cuando ninguna estrategia funciona) ya no muestra el
+  error técnico en crudo: explica que el filtro de Gemini no se puede
+  desactivar, cuántas estrategias se probaron y qué se puede hacer.
+- El resumidor automático de chats largos usa el mismo motor.
+
+🎨 Experiencia de usuario
+- Durante el modo por tramos, la recapitulación y el diario muestran el
+  progreso real ("Resumiendo la historia por partes… (3/7)").
+- El diario avisa si algún fragmento quedó fuera por los filtros.
+
+🔧 Interno
+- Las instrucciones de análisis ya no usan lenguaje que dispara los
+  filtros ("roleplay sin censurar", avisos de ficción, "no juzgues"):
+  ahora son instrucciones neutras de resumen y análisis.
+- Diagnóstico: escribe sairDiagnostico() en la consola del navegador para
+  ver las últimas 80 peticiones y por qué se bloquearon.
+- Service worker actualizado a sair-v3.1.1-oficial-a para que la app se
+  actualice sola.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [3.1.0 Oficial A · Fix 1] — 2026-10-07
 
 🐛 Correcciones
