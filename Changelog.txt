@@ -2,6 +2,22 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[3.1.0 Oficial A · Fix 1] — 2026-10-07
+
+🐛 Correcciones
+- Arreglado que la recapitulación, el Diario de Personajes y el resumidor
+  automático fallaran con "Gemini bloqueó la petición (PROHIBITED_CONTENT)"
+  en conversaciones normales: enviaban toda la conversación dentro de un
+  único mensaje de usuario y los filtros de Gemini bloqueaban la petición
+  completa. Ese bloqueo a nivel de petición no lo levantan los safetySettings,
+  por eso la escalera de reintentos (umbrales permisivos y modelos de
+  respaldo) no bastaba. Ahora la conversación se envía como turnos
+  user/model —igual que el chat, que siempre funcionó— con la tarea en la
+  instrucción del sistema y un mensaje final de usuario. El chat no se
+  tocó.
+- Al bloquearse una petición, la consola ahora registra el promptFeedback
+  completo de Gemini para poder diagnosticar el motivo exacto.
+
 [3.1.0 Oficial A] — 2026-10-07
 
 ✨ Novedades

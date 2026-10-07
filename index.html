@@ -1633,14 +1633,70 @@ function crearErrorBloqueo(mensaje,textoParcial){
 }
 function esErrorDeBloqueo(err){return !!(err&&err.esBloqueoDeSeguridad)}
 
+/* Construye los "contents" de Gemini a partir de los mensajes del chat,
+   igual que hace el chat normal: cada mensaje conserva su rol (user/model)
+   y los turnos seguidos del mismo rol se fusionan para que la conversación
+   quede alternada. NUNCA hay que enviar la conversación completa dentro de
+   un único mensaje de usuario: los filtros de Gemini evalúan ese bloque
+   como texto escrito por el usuario y bloquean la petición completa
+   (PROHIBITED_CONTENT en promptFeedback) aunque la conversación sea
+   totalmente normal. Ese bloqueo de petición no lo levantan los
+   safetySettings, por eso el chat (turnos user/model) funciona y el
+   resumen/diario enviado en un solo bloque fallaba siempre. */
+function construirContenidoGemini(mensajes){
+  const turns=[];
+  for(const m of (Array.isArray(mensajes)?mensajes:[])){
+    if(!m)continue;
+    const rol=m.rol==='assistant'?'model':'user';
+    const texto=String(m.contenido||'');
+    if(!texto.trim())continue;
+    const ultimo=turns[turns.length-1];
+    if(ultimo&&ultimo.role===rol)ultimo.parts[0].text+='\n\n'+texto;
+    else turns.push({role:rol,parts:[{text:texto}]});
+  }
+  return turns;
+}
+
+/* Limita una lista de mensajes a un máximo de caracteres. Con
+   desdeElFinal=true descarta los mensajes más antiguos (conserva el
+   contexto reciente); si no, descarta los más recientes. El mensaje que
+   no cabe se incluye truncado. */
+function limitarMensajesPorLongitud(mensajes,maximo,desdeElFinal=false){
+  if(!Array.isArray(mensajes)||!mensajes.length||!(maximo>0))return[];
+  const lista=desdeElFinal?mensajes.slice().reverse():mensajes.slice();
+  const resultado=[];
+  let total=0;
+  for(const m of lista){
+    const texto=String(m.contenido||'');
+    if(total>=maximo)break;
+    if(total+texto.length>maximo){
+      const corte=texto.slice(0,Math.max(0,maximo-total));
+      resultado.push({...m,contenido:(desdeElFinal?'[...parte inicial del chat omitida por longitud...]\n\n':'')+corte+(desdeElFinal?'':'\n\n... (truncado)')});
+      total=maximo;
+      break;
+    }
+    resultado.push(m);
+    total+=texto.length;
+  }
+  return desdeElFinal?resultado.reverse():resultado;
+}
 /* Una sola petición sin streaming. Lanza un error marcado cuando Gemini
    bloquea la petición o la respuesta para poder reintentar. */
-async function peticionGeminiTexto({systemPrompt,contenido,modelo,nivelSeguridad='suave',maxOutputTokens=4096,temperature=.3,avisarFiccion=true}){
+async function peticionGeminiTexto({systemPrompt,contenido,mensajes,instruccion,modelo,nivelSeguridad='suave',maxOutputTokens=4096,temperature=.3,avisarFiccion=true}){
   const apiKey=getGeminiKey();
   if(!apiKey)throw new Error('No hay API Key configurada');
+  let contents;
+  if(Array.isArray(mensajes)&&mensajes.length){
+    // La conversación se envía como turnos user/model, igual que en el chat.
+    contents=construirContenidoGemini(mensajes);
+    if(instruccion)contents.push({role:'user',parts:[{text:instruccion}]});
+    if(!contents.length)throw new Error('No hay mensajes para enviar a Gemini');
+  }else{
+    contents=[{role:'user',parts:[{text:contenido}]}];
+  }
   const body={
     system_instruction:{parts:[{text:avisarFiccion?`${systemPrompt}\n\n${AVISO_FICCION}`:systemPrompt}]},
-    contents:[{role:'user',parts:[{text:contenido}]}],
+    contents,
     safetySettings:getSafetySettingsNivel(nivelSeguridad),
     generationConfig:{temperature,topP:.9,topK:40,maxOutputTokens}
   };
@@ -1662,7 +1718,10 @@ async function peticionGeminiTexto({systemPrompt,contenido,modelo,nivelSeguridad
   const texto=(candidato?.content?.parts||[]).map(p=>p.text||'').join('').trim();
   if(texto&&(!finish||finish==='STOP'||finish==='MAX_TOKENS'))return texto;
   if(finish&&finish!=='STOP'&&finish!=='MAX_TOKENS')throw crearErrorBloqueo(`Gemini bloqueó la respuesta (${finish}).`,texto);
-  if(data.promptFeedback?.blockReason)throw crearErrorBloqueo(`Gemini bloqueó la petición (${data.promptFeedback.blockReason}).`,texto);
+  if(data.promptFeedback?.blockReason){
+    console.warn('🛡️ Gemini bloqueó la petición. promptFeedback:',JSON.stringify(data.promptFeedback));
+    throw crearErrorBloqueo(`Gemini bloqueó la petición (${data.promptFeedback.blockReason}).`,texto);
+  }
   if(texto)return texto;
   throw new Error('Gemini no devolvió ninguna respuesta. Intenta de nuevo.');
 }
@@ -1670,7 +1729,7 @@ async function peticionGeminiTexto({systemPrompt,contenido,modelo,nivelSeguridad
 /* Escalera de reintentos: intensidad elegida → umbral más permisivo →
    modelos de respaldo. Si todo se bloquea pero hubo texto parcial, se
    devuelve ese texto en lugar de fallar. */
-async function generarConGeminiResiliente({systemPrompt,contenido,maxOutputTokens=4096,temperature=.3,nivelInicial=null,modelo=null,avisarFiccion=true}){
+async function generarConGeminiResiliente({systemPrompt,contenido,mensajes,instruccion,maxOutputTokens=4096,temperature=.3,nivelInicial=null,modelo=null,avisarFiccion=true}){
   const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);
   const nivelBase=normalizarIntensidad(nivelInicial||currentCharacter?.intensidad||parsed.intensidad||'suave');
   const modelos=[...new Set([modelo||getSummaryModel(),...GEMINI_MODELOS_RESPALDO])].slice(0,3);
@@ -1685,7 +1744,7 @@ async function generarConGeminiResiliente({systemPrompt,contenido,maxOutputToken
     if(vistos.has(clave))continue;
     vistos.add(clave);
     try{
-      const texto=await peticionGeminiTexto({systemPrompt,contenido,modelo:plan.modelo,nivelSeguridad:plan.nivel,maxOutputTokens,temperature,avisarFiccion});
+      const texto=await peticionGeminiTexto({systemPrompt,contenido,mensajes,instruccion,modelo:plan.modelo,nivelSeguridad:plan.nivel,maxOutputTokens,temperature,avisarFiccion});
       if(i>0)console.log(`🛡️ Respuesta obtenida tras ${i+1} intentos (${plan.modelo} · ${plan.nivel})`);
       return {texto,modelo:plan.modelo,nivel:plan.nivel,intentos:i+1,parcial:false};
     }catch(err){
@@ -1785,15 +1844,20 @@ async function resumirPorTramos(texto,nivel,avisoOmitidos=''){
 
 const RESUMEN_TRAMO_CARACTERES=14000;
 
-async function resumirHistorialConGemini(texto, intensidad = null){
-  const limpio=String(texto||'').trim();
+async function resumirHistorialConGemini({mensajes,contenido,resumenPrevio='',intensidad=null}={}){
+  const lista=Array.isArray(mensajes)?mensajes.filter(m=>m&&(m.rol==='user'||m.rol==='assistant')):[];
+  const limpio=String(contenido||'').trim()||lista.map(m=>String(m.contenido||'')).join('\n\n').trim();
   if(!limpio)throw new Error('No hay texto para resumir');
   const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);
   const nivelBase=normalizarIntensidad(intensidad||currentCharacter?.intensidad||parsed.intensidad||'suave');
+  const contextoPrevio=String(resumenPrevio||'').trim()?`CONTEXTO · Resumen anterior de la misma conversación (incorpóralo sin repetirlo textualmente):\n${String(resumenPrevio).trim().slice(0,6000)}\n\n`:'';
   try{
     const{texto:resumen}=await generarConGeminiResiliente({
-      systemPrompt:RESUMEN_PROMPT_SISTEMA,
-      contenido:`Conversación de roleplay a resumir:\n\n${limpio}`,
+      systemPrompt:contextoPrevio+RESUMEN_PROMPT_SISTEMA,
+      // La conversación se envía como turnos user/model, igual que en el chat.
+      mensajes:lista.length?lista:undefined,
+      contenido:lista.length?undefined:`Conversación de roleplay a resumir:\n\n${limpio}`,
+      instruccion:lista.length?'Resume la conversación completa de forma objetiva: hechos, decisiones, promesas y relaciones, sin inventar ni juzgar.':undefined,
       maxOutputTokens:4096,
       temperature:.3,
       nivelInicial:nivelBase
@@ -1859,13 +1923,10 @@ async function procesarHistorialSiEsNecesario(historial){
         modal.classList.remove('visible');
         return { historialProcesado: historial, necesitaActualizacion: false };
       }
-      const textoAResumir = mensajesAntiguos.map(m=>{
-        const autor = m.rol==='user'?'Usuario':(m.rol==='assistant'?'Asistente':m.rol);
-        return `[${autor}]: ${m.contenido}`;
-      }).join('\n\n');
-      const textoCompletoAResumir = resumenPrevio ? `Resumen anterior:\n${resumenPrevio}\n\n---\n\nNuevos mensajes a incorporar al resumen:\n${textoAResumir}` : textoAResumir;
-      
-      const nuevoResumen = await resumirHistorialConGemini(textoCompletoAResumir);
+      // La conversación se envía como turnos user/model (igual que en el
+      // chat): enviarla en un único mensaje de usuario hace que los filtros
+      // de Gemini bloqueen la petición completa (PROHIBITED_CONTENT).
+      const nuevoResumen = await resumirHistorialConGemini({mensajes:mensajesAntiguos,resumenPrevio});
       
       const mensajeResumen = {
         id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).substr(2,5),
@@ -3150,15 +3211,10 @@ async function ejecutarRecapitulacion(){
       mostrarRecapError('La conversación es muy corta para generar una recapitulación (mínimo 2 mensajes)');
       return;
     }
-    const mensajesLimitados = mensajesUtiles;
-    let conversacionTexto = mensajesLimitados.map(m=>{
-      const autor=m.rol==='user'?(userRoleName||'Usuario'):currentCharacter?.nombre||'Personaje';
-      return`[${autor}]: ${m.contenido}`;
-    }).join('\n\n');
     const MAX_TEXT_LENGTH = 50000;
-    if (conversacionTexto.length > MAX_TEXT_LENGTH) {
-      conversacionTexto = conversacionTexto.slice(0, MAX_TEXT_LENGTH) + '\n\n... (truncado)';
-    }
+    // La conversación se envía como turnos user/model (igual que en el chat),
+    // limitada por caracteres y conservando el inicio de la historia.
+    const mensajesLimitados = limitarMensajesPorLongitud(mensajesUtiles, MAX_TEXT_LENGTH);
     const systemPrompt=`Eres un analista experto en narrativas de roleplay. Tu tarea es analizar una conversación completa y generar un resumen estructurado en EXACTAMENTE DOS PARTES, usando un tono técnico, directo y profesional.
 
 REGLAS OBLIGATORIAS:
@@ -3195,14 +3251,16 @@ Describe el estado PRESENTE de la conversación:
 - Estado emocional actual de cada personaje
 - Situación/contexto inmediato
 - Hacia dónde parece dirigirse la conversación
-Sé específico sobre los últimos intercambios.`;
+Sé específico sobre los últimos intercambios.`+
+`\n\nCONTEXTO DE LA CONVERSACIÓN: participan ${userRoleName||'el usuario'} (turnos del rol "user") y ${currentCharacter?.nombre||'el personaje'} (turnos del rol "model").`;
     const parsedRecap = parsearSystemPrompt(currentCharacter?.system_prompt);
     const intensidadRecap = currentCharacter?.intensidad || parsedRecap.intensidad || 'maxima';
     // Reintentos escalonados: una recapitulación normal nunca se queda sin
     // respuesta por un bloqueo puntual de los filtros de Gemini.
     const {texto:textoCompleto} = await generarConGeminiResiliente({
       systemPrompt,
-      contenido:`Analiza y genera la recapitulación en las dos partes solicitadas:\n\n${conversacionTexto}`,
+      mensajes:mensajesLimitados,
+      instruccion:'Analiza y genera la recapitulación en las dos partes solicitadas.',
       maxOutputTokens:6048,
       temperature:0.4,
       nivelInicial:intensidadRecap
@@ -3823,8 +3881,13 @@ function textoDiario(valor){
   return limpio.replace(/\{\{\s*user\s*\}\}/gi,nombreMostradoUsuario());
 }
 
-/* ── Lectura de la historia para el prompt ── */
-function construirTranscripcionDiario(mensajes,resumen){
+/* ── Contexto de la historia para el prompt ──
+   La cabecera (datos del personaje, notas y resumen) viaja en la instrucción
+   del sistema y la conversación se envía como turnos user/model, igual que en
+   el chat: enviar toda la conversación dentro de un único mensaje de usuario
+   hace que los filtros de Gemini bloqueen la petición completa
+   (PROHIBITED_CONTENT) aunque la historia sea normal. */
+function construirCabeceraDiario(resumen){
   const nombreUsuario=userRoleName||'{{user}}';
   const nombrePersonaje=currentCharacter?.nombre||'Personaje';
   const cabecera=['DATOS DE LA HISTORIA'];
@@ -3835,14 +3898,10 @@ function construirTranscripcionDiario(mensajes,resumen){
     if(parsed.escenario)cabecera.push(`- Escenario: ${parsed.escenario.slice(0,900)}`);
   }
   cabecera.push(`- El usuario interpreta a: ${nombreUsuario}`);
+  cabecera.push(`- En la conversación, los turnos del rol "model" son de ${nombrePersonaje} y los del rol "user" son de ${nombreUsuario}.`);
   const notas=obtenerNotasRolActual();
   if(notas)cabecera.push(`- Notas canónicas del usuario sobre la historia: ${notas.slice(0,2500)}`);
   if(resumen)cabecera.push(`- Resumen de la historia anterior: ${String(resumen).slice(0,6000)}`);
-
-  const conversacion=mensajes.map(m=>`[${m.rol==='user'?nombreUsuario:nombrePersonaje}]: ${String(m.contenido||'')}`).join('\n\n');
-  const disponible=Math.max(8000,DIARIO_MAX_TEXTO-cabecera.join('\n').length);
-  const recorte=conversacion.length>disponible?`[...parte inicial del chat omitida por longitud...]\n\n${conversacion.slice(conversacion.length-disponible)}`:conversacion;
-  cabecera.push('','CONVERSACIÓN DEL ROLEPLAY','',recorte);
   return cabecera.join('\n');
 }
 
@@ -4052,10 +4111,13 @@ async function generarDiarioPersonajes(){
       return;
     }
     const resumen=mensajes.find(m=>m.rol==='summary')?.contenido||'';
-    const transcripcion=construirTranscripcionDiario(utiles,resumen);
+    const cabecera=construirCabeceraDiario(resumen);
+    // Se conserva el final de la conversación (lo más reciente) dentro del límite.
+    const mensajesLimitados=limitarMensajesPorLongitud(utiles,Math.max(8000,DIARIO_MAX_TEXTO-cabecera.length),true);
     const{texto,modelo,parcial}=await generarConGeminiResiliente({
-      systemPrompt:DIARIO_PROMPT,
-      contenido:transcripcion,
+      systemPrompt:`${DIARIO_PROMPT}\n\n${cabecera}`,
+      mensajes:mensajesLimitados,
+      instruccion:'Escribe ahora el "Diario de Personajes" de los personajes que han compartido escena con el usuario. Responde ÚNICAMENTE con el JSON indicado, sin texto antes ni después.',
       maxOutputTokens:8192,
       temperature:.85
     });
