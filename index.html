@@ -429,14 +429,50 @@ body[data-theme="light"]{--neon-pink:#ff4d8f;--neon-purple:#a855f7;--neon-blue:#
 .recap-section-body em{color:var(--purple);font-style:italic}
 .recap-close-row{display:flex;justify-content:center;margin-top:1.2rem}
 .recap-close-row .btn{min-width:140px}
+/* ── Botón del Historiador (chat) ── */
+.chat-historiador-btn{height:52px;padding:0 .85rem;border-radius:var(--radius-md);background:linear-gradient(135deg,rgba(245,158,11,.2) 0%,rgba(217,119,6,.12) 100%);border:1px solid rgba(245,158,11,.5);color:#fbbf24;cursor:pointer;display:inline-flex;align-items:center;gap:.45rem;font-family:var(--font-sans);font-size:.82rem;font-weight:700;letter-spacing:.02em;transition:all .4s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(245,158,11,.18)}
+.chat-historiador-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(251,191,36,.28) 0%,transparent 60%);opacity:0;transition:opacity .4s ease}
+.chat-historiador-btn:hover:not(:disabled){transform:translateY(-2px) scale(1.03);border-color:#f59e0b;color:#fde68a;box-shadow:0 8px 28px rgba(245,158,11,.35),0 0 24px rgba(245,158,11,.25)}
+.chat-historiador-btn:hover:not(:disabled)::before{opacity:1}
+.chat-historiador-btn:active:not(:disabled){transform:translateY(0) scale(.98)}
+.chat-historiador-btn:disabled{opacity:.5;cursor:not-allowed}
+.chat-historiador-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:1;flex-shrink:0}
+.chat-historiador-label{position:relative;z-index:1;white-space:nowrap}
+/* ── Modal del Historiador ── */
+.historiador-modal{max-width:680px;max-height:85vh;background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 100%);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius-xl);position:relative;overflow-y:auto;overflow-x:hidden}
+.historiador-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f59e0b,#fbbf24,#d97706);z-index:2}
+.historiador-modal::after{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(245,158,11,.14) 0%,transparent 70%);pointer-events:none;animation:floatRecap 10s ease-in-out infinite}
+.historiador-resultado{padding:2rem;position:relative;z-index:1;max-height:62vh;overflow-y:auto}
+.historiador-marca{font-family:var(--font-display);font-size:1.4rem;font-weight:700;text-align:center;background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.3rem}
+.historiador-sub{font-size:.82rem;color:var(--text-3);text-align:center;margin-bottom:1.4rem}
+.historiador-capitulo{margin-bottom:1.4rem;padding:1.6rem 1.8rem;background:linear-gradient(160deg,rgba(245,158,11,.07),rgba(217,119,6,.03));border:1px solid rgba(245,158,11,.28);border-radius:var(--radius-lg);position:relative}
+.historiador-capitulo::before{content:'❝';position:absolute;top:-.2rem;left:.9rem;font-family:Georgia,serif;font-size:3.2rem;line-height:1;color:rgba(245,158,11,.28);pointer-events:none}
+.historiador-capitulo-titulo{font-family:Georgia,'Times New Roman',serif;font-size:1.4rem;font-weight:700;color:#fbbf24;text-align:center;margin-bottom:1.1rem;padding-bottom:.9rem;border-bottom:1px dashed rgba(245,158,11,.35)}
+.historiador-capitulo-texto{font-family:Georgia,'Times New Roman',serif;font-size:1.02rem;line-height:1.85;color:var(--text-1)}
+.historiador-capitulo-texto .accion{color:#fbbf24;font-style:italic}
+.historiador-acciones{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.historiador-acciones .btn{flex:1;min-width:150px;max-width:240px}
+.historiador-spinner{width:80px;height:80px;margin:0 auto 1.5rem;position:relative}
+.historiador-spinner::before,.historiador-spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid transparent}
+.historiador-spinner::before{border-top-color:#f59e0b;border-right-color:#fbbf24;animation:spinRecap 1.2s linear infinite}
+.historiador-spinner::after{border-bottom-color:#d97706;border-left-color:#fbbf24;animation:spinRecap 1.8s linear infinite reverse;inset:8px}
+.historiador-spinner-core{position:absolute;inset:20px;border-radius:50%;background:linear-gradient(135deg,rgba(245,158,11,.25),rgba(217,119,6,.15));animation:pulseCore 1.5s ease-in-out infinite}
 @media(max-width:768px){
 .chat-recap-btn{width:44px;height:44px}
 .chat-role-btn{width:44px;height:44px}
 .chat-send-btn{width:44px;height:44px}
+.chat-historiador-btn{height:44px;padding:0 .55rem}
+.chat-historiador-btn svg{width:19px;height:19px}
+.chat-historiador-label{display:none}
 .recap-modal{margin:0 .5rem}
 .recap-confirm,.recap-loading{padding:1.8rem 1.2rem}
 .recap-result{padding:1.2rem}
 .recap-title{font-size:1.3rem}
+.historiador-modal{margin:0 .5rem}
+.historiador-resultado{padding:1.2rem}
+.historiador-capitulo{padding:1.1rem 1rem}
+.historiador-capitulo-titulo{font-size:1.15rem}
+.historiador-capitulo-texto{font-size:.95rem}
 }
 @media(max-width:480px){
 .toast{top:max(.75rem,env(safe-area-inset-top));right:.75rem;bottom:auto;max-width:calc(100vw - 1.5rem);transform:translateY(-140%)}
@@ -850,6 +886,7 @@ body[data-theme="dark"] .chat-input-area{background:linear-gradient(180deg,trans
   .btn-hamburger,
   .btn-message,
   .chat-recap-btn,
+  .chat-historiador-btn,
   .chat-send-btn,
   .chat-new-btn,
   .toast,
@@ -1311,6 +1348,14 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div id="recap-content"></div>
 </div>
 </div>
+<!-- Modal del Historiador -->
+<div class="modal-overlay" id="historiador-modal">
+<div class="modal historiador-modal">
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="historiadorGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f59e0b"/><stop offset="55%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs></svg>
+<button class="modal-close" data-close-modal="historiador-modal" style="position:absolute;top:1rem;right:1rem;z-index:10">✕</button>
+<div id="historiador-content"></div>
+</div>
+</div>
 <!-- Modal de Resumen automático -->
 <div class="modal-overlay" id="summary-modal" style="z-index:3000;backdrop-filter:blur(12px);">
   <div class="modal" style="max-width:500px;text-align:center;overflow:hidden;position:relative;">
@@ -1409,7 +1454,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 <button class="btn-immersive" id="btn-immersive" title="Modo inmersivo"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
 <div class="chat-messages" id="chat-messages"><div class="chat-empty" id="chat-empty"><div class="chat-empty-icon">💬</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Comienza una conversación</h3><p>Selecciona un chat o crea uno nuevo</p></div></div>
 <button id="scroll-to-bottom-btn" class="scroll-to-bottom" style="display:none;" title="Ir al final"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-<div class="chat-input-area"><div class="chat-input-wrapper"><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><button class="chat-recap-btn pulse" id="chat-recap-btn" title="Recapitulación de la historia"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></button><button class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button><button class="chat-send-btn" id="chat-send-btn" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>
+<div class="chat-input-area"><div class="chat-input-wrapper"><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><button class="chat-historiador-btn" id="chat-historiador-btn" title="Historiador: escribe el capítulo de la historia a partir de toda la conversación" aria-label="Historiador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="chat-historiador-label">Historiador</span></button><button class="chat-recap-btn pulse" id="chat-recap-btn" title="Recapitulación de la historia"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></button><button class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button><button class="chat-send-btn" id="chat-send-btn" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>
 </main>
 </div>
 </div>
@@ -3499,6 +3544,211 @@ async function ejecutarRecapitulacion(){
   }
 }
 document.getElementById('chat-recap-btn').addEventListener('click',mostrarRecapConfirm);
+
+/* ============================================
+   SISTEMA DEL HISTORIADOR
+   Toma toda la conversación y la ficha del rol, y escribe
+   el capítulo de la historia en prosa, fiel a lo ocurrido.
+   ============================================ */
+const historiadorContent=document.getElementById('historiador-content');
+const historiadorBtn=document.getElementById('chat-historiador-btn');
+let historiadorGenerando=false;
+let ultimoCapituloTexto='';
+
+const HISTORIADOR_PROMPT_SISTEMA=`Eres el Historiador oficial de una saga de ficción. Tu única tarea es leer la ficha del rol y la conversación completa entre el usuario y el personaje, y escribir UN CAPÍTULO de la historia en prosa narrativa.
+
+REGLAS DEL CAPÍTULO:
+- Narrativa en tercera persona, como un capítulo de novela. Sin saludos, introducciones, despedidas ni comentarios sobre ti mismo.
+- FIDELIDAD ABSOLUTA: narra SOLO lo que ocurrió en la conversación. No inventes eventos, diálogos, lugares, objetos ni decisiones que no aparezcan. No añadas escenas nuevas ni "mejoras" la historia.
+- Respeta el rol: el mundo, el escenario, el tono y la personalidad de la ficha definen el estilo de la prosa. Si el rol es épico, la prosa es épica; si es íntimo, la prosa es íntima.
+- Integra los diálogos tal como ocurrieron, entre comillas, sin alterar las palabras de los personajes.
+- Describe acciones, gestos y pensamientos con *un asterisco a cada lado*, igual que en el chat.
+- Mantén los nombres propios exactamente como aparecen en la conversación.
+- Es prosa corrida: párrafos separados por líneas en blanco. NO uses encabezados (##), listas ni viñetas.
+- El capítulo cubre toda la conversación, del primer mensaje al último, como un arco completo. Extensión generosa: un capítulo, no un resumen.
+
+FORMATO DE SALIDA OBLIGATORIO (dos marcadores en mayúsculas, tres guiones a cada lado, cada uno en su propia línea):
+===TITULO===
+Capítulo: "Título evocador del capítulo"
+===CAPITULO===
+Aquí va la prosa del capítulo.`;
+const HISTORIADOR_INSTRUCCION='Escribe el capítulo completo: el título tras el marcador ===TITULO=== y la prosa tras el marcador ===CAPITULO===.';
+
+function mostrarHistoriadorConfirm(){
+if(!currentChatId){showToast('⚠️ Selecciona un chat primero','error');return}
+historiadorContent.innerHTML=`
+<div class="recap-confirm">
+<div class="recap-icon-wrapper" style="background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(217,119,6,.12))">
+<svg viewBox="0 0 24 24" style="stroke:url(#historiadorGradient)"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+</div>
+<div class="recap-title" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;background-clip:text">📖 El Historiador</div>
+<div class="recap-subtitle">Tomaré toda la conversación y la ficha del rol para escribir el capítulo de la historia: en prosa, con el estilo del rol y fiel a lo ocurrido.</div>
+<div class="recap-features">
+<div class="recap-feature"><div class="recap-feature-icon" style="background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(217,119,6,.1))"><svg viewBox="0 0 24 24" style="stroke:#fbbf24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><span><strong style="color:#fbbf24">Fiel al rol:</strong> el mundo, el tono y la personalidad de tu personaje</span></div>
+<div class="recap-feature"><div class="recap-feature-icon" style="background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(217,119,6,.1))"><svg viewBox="0 0 24 24" style="stroke:#fbbf24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span><strong style="color:#fbbf24">Fiel a los hechos:</strong> narra solo lo que sucedió, sin inventos</span></div>
+<div class="recap-feature"><div class="recap-feature-icon" style="background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(217,119,6,.1))"><svg viewBox="0 0 24 24" style="stroke:#fbbf24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><span>Powered by <strong style="color:#fbbf24">${escapeHtml(etiquetaModelo(getSummaryModel()))}</strong></span></div>
+</div>
+<div class="recap-actions">
+<button class="btn btn-ghost" data-close-modal="historiador-modal">Cancelar</button>
+<button class="btn btn-primary" id="btn-confirm-historiador" style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 8px 25px rgba(245,158,11,.3)">✍️ Escribir capítulo</button>
+</div>
+</div>`;
+openModal('historiador-modal');
+document.getElementById('btn-confirm-historiador').addEventListener('click',ejecutarHistoriador);
+historiadorContent.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal('historiador-modal')));
+}
+
+function mostrarHistoriadorLoading(){
+historiadorContent.innerHTML=`
+<div class="recap-loading">
+<div class="historiador-spinner"><div class="historiador-spinner-core"></div></div>
+<div class="recap-loading-text">El Historiador está escribiendo…</div>
+<div class="recap-loading-sub" id="historiador-loading-sub">Convirtiendo toda la conversación en un capítulo. Esto puede tardar unos segundos.</div>
+<div class="recap-progress"><div class="recap-progress-bar" style="background:linear-gradient(90deg,#f59e0b,#fbbf24,#d97706)"></div></div>
+</div>`;
+}
+
+function mostrarHistoriadorProgreso(i,n){
+const sub=document.getElementById('historiador-loading-sub');
+if(!sub)return;
+sub.textContent=String(i&&n?`El Historiador lee la historia por partes… (${i}/${n})`:'El Historiador está escribiendo…');
+}
+
+function mostrarHistoriadorError(msg){
+historiadorContent.innerHTML=`
+<div class="recap-confirm">
+<div class="recap-icon-wrapper" style="background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(245,158,11,.1))">
+<svg viewBox="0 0 24 24" style="stroke:#fca5a5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+</div>
+<div class="recap-title" style="background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;background-clip:text">Error al escribir el capítulo</div>
+<div class="recap-subtitle" style="color:#fca5a5">${escapeHtml(msg)}</div>
+<div class="recap-actions">
+<button class="btn btn-ghost" data-close-modal="historiador-modal">Cerrar</button>
+<button class="btn btn-primary" id="btn-retry-historiador" style="background:linear-gradient(135deg,#f59e0b,#d97706)">🔄 Reintentar</button>
+</div>
+</div>`;
+historiadorContent.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal('historiador-modal')));
+document.getElementById('btn-retry-historiador').addEventListener('click',ejecutarHistoriador);
+}
+
+function mostrarHistoriadorResultado(titulo,capitulo){
+ultimoCapituloTexto=`${titulo}\n\n${capitulo}`;
+historiadorContent.innerHTML=`
+<div class="historiador-resultado">
+<div class="historiador-marca">📖 Capítulo escrito</div>
+<div class="historiador-sub">Por el Historiador · A partir de tu conversación con ${escapeHtml(currentCharacter?.nombre||'el personaje')}</div>
+<div class="historiador-capitulo">
+<div class="historiador-capitulo-titulo">${escapeHtml(titulo)}</div>
+<div class="historiador-capitulo-texto">${renderMarkdown(capitulo)}</div>
+</div>
+<div class="historiador-acciones">
+<button class="btn btn-ghost" id="btn-copiar-capitulo">📋 Copiar capítulo</button>
+<button class="btn btn-primary" data-close-modal="historiador-modal" style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 8px 25px rgba(245,158,11,.3)">Cerrar</button>
+</div>
+</div>`;
+document.getElementById('btn-copiar-capitulo').addEventListener('click',async()=>{
+try{await navigator.clipboard.writeText(ultimoCapituloTexto);showToast('📋 Capítulo copiado al portapapeles')}
+catch(err){showToast('❌ No se pudo copiar el capítulo','error')}
+});
+historiadorContent.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal('historiador-modal')));
+}
+
+function parsearCapitulo(textoCompleto){
+const fallbackTitulo=`Capítulo de ${currentCharacter?.nombre||'la historia'}`;
+const texto=String(textoCompleto||'');
+let titulo='',capitulo=texto.trim();
+const match=texto.match(/===\s*TITULO\s*===\s*([\s\S]*?)\s*===\s*CAPITULO\s*===/i);
+if(match){titulo=match[1].trim();capitulo=texto.slice(match.index+match[0].length).trim();}
+else{
+const lineas=texto.split('\n');
+if(lineas.length>1&&/^cap[ií]tulo\b/i.test(lineas[0].trim())){titulo=lineas[0].trim();capitulo=lineas.slice(1).join('\n').trim();}
+}
+const comillas=titulo.match(/^(["'“”‘’])([\s\S]*)(["'“”‘’])$/);
+if(comillas&&(({'“':'”','‘':'’'})[comillas[1]]||comillas[1])===comillas[3])titulo=comillas[2].trim();
+if(!titulo)titulo=fallbackTitulo;
+capitulo=capitulo.replace(/^(?:cap[ií]tulo\s*\d*\s*[:\-.]?\s*)/i,'').trim();
+if(!capitulo)capitulo=texto.trim()||fallbackTitulo;
+return{titulo,capitulo};
+}
+
+/* Fallback para chats que Gemini bloquea de golpe: se leen las notas
+   por tramos (que sí pasan los filtros) y con ellas se redacta el capítulo. */
+async function escribirCapituloPorTramos(mensajes,{nivelInicial='bloqueo_minimo',onProgreso=null}={}){
+const{partes,omitidos,total}=await digestoTramos(mensajes,{nivelInicial,onProgreso,maxIntentosPorTramo:3});
+if(!partes.length)throw crearErrorBloqueo('Los filtros de seguridad de Gemini bloquearon toda la conversación.',null,{tipo:'bloqueo'});
+const digest=unirDigestoTramos(partes);
+let textoFinal='';
+try{
+const{texto}=await generarConGeminiResiliente({
+systemPrompt:`${HISTORIADOR_PROMPT_SISTEMA}\n\nNOTA: en lugar de la conversación completa recibes notas cronológicas por tramos. Escribe el capítulo a partir de esas notas con la misma fidelidad, sin inventar hechos que no estén en las notas.`,
+sistemaNeutro:SISTEMA_NEUTRO,
+contenido:`NOTAS CRONOLÓGICAS DE LA HISTORIA (en orden):\n\n${digest}`,
+instruccion:HISTORIADOR_INSTRUCCION,
+instruccionNeutra:HISTORIADOR_INSTRUCCION,
+maxOutputTokens:8192,
+temperature:.7,
+nivelInicial:'bloqueo_minimo'
+});
+textoFinal=String(texto||'').trim();
+}catch(err){
+if(!esErrorDeBloqueo(err))throw err;
+console.warn('🛡️ No se pudo redactar el capítulo final; se entrega la crónica por tramos.');
+textoFinal=`===TITULO===\nCapítulo: "Crónica de la historia"\n===CAPITULO===\n${partes.join('\n\n')}`;
+}
+if(omitidos>0)textoFinal+=`\n\n(Nota: ${omitidos} de ${total} fragmentos de la conversación no se pudieron leer por los filtros de Gemini.)`;
+return{texto:textoFinal,omitidos,total};
+}
+
+async function ejecutarHistoriador(){
+if(historiadorGenerando)return;
+if(!currentChatId){mostrarHistoriadorError('Selecciona un chat primero.');return}
+const apiKey=getGeminiKey();
+if(!apiKey){mostrarHistoriadorError('Configura tu API Key de Gemini en los Ajustes de Rol (🎭)');return}
+historiadorGenerando=true;
+if(historiadorBtn)historiadorBtn.disabled=true;
+mostrarHistoriadorLoading();
+try{
+const{mensajes}=await cargarHistorialCompleto(currentChatId);
+const mensajesUtiles=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant');
+if(mensajesUtiles.length<2){mostrarHistoriadorError('La conversación es muy corta para escribir un capítulo (mínimo 2 mensajes).');return}
+const MAX_TEXT_LENGTH=50000;
+// La conversación se envía como turnos user/model (igual que en el chat),
+// limitada por caracteres y conservando el inicio de la historia.
+const mensajesLimitados=limitarMensajesPorLongitud(mensajesUtiles,MAX_TEXT_LENGTH);
+const parsedHist=parsearSystemPrompt(currentCharacter?.system_prompt);
+const fichaRol=[
+currentCharacter?.nombre?`Personaje: ${currentCharacter.nombre}`:null,
+parsedHist.personalidad?`[Personalidad]\n${parsedHist.personalidad}`:null,
+parsedHist.escenario?`[Escenario]\n${parsedHist.escenario}`:null,
+parsedHist.ejemplos?`[Estilo de diálogo]\n${parsedHist.ejemplos}`:null
+].filter(Boolean).join('\n\n');
+const systemPrompt=anexarNotasRolAlPrompt(`${HISTORIADOR_PROMPT_SISTEMA}\n\nFICHA DEL ROL:\n${fichaRol}\n\nCONTEXTO DE LA CONVERSACIÓN: participan ${userRoleName||'el usuario'} (turnos "user") y ${currentCharacter?.nombre||'el personaje'} (turnos "model"). Los turnos aparecen en orden cronológico, del inicio al final de la historia.`);
+const intensidadHist=currentCharacter?.intensidad||parsedHist.intensidad||'maxima';
+let textoCompleto='',omitidosHist=0;
+try{
+const respuesta=await generarConGeminiResiliente({systemPrompt,sistemaNeutro:SISTEMA_NEUTRO,mensajes:mensajesLimitados,instruccion:HISTORIADOR_INSTRUCCION,instruccionNeutra:HISTORIADOR_INSTRUCCION,maxOutputTokens:8192,temperature:.7,nivelInicial:intensidadHist});
+textoCompleto=respuesta.texto;
+}catch(err){
+if(!esErrorDeBloqueo(err))throw err;
+console.warn('🛡️ Capítulo bloqueado; leyendo la historia por tramos…');
+const respuesta=await escribirCapituloPorTramos(mensajesLimitados,{nivelInicial:intensidadHist,onProgreso:(i,n)=>mostrarHistoriadorProgreso(i,n)});
+textoCompleto=respuesta.texto;omitidosHist=respuesta.omitidos;
+}
+const{titulo,capitulo}=parsearCapitulo(textoCompleto);
+if(!capitulo){mostrarHistoriadorError('Gemini no generó el capítulo. Intenta de nuevo.');return}
+mostrarHistoriadorResultado(titulo,capitulo);
+if(omitidosHist>0)showToast(`⚠️ Capítulo generado sin ${omitidosHist} fragmento${omitidosHist!==1?'s':''} (bloqueados por los filtros)`,'error');
+else showToast('✅ Capítulo generado por el Historiador','success');
+}catch(err){
+console.error('Error en el Historiador:',err);
+mostrarHistoriadorError(esErrorDeBloqueo(err)?mensajeBloqueoConAyuda(err):(err.message||'Error desconocido'));
+}finally{
+historiadorGenerando=false;
+if(historiadorBtn)historiadorBtn.disabled=false;
+}
+}
+
+historiadorBtn.addEventListener('click',mostrarHistoriadorConfirm);
 
 let channelNotificaciones=null;
 const banner=document.getElementById('update-banner');
