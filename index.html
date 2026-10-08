@@ -329,7 +329,7 @@ body[data-theme="dark"] .message-bubble.assistant .btn-message:hover{background:
 .typing-indicator span:nth-child(2){animation-delay:.2s}
 .typing-indicator span:nth-child(3){animation-delay:.4s}
 @keyframes typing{0%,60%,100%{opacity:.4;transform:translateY(0) scale(.9)}30%{opacity:1;transform:translateY(-6px) scale(1.1)}}
-.chat-input-area{padding:.8rem 1rem 1rem;border-top:1px solid var(--border);background:var(--bg-1);box-shadow:0 -8px 30px rgba(0,0,0,0.1)}
+.chat-input-area{padding:.8rem 1rem 1rem;border-top:1px solid var(--border);background:var(--bg-1);box-shadow:0 -8px 30px rgba(0,0,0,0.1);position:relative}
 .chat-input-wrapper{max-width:900px;margin:0 auto;display:flex;gap:.5rem;align-items:flex-end}
 .chat-input{flex:1;padding:1rem 1.2rem;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-1);font-family:var(--font-sans);font-size:.95rem;resize:none;max-height:150px;min-height:52px;line-height:1.5;transition:all .4s cubic-bezier(0.4,0,0.2,1);backdrop-filter:blur(10px)}
 .chat-input:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 4px rgba(255,77,143,.15),0 8px 25px rgba(255,77,143,.1)}
@@ -438,6 +438,29 @@ body[data-theme="light"]{--neon-pink:#ff4d8f;--neon-purple:#a855f7;--neon-blue:#
 .chat-historiador-btn:disabled{opacity:.5;cursor:not-allowed}
 .chat-historiador-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:1;flex-shrink:0}
 .chat-historiador-label{position:relative;z-index:1;white-space:nowrap}
+
+/* ── Wrapper de acciones extra (Historiador / Recap / Role) ── */
+.chat-extra-actions{display:contents}
+.chat-more-btn{display:none;width:44px;height:44px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);cursor:pointer;align-items:center;justify-content:center;transition:all .25s ease;flex-shrink:0}
+.chat-more-btn:hover{background:var(--bg-card-hover);border-color:var(--pink)}
+.chat-more-btn svg{width:20px;height:20px;fill:currentColor;stroke:none}
+.chat-more-btn[aria-expanded="true"]{background:var(--bg-card-hover);color:var(--pink);border-color:var(--pink)}
+
+/* ── Popover móvil con Historiador / Recap / Role ── */
+.chat-extra-popover{display:none;position:absolute;left:.8rem;right:.8rem;bottom:calc(100% + .5rem);background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 -10px 40px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.04);padding:.5rem;z-index:60;transform-origin:bottom center;animation:popoverIn .22s cubic-bezier(.16,1,.3,1)}
+@keyframes popoverIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.chat-extra-popover.open{display:block}
+.chat-extra-popover-item{display:flex;align-items:center;gap:.75rem;width:100%;padding:.6rem .7rem;border:none;background:transparent;color:var(--text-1);border-radius:var(--radius-md);cursor:pointer;text-align:left;font-family:var(--font-sans);transition:background .2s ease}
+.chat-extra-popover-item:hover,.chat-extra-popover-item:focus-visible{background:var(--bg-card-hover);outline:none}
+.chat-extra-popover-item:active{background:var(--bg-input)}
+.chat-extra-popover-ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.chat-extra-popover-ico svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.chat-extra-popover-ico-amber{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(217,119,6,.1));color:#fbbf24;border:1px solid rgba(245,158,11,.4)}
+.chat-extra-popover-ico-purple{background:linear-gradient(135deg,rgba(168,85,247,.18),rgba(77,121,255,.12));color:#c084fc;border:1px solid rgba(168,85,247,.4)}
+.chat-extra-popover-ico-blue{background:linear-gradient(135deg,rgba(77,121,255,.18),rgba(56,189,248,.12));color:#60a5fa;border:1px solid rgba(77,121,255,.4)}
+.chat-extra-popover-text{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.chat-extra-popover-text strong{font-size:.92rem;font-weight:600;color:var(--text-1)}
+.chat-extra-popover-text small{font-size:.74rem;color:var(--text-3);margin-top:.1rem}
 /* ── Modal del Historiador ── */
 .historiador-modal{max-width:680px;max-height:85vh;background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 100%);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius-xl);position:relative;overflow-y:auto;overflow-x:hidden}
 .historiador-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f59e0b,#fbbf24,#d97706);z-index:2}
@@ -602,6 +625,8 @@ body[data-theme="light"] .announcement-card{background:linear-gradient(135deg,rg
 .chat-input-area{padding:.6rem .8rem .8rem}
 .chat-input{font-size:.9rem;padding:.6rem .8rem;min-height:40px}
 .chat-send-btn{width:44px;height:44px}
+.chat-extra-actions{display:none}
+.chat-more-btn{display:inline-flex}
 #chat-view.immersive .chat-messages{padding:1.5rem .8rem;padding-top:3rem}
 .announcement-card{padding:1.2rem}
 .announcement-title{font-size:1.1rem}
@@ -1454,7 +1479,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 <button class="btn-immersive" id="btn-immersive" title="Modo inmersivo"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
 <div class="chat-messages" id="chat-messages"><div class="chat-empty" id="chat-empty"><div class="chat-empty-icon">💬</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Comienza una conversación</h3><p>Selecciona un chat o crea uno nuevo</p></div></div>
 <button id="scroll-to-bottom-btn" class="scroll-to-bottom" style="display:none;" title="Ir al final"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-<div class="chat-input-area"><div class="chat-input-wrapper"><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><button class="chat-historiador-btn" id="chat-historiador-btn" title="Historiador: escribe el capítulo de la historia a partir de toda la conversación" aria-label="Historiador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="chat-historiador-label">Historiador</span></button><button class="chat-recap-btn pulse" id="chat-recap-btn" title="Recapitulación de la historia"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></button><button class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button><button class="chat-send-btn" id="chat-send-btn" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>
+<div class="chat-input-area"><div class="chat-input-wrapper"><button class="chat-more-btn" id="chat-more-btn" type="button" title="Más opciones" aria-label="Más opciones" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg></button><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><div class="chat-extra-actions"><button class="chat-historiador-btn" id="chat-historiador-btn" title="Historiador: escribe el capítulo de la historia a partir de toda la conversación" aria-label="Historiador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="chat-historiador-label">Historiador</span></button><button class="chat-recap-btn pulse" id="chat-recap-btn" title="Recapitulación de la historia"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></button><button class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button></div><button class="chat-send-btn" id="chat-send-btn" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div><div class="chat-extra-popover" id="chat-extra-popover" role="menu" aria-hidden="true"><button class="chat-extra-popover-item" data-target="chat-historiador-btn" role="menuitem"><span class="chat-extra-popover-ico chat-extra-popover-ico-amber"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span><span class="chat-extra-popover-text"><strong>Historiador</strong><small>Escribe el capítulo de la historia</small></span></button><button class="chat-extra-popover-item" data-target="chat-recap-btn" role="menuitem"><span class="chat-extra-popover-ico chat-extra-popover-ico-purple"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></span><span class="chat-extra-popover-text"><strong>Recapitulación</strong><small>Resumen de la historia</small></span></button><button class="chat-extra-popover-item" data-target="chat-role-btn" role="menuitem"><span class="chat-extra-popover-ico chat-extra-popover-ico-blue"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="chat-extra-popover-text"><strong>Editar nombre de rol</strong><small>Cambia cómo se llama tu rol</small></span></button></div></div>
 </main>
 </div>
 </div>
@@ -3749,6 +3774,24 @@ if(historiadorBtn)historiadorBtn.disabled=false;
 }
 
 historiadorBtn.addEventListener('click',mostrarHistoriadorConfirm);
+
+// ── Popover móvil con Historiador / Recap / Role ──
+const chatMoreBtn=document.getElementById('chat-more-btn');
+const chatExtraPopover=document.getElementById('chat-extra-popover');
+function setExtraPopoverOpen(v){if(!chatMoreBtn||!chatExtraPopover)return;chatExtraPopover.classList.toggle('open',v);chatMoreBtn.setAttribute('aria-expanded',v?'true':'false');chatExtraPopover.setAttribute('aria-hidden',v?'false':'true')}
+if(chatMoreBtn&&chatExtraPopover){
+  chatMoreBtn.addEventListener('click',(e)=>{e.stopPropagation();setExtraPopoverOpen(!chatExtraPopover.classList.contains('open'))});
+  chatExtraPopover.querySelectorAll('.chat-extra-popover-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      const targetId=item.getAttribute('data-target');
+      const target=document.getElementById(targetId);
+      setExtraPopoverOpen(false);
+      if(target)target.click();
+    });
+  });
+  document.addEventListener('click',(e)=>{if(!chatExtraPopover.contains(e.target)&&e.target!==chatMoreBtn&&!chatMoreBtn.contains(e.target))setExtraPopoverOpen(false)});
+  chatExtraPopover.addEventListener('click',(e)=>e.stopPropagation());
+}
 
 let channelNotificaciones=null;
 const banner=document.getElementById('update-banner');
