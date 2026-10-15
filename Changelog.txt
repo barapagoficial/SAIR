@@ -2,6 +2,41 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[3.1.2 Oficial A] — 2026-10-15
+
+✨ Novedades
+- Botón rojo de DETENER junto al de enviar: se muestra mientras el personaje
+  escribe y cancela la respuesta al instante. Lo que ya se había generado se
+  guarda igualmente, y la respuesta queda marcada como incompleta con el
+  botón "✂️ Continuar respuesta" por si quieres seguirla más tarde.
+- El chat ahora detecta que Gemini dejó de enviar datos: si pasan 90 segundos
+  sin recibir nada, la petición se corta sola en vez de dejar la app colgada.
+
+🐛 Correcciones
+- Arreglado un bloqueo real del chat: el tiempo de espera de Gemini sólo
+  cubría la conexión inicial, así que un stream que se estancaba a mitad
+  dejaba el campo de escritura deshabilitado para siempre hasta recargar.
+- Arreglada una fuga de escuchadores en el reintento por límite de peticiones
+  que podía lanzar DOS peticiones a Gemini con un solo clic.
+- Eliminadas dos funciones duplicadas (regenerarRespuesta y
+  guardarEdicionMensaje): quedaban definidas dos veces y JavaScript ejecutaba
+  siempre la segunda, de modo que la primera era código muerto imposible de
+  mantener.
+
+⚡ Rendimiento
+- La lista lateral de chats ya no descarga el historial completo de cada chat
+  (select('*') traía la columna legacy historial completa para pintar
+  únicamente el título y la fecha).
+- El historial legacy de un chat sólo se descarga en los chats que todavía no
+  usan el formato normalizado; ya no se pide en cada carga de conversación.
+- La respuesta en streaming se dibuja como máximo ~16 veces por segundo en
+  lugar de en cada fragmento recibido: antes se recalculaba el markdown de
+  todo el texto cientos de veces por respuesta, con tirones en móvil.
+
+🔧 Interno
+- Service worker actualizado a sair-v3.1.2-oficial-a para que la app se
+  actualice sola.
+
 [3.1.1 Oficial A] — 2026-10-07
 
 🐛 Correcciones
