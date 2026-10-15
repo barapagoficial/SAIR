@@ -1,0 +1,7 @@
+# SAIR3 — la app es pública, pero no queremos indexar conversaciones.
+User-agent: *
+Allow: /$
+Allow: /index.html
+Allow: /icon-192.png
+Allow: /icon-512.png
+Disallow: /*?

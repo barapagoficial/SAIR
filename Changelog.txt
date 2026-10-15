@@ -2,6 +2,52 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.0.0 Oficial A] — 2026-10-15
+
+✨ Novedades
+- VARIANTES DE RESPUESTA (estilo Character.AI): al pulsar "Regenerar" ya no se
+  pierde la respuesta anterior. Se guarda como una versión más y aparece un
+  control ‹ 2/3 › debajo del mensaje para comparar todas las versiones
+  generadas. Al enviar un mensaje nuevo se conserva la versión que dejaste
+  elegida y las demás se descartan, así que la conversación nunca se llena de
+  ramas sueltas.
+- Títulos de chat: cada chat se llama ahora como su primer mensaje (en lugar de
+  "Chat a1b2c3") y se puede renombrar con doble clic sobre el título.
+- Buscador en la lista de chats, con vista previa del último contenido.
+- Botón para ELIMINAR un mensaje concreto (antes solo se podía borrar el chat
+  entero).
+- Pestaña "Anuncios" (📢) en el escritorio, integrada en el diseño.
+
+🐛 Correcciones
+- Los botones ‹ › de las variantes funcionan correctamente: se pulsan y navegan
+  entre versiones en lugar de abrir el chat.
+- El foco vuelve al botón desde el que abriste un modal al cerrarlo, y Tab queda
+  atrapado dentro del diálogo (antes se podía tabular a la página de detrás).
+- Eliminadas tres funciones y 23 reglas CSS que ya no se usaban, y 19 líneas de
+  HTML comentado que duplicaban identificadores del modal de ajustes.
+
+⚡ Rendimiento
+- El audio de error ya no se precarga al abrir la app (11 KB menos en el arranque).
+
+♿ Accesibilidad
+- Se puede volver a hacer zoom con los dedos (el viewport bloqueaba el zoom en iOS).
+- 17 botones que solo tenían icono ahora tienen nombre accesible.
+- Los modales se anuncian como diálogos y las respuestas terminadas y los cambios
+  de versión se anuncian a los lectores de pantalla.
+- Corregido el contraste del texto secundario: estaba en 3.05:1 y ahora supera
+  el mínimo AA de 4.5:1.
+
+🔧 Interno
+- README, .gitattributes, .gitignore, robots.txt, sitemap.xml, schema.sql (el
+  esquema base que faltaba) y un workflow de validación en GitHub Actions.
+- Eliminado icon.jpg, que no se usaba.
+- Service worker actualizado a sair-v4.0.0-oficial-a.
+
+📌 Requiere ejecutar en Supabase (la app funciona sin ello, con variantes solo
+   en memoria y títulos calculados al vuelo):
+   · supabase_variantes_respuesta.sql
+   · supabase_chat_titulos_y_aura.sql
+
 [3.1.2 Oficial A] — 2026-10-15
 
 ✨ Novedades

@@ -1,0 +1,10 @@
+# Normaliza los finales de línea a LF en el repositorio.
+# index.html mezclaba CRLF y LF, lo que ensuciaba todos los diffs.
+* text=auto eol=lf
+
+# Archivos que deben conservar los bytes tal cual
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.mp4 binary
+*.ico binary

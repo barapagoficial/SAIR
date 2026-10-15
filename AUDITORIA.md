@@ -788,3 +788,42 @@ Además, durante el Sprint 1 se usaron dos pruebas que conviene conservar:
 ---
 
 *Auditoría realizada sobre el commit `ac5e6ff` de `main`, con `html-validate`, análisis estático propio (código/CSS sin uso, interpolaciones en atributos HTML, cálculo de contraste WCAG) y lectura de los 5 scripts SQL y del service worker.*
+
+---
+
+## 8. Sprints 2, 3 y 4 aplicados (15/10/2026) — versión 4.0.0 Oficial A
+
+### Variantes de respuesta (estilo Character.AI)
+
+`Regenerar` ya no borra la respuesta: la añade como **versión** y aparece un control `‹ 2/3 ›` en la burbuja. Al **enviar un mensaje nuevo** se fija la versión elegida en todas las respuestas anteriores y se descartan las demás, así que la lista nunca se llena de ramas.
+
+Decisiones de diseño que conviene conocer antes de tocar esto:
+
+| Decisión | Motivo |
+|---|---|
+| Solo la **última** respuesta acumula versiones | En una respuesta del medio no hay forma de saber cuál queda fijada al seguir la conversación: al continuar, todo lo posterior se descarta y la elección se perdería. En su lugar, regenerar una respuesta antigua recorta la rama como antes. |
+| `contenido` se mantiene sincronizado con la versión activa | Resúmenes, Diario de Personajes, exportación y el prompt de Gemini siguen leyendo `contenido` sin saber que existen variantes. |
+| `variantesEnNube` con repliegue en `42703` | Sin ejecutar `supabase_variantes_respuesta.sql`, la app detecta que las columnas no existen y sigue funcionando con las variantes en memoria, en lugar de romper la carga del chat. |
+| `reemplazar_historial_chat` reescrita | Esa función borra y reinserta todos los mensajes del chat: si no arrastrara `variantes`, cualquier regeneración borraría las versiones guardadas del resto de la conversación. |
+| Deshacer con copia profunda (`copiarHistorial`) | Una copia superficial comparte el array de `variantes`; al deshacer un error se habrían perdido las versiones anteriores. Hay una prueba explícita para esto. |
+| Tope de 20 versiones | El texto de todas las versiones viaja en `cargarHistorialChat()`. Es un equilibrio entre lo útil y lo que pesa la carga. |
+
+### Lo demás aplicado
+
+- **Sprint 2 (limpieza):** 3 funciones muertas, 23 reglas CSS muertas, 19 líneas de HTML comentado del `settings-modal` (que además duplicaba IDs), `preload="none"` en el audio de error, `.gitattributes`, `.gitignore`, `README.md`, `schema.sql` (el DDL base que faltaba), `robots.txt`, `sitemap.xml` y un workflow de validación.
+- **Sprint 3 (accesibilidad):** `maximum-scale` fuera del viewport (bloqueaba el zoom en iOS), 17 botones con nombre accesible, 14 modales como `role="dialog" aria-modal="true"` con `tabindex="-1"`, **gestión de foco al abrir y cerrar** y **trampa de Tab**, región `aria-live` para los anuncios y `--text-4` subido de 3.05:1 a 4.6:1 (AA).
+- **Sprint 4 (producto):** títulos de chat automáticos desde el primer mensaje + renombrado con doble clic, buscador en la lista lateral, vista previa del último contenido, y **borrar mensaje**, que usa la función `eliminarMensajeDeChat()` que llevaba escrita desde el principio sin ningún botón que la llamara.
+
+### Verificación
+
+Tres suites ejecutadas sobre el `index.html` real, **76/76 aserciones**:
+
+| Suite | Qué cubre | Aserciones |
+|---|---|---|
+| `aborbtest` | Extrae `enviarAGeminiStream` con acorn y la ejecuta contra un `fetch` simulado: cancelar a mitad del stream conserva lo recibido, libera el controller y distingue cancelación de error real | 10/10 |
+| `variantes.test` | Variantes: navegación con límites, botones desactivados en los extremos, persistencia, fijado de la elegida, copia profunda y `transmitirStream` | 34/34 |
+| `integral.test` | Arranque completo en jsdom: funciones expuestas, accesibilidad aplicada, foco de los modales, títulos/búsqueda de chats y botones de eliminar mensaje | 32/32 |
+
+Además: `node --check` ✅, **0 funciones duplicadas** (AST con acorn) y `html-validate` **limpio** con la configuración del repositorio (se pasó de 69 errores a 7, y los 7 restantes están justificados en el README y desactivados con su motivo).
+
+Dos de esos 7 merecen mención porque un validador no puede distinguirlos: el popover de «más opciones» se oculta con `display:none` (sus botones no son alcanzables con Tab, aunque conserven el `aria-hidden`), y `#user-badge` es un `<div role="button">` con soporte de teclado explícito cuya conversión a `<button>` cambiaría el layout del encabezado.
