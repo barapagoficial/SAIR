@@ -1,0 +1,19 @@
+# Dependencias (el proyecto no tiene build: se usan solo para validar)
+node_modules/
+package-lock.json
+package.json
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# Salidas y temporales
+*.log
+*.zip
+app.js
+tmp/
+.cache/

@@ -1,0 +1,72 @@
+name: Validar
+
+on:
+  push:
+    branches: [main, 'arena/**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Extraer el script embebido de index.html
+        run: |
+          node -e "
+            const fs=require('fs');
+            const s=fs.readFileSync('index.html','utf8');
+            const i=s.indexOf('<script src=\"supabase.js\"></script>');
+            const a=s.indexOf('<script>',i)+8;
+            const b=s.indexOf('</script>',a);
+            fs.writeFileSync('app.check.js', s.slice(a,b));
+            console.log('script extraído:', b-a, 'bytes');
+          "
+
+      - name: Sintaxis del JavaScript embebido
+        run: node --check app.check.js
+
+      - name: Funciones duplicadas de nivel superior
+        run: |
+          npm i --no-save acorn@8 >/dev/null 2>&1
+          node -e "
+            const fs=require('fs'), acorn=require('acorn');
+            const src=fs.readFileSync('app.check.js','utf8');
+            const ast=acorn.parse(src,{ecmaVersion:2022,sourceType:'script'});
+            const nombres=[];
+            for(const n of ast.body){
+              if(n.type==='FunctionDeclaration') nombres.push(n.id.name);
+              if(n.type==='VariableDeclaration') for(const d of n.declarations)
+                if(d.id.type==='Identifier'&&d.init&&['ArrowFunctionExpression','FunctionExpression'].includes(d.init.type))
+                  nombres.push(d.id.name);
+            }
+            const c={}; for(const n of nombres) c[n]=(c[n]||0)+1;
+            const dup=Object.entries(c).filter(([,v])=>v>1);
+            if(dup.length){ console.error('Funciones duplicadas:', dup); process.exit(1); }
+            console.log('Sin funciones duplicadas ('+nombres.length+' declaraciones).');
+          "
+
+      - name: Validación del HTML
+        run: |
+          npx --yes html-validate@8 index.html && echo "HTML válido" || echo "::warning::html-validate reportó avisos (ver el log)"
+
+      - name: La versión de index.html y sw.js coinciden
+        run: |
+          node -e "
+            const fs=require('fs');
+            const i=fs.readFileSync('index.html','utf8');
+            const w=fs.readFileSync('sw.js','utf8');
+            const v=(i.match(/<div class=\"app-version\">([^<]+)<\/div>/)||[])[1]||'';
+            const c=(w.match(/CACHE_NAME = '([^']+)'/)||[])[1]||'';
+            const norm=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+            console.log('app-version:', v, '| CACHE_NAME:', c);
+            if(!v||!c){ console.error('No se pudo leer alguna de las dos versiones'); process.exit(1); }
+            if(!norm(v).startsWith(norm(c).replace(/^sair-v/,'sair-').replace(/^sair-/,''))){
+              console.warn('::warning::La versión visible y el CACHE_NAME del service worker no coinciden; los usuarios podrían no recibir la actualización.');
+            }
+          "
