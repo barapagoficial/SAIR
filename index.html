@@ -318,6 +318,12 @@ body[data-theme="dark"] .message-bubble.assistant{border-color:rgba(255,255,255,
 body[data-theme="dark"] .message-bubble.assistant .btn-message{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:var(--text-1)}
 body[data-theme="dark"] .message-bubble.assistant .btn-message:hover{background:rgba(255,255,255,.2);border-color:var(--blue);color:var(--blue)}
 .btn-message svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+/* Control ‹ 2/3 › para recorrer las versiones de una respuesta */
+.msg-variantes{display:flex;width:fit-content;align-items:center;gap:.1rem;margin-top:.5rem;padding:.1rem .25rem;border-radius:999px;background:rgba(127,127,150,.14);border:1px solid var(--border)}
+.msg-variantes .variante-contador{font-family:var(--font-mono);font-size:.68rem;color:var(--text-3);min-width:2.4rem;text-align:center;letter-spacing:.04em}
+.btn-variante{width:22px;height:22px;padding:0;border:none;border-radius:50%;background:transparent;color:var(--text-2);font-size:1.05rem;line-height:1;cursor:pointer;display:grid;place-items:center;transition:all .2s ease;font-family:var(--font-sans)}
+.btn-variante:hover:not(:disabled){background:var(--pink);color:#fff}
+.btn-variante:disabled{opacity:.3;cursor:default;background:transparent}
 .btn-regenerate{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--text-3);padding:.3rem .6rem;border-radius:8px;font-size:.7rem;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;transition:all .25s ease;font-family:var(--font-sans)}
 .btn-regenerate:hover{background:rgba(77,121,255,.15);border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
 .btn-regenerate:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -1587,6 +1593,14 @@ let historialCompleto=[];
 let chatOffset=0;
 let historialTotalMensajes=0,historialTieneMas=false,historialCargandoMas=false,historialEsLegacy=false;
 const CHAT_LIMITE=30;
+/* ── Variantes de respuesta (estilo Character.AI) ──
+   Columnas que se piden a la tabla mensajes y tope de versiones por
+   respuesta. variantesEnNube pasa a false si la migración SQL todavía no se
+   ha ejecutado: entonces las variantes viven solo en memoria. */
+const COLS_MENSAJE_BASE='id,rol,contenido,creado_en,orden';
+const COLS_MENSAJE_VARIANTES=COLS_MENSAJE_BASE+',variantes,variante_activa';
+const MAX_VARIANTES=20;
+let variantesEnNube=true;
 /* ── Respuestas incompletas: continuación automática del stream ── */
 const MAX_CONTINUACIONES_AUTO=3;
 const LIMITE_CARACTERES_AUTO=40000;
@@ -2511,26 +2525,40 @@ async function cargarHistorialChat(chatId, opciones = {}) {
         .select('historial').eq('id', chatId).eq('user_id', currentUser.id).single();
       historialLegacy = Array.isArray(legacyRow?.historial) ? legacyRow.historial : null;
     }
-    if (paginado) {
-      const { data: pageRows, count, error: messagesError } = await sbClient.from('mensajes')
-        .select('id,rol,contenido,creado_en,orden', { count: 'exact' }).eq('chat_id', chatId)
-        .order('orden', { ascending: false, nullsFirst: false }).order('creado_en', { ascending: false, nullsFirst: false })
-        .order('id', { ascending: false }).range(offset, offset + limite - 1);
-      if (messagesError) throw new Error(messagesError.message);
-      rows = (pageRows || []).reverse(); totalMensajes = Number.isFinite(count) ? count : offset + rows.length;
-    } else {
-      const { data: allRows, error: messagesError } = await sbClient.from('mensajes').select('id,rol,contenido,creado_en,orden')
-        .eq('chat_id', chatId).order('orden', { ascending: true, nullsFirst: false }).order('creado_en', { ascending: true }).order('id', { ascending: true });
-      if (messagesError) throw new Error(messagesError.message);
-      rows = allRows || []; totalMensajes = rows.length;
+    const columnasMensajes = () => variantesEnNube ? COLS_MENSAJE_VARIANTES : COLS_MENSAJE_BASE;
+    const consultaMensajes = (columnas, extra) => {
+      const q = sbClient.from('mensajes').select(columnas, extra).eq('chat_id', chatId);
+      return paginado
+        ? q.order('orden', { ascending: false, nullsFirst: false }).order('creado_en', { ascending: false, nullsFirst: false })
+           .order('id', { ascending: false }).range(offset, offset + limite - 1)
+        : q.order('orden', { ascending: true, nullsFirst: false }).order('creado_en', { ascending: true }).order('id', { ascending: true });
+    };
+    const extraSelect = paginado ? { count: 'exact' } : {};
+    let { data: filas, count, error: messagesError } = await consultaMensajes(columnasMensajes(), extraSelect);
+    if (messagesError && messagesError.code === '42703' && variantesEnNube) {
+      // La migración de variantes aún no está aplicada: se sigue funcionando
+      // sin ellas en lugar de romper la carga del chat.
+      variantesEnNube = false;
+      ({ data: filas, count, error: messagesError } = await consultaMensajes(COLS_MENSAJE_BASE, extraSelect));
     }
+    if (messagesError) throw new Error(messagesError.message);
+    rows = filas || [];
+    if (paginado) { rows = rows.reverse(); totalMensajes = Number.isFinite(count) ? count : offset + rows.length; }
+    else { totalMensajes = rows.length; }
     if (rows.length === 0 && Array.isArray(historialLegacy) && versionFormato < 2) {
       const legacyMessages = historialLegacy.filter(m => m && ['user', 'assistant'].includes(m.rol));
       totalMensajes = legacyMessages.length; usandoLegacy = true;
       if (paginado) { const fin = Math.max(totalMensajes - offset, 0); rows = legacyMessages.slice(Math.max(fin - limite, 0), fin); }
       else rows = legacyMessages;
     }
-    let mensajes = rows.map(m => ({ id: m.id, rol: m.rol, contenido: m.contenido, creado_en: m.creado_en, orden: m.orden }));
+    let mensajes = rows.map(m => {
+      const item = { id: m.id, rol: m.rol, contenido: m.contenido, creado_en: m.creado_en, orden: m.orden };
+      if (Array.isArray(m.variantes) && m.variantes.length) {
+        item.variantes = m.variantes;
+        item.variante_activa = Number(m.variante_activa) || 0;
+      }
+      return item;
+    });
     const resumenLegacy = Array.isArray(historialLegacy) ? historialLegacy.find(m => m?.rol === 'summary') : null;
     const resumen = chat?.resumen || resumenLegacy?.contenido;
     if (resumen) mensajes = [{ id: `summary-${chat.resumen_version || resumenLegacy?.summary_version || 1}`, rol: 'summary', contenido: resumen, summary_version: chat.resumen_version || resumenLegacy?.summary_version || 1, orden: 0 }, ...mensajes];
@@ -2543,7 +2571,7 @@ async function cargarHistorialCompleto(chatId) {
   return cargarHistorialChat(chatId, { paginado: false });
 }
 
-async function reemplazarHistorialNormalizado(chatId,historial){const resumenItem=(historial||[]).find(m=>m?.rol==='summary');const mensajes=(historial||[]).filter(m=>m&&['user','assistant'].includes(m.rol)).map(m=>({id:m.id||null,rol:m.rol,contenido:String(m.contenido||''),creado_en:m.creado_en||null}));const{error}=await sbClient.rpc('reemplazar_historial_chat',{p_chat_id:chatId,p_resumen:resumenItem?.contenido||null,p_resumen_version:resumenItem?.summary_version||1,p_mensajes:mensajes});if(error)throw new Error(error.message);return!0}
+async function reemplazarHistorialNormalizado(chatId,historial){const resumenItem=(historial||[]).find(m=>m?.rol==='summary');const mensajes=(historial||[]).filter(m=>m&&['user','assistant'].includes(m.rol)).map(m=>{const item={id:m.id||null,rol:m.rol,contenido:String(m.contenido||''),creado_en:m.creado_en||null};const variantes=Array.isArray(m.variantes)?m.variantes.filter(v=>typeof v==='string'):[];if(variantes.length){item.variantes=variantes;item.variante_activa=Math.max(0,Number(m.variante_activa)||0)}return item});const{error}=await sbClient.rpc('reemplazar_historial_chat',{p_chat_id:chatId,p_resumen:resumenItem?.contenido||null,p_resumen_version:resumenItem?.summary_version||1,p_mensajes:mensajes});if(error)throw new Error(error.message);return!0}
 async function guardarMensaje(chatId,rol,contenido){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.rpc('guardar_mensaje_chat',{p_chat_id:chatId,p_rol:rol,p_contenido:contenido});if(error)throw new Error(error.message);const nuevoMsg=Array.isArray(data)?data[0]:data;if(!nuevoMsg)throw new Error('No se pudo guardar el mensaje');return nuevoMsg})}
 async function eliminarMensajeDeChat(chatId,mensajeId){return ejecutarConRefresh(async()=>{const{mensajes}=await cargarHistorialCompleto(chatId),nuevoHistorial=mensajes.filter(m=>m.id!==mensajeId);if(nuevoHistorial.length===mensajes.length)throw new Error('Mensaje no encontrado');await reemplazarHistorialNormalizado(chatId,nuevoHistorial);return!0})}
 async function actualizarHistorialChat(chatId,nuevoHistorial){return ejecutarConRefresh(async()=>reemplazarHistorialNormalizado(chatId,nuevoHistorial))}
@@ -2910,11 +2938,11 @@ function renderizarChatPaginado(opciones = {}) {
     loadMore.innerHTML = historialCargandoMas ? '<span>⏳ Cargando mensajes anteriores…</span>' : `<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg>Cargar ${Math.min(CHAT_LIMITE, restantes || CHAT_LIMITE)} mensajes anteriores`;
     if (!historialCargandoMas) loadMore.addEventListener('click', cargarMensajesAnteriores); fragment.appendChild(loadMore);
   }
-  mensajesAMostrar.forEach(m => agregarBubble(m.contenido, m.rol, false, m.id, false, fragment)); messages.appendChild(fragment);
+  mensajesAMostrar.forEach(m => agregarBubble(contenidoVariante(m), m.rol, false, m.id, false, fragment, m)); messages.appendChild(fragment);
   if (preserveScroll) requestAnimationFrame(() => requestAnimationFrame(() => { messages.scrollTop = prevScrollTop + (messages.scrollHeight - prevScrollHeight); }));
   else if (scrollToBottom) scrollChatToBottom(true);
 }
-function agregarBubble(texto,rol,conTyping=!1,mensajeId=null,autoScroll=!0,parent=null){const container=parent||document.getElementById('chat-messages'),div=document.createElement('div');div.className=`message-bubble ${rol}`;if(mensajeId)div.dataset.mensajeId=mensajeId;if(conTyping)div.innerHTML=`<div class="typing-indicator"><span></span><span></span><span></span></div>`;else{div.innerHTML=rol==='assistant'?renderMarkdown(texto):escapeHtml(texto);div.dataset.originalText=texto;agregarBotones(div,rol);aplicarAvisoRespuestaIncompleta(div)}container.appendChild(div);if(autoScroll&&!parent)scrollChatToBottom();return div}
+function agregarBubble(texto,rol,conTyping=!1,mensajeId=null,autoScroll=!0,parent=null,mensaje=null){const container=parent||document.getElementById('chat-messages'),div=document.createElement('div');div.className=`message-bubble ${rol}`;if(mensajeId)div.dataset.mensajeId=mensajeId;if(conTyping)div.innerHTML=`<div class="typing-indicator"><span></span><span></span><span></span></div>`;else{div.innerHTML=rol==='assistant'?renderMarkdown(texto):escapeHtml(texto);div.dataset.originalText=texto;agregarBotones(div,rol);aplicarAvisoRespuestaIncompleta(div);if(mensaje)aplicarVariantesUI(div,mensaje)}container.appendChild(div);if(autoScroll&&!parent)scrollChatToBottom();return div}
 function agregarBotones(bubble,rol){const oldActions=bubble.querySelector('.message-actions');if(oldActions)oldActions.remove();const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';let buttonsHTML='';buttonsHTML+=`<button class="btn-message btn-copy" title="Copiar mensaje"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copiar</button>`;if(rol==='user'){buttonsHTML+=`<button class="btn-message btn-edit-msg" title="Editar mensaje"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Editar</button>`}else if(rol==='assistant'){buttonsHTML+=`<button class="btn-message btn-regenerate" data-mensaje-id="${bubble.dataset.mensajeId||''}" title="Regenerar respuesta"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Regenerar</button>`}actionsDiv.innerHTML=buttonsHTML;bubble.appendChild(actionsDiv)}
 function mostrarErrorRateLimit(bubble,errorMessage,actionType,actionData){if(rateLimitTimer){clearInterval(rateLimitTimer);rateLimitTimer=null}let segundos=60;const match=errorMessage.match(/(\d+)\s*seconds?/i);if(match)segundos=parseInt(match[1])||60;rateLimitCountdown=segundos;pendingAction=actionType;pendingData=actionData;const messages=document.getElementById('chat-messages');const div=document.createElement('div');div.className='message-bubble error';div.style.maxWidth='90%';const updateContent=()=>{div.innerHTML=`<div style="display:flex;flex-direction:column;gap:.5rem;"><span style="color:#fca5a5;">⏳ Límite de peticiones excedido. Espera <strong>${rateLimitCountdown}s</strong> para reintentar.</span><div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.3rem;"><button class="btn-message btn-retry" style="${rateLimitCountdown>0?'opacity:.5;pointer-events:none;':''}"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button></div></div>`};updateContent();if(bubble){bubble.innerHTML=div.innerHTML;bubble.className='message-bubble error';bubble._rateLimitDiv=div}else{messages.appendChild(div);window._rateLimitBubble=div}rateLimitTimer=setInterval(()=>{rateLimitCountdown--;if(rateLimitCountdown<=0){clearInterval(rateLimitTimer);rateLimitTimer=null;const targetBubble=bubble||window._rateLimitBubble;if(targetBubble){const btn=targetBubble.querySelector('.btn-retry');if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto'}const span=targetBubble.querySelector('span');if(span)span.innerHTML='⏳ Límite de peticiones excedido. <strong>¡Ya puedes reintentar!</strong>'}}else{const targetBubble=bubble||window._rateLimitBubble;if(targetBubble){const span=targetBubble.querySelector('span');if(span)span.innerHTML=`⏳ Límite de peticiones excedido. Espera <strong>${rateLimitCountdown}s</strong> para reintentar.`}}},1e3);if(rateLimitRetryHandler)document.removeEventListener('click',rateLimitRetryHandler);
   const retryHandler=e=>{const btn=e.target.closest('.btn-retry');if(!btn)return;if(rateLimitCountdown>0)return;if(rateLimitTimer){clearInterval(rateLimitTimer);rateLimitTimer=null}const targetBubble=bubble||window._rateLimitBubble;if(targetBubble)targetBubble.remove();if(window._rateLimitBubble)delete window._rateLimitBubble;if(pendingAction==='send')reintentarRespuestaAsistente(pendingData.bubbleIA,pendingData.text);else if(pendingAction==='regenerate'){const{mensajeId,bubbleElement}=pendingData;regenerarRespuesta(mensajeId,bubbleElement)}pendingAction=null;pendingData=null;if(rateLimitRetryHandler){document.removeEventListener('click',rateLimitRetryHandler);rateLimitRetryHandler=null}};rateLimitRetryHandler=retryHandler;document.addEventListener('click',retryHandler)}
@@ -2985,11 +3013,135 @@ async function guardarRespuestaParcial(bubble){
   }
 }
 if(chatStopBtn)chatStopBtn.addEventListener('click',detenerGeneracion);
-async function reintentarRespuestaAsistente(bubbleIA,textoUsuario){if(!currentChatId||isStreaming||!textoUsuario)return;const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en Ajustes de Rol (🎭)','error');return}empezarGeneracion();bubbleIA.className='message-bubble assistant';bubbleIA.innerHTML=`<div class="typing-indicator"><span></span><span></span><span></span></div>`;try{const{mensajes}=await cargarHistorialCompleto(currentChatId);const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(mensajes);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado,textoUsuario,currentCharacter.max_tokens||4096);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();pintarStreaming(bubbleIA,textoCompleto)}if(!textoCompleto.trim())bubbleIA.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant');const idxUser=historialCompleto.findIndex(m=>m.contenido===textoUsuario&&m.rol==='user');if(idxUser!==-1&&historialCompleto[idxUser+1])historialCompleto[idxUser+1]=mensajeAssistant;else{if(!historialCompleto.some(m=>m.rol==='user'&&m.contenido===textoUsuario))historialCompleto.push({rol:'user',contenido:textoUsuario});historialCompleto.push(mensajeAssistant)}historialTotalMensajes=Math.max(historialTotalMensajes+1,historialCompleto.filter(m=>m.rol==='user'||m.rol==='assistant').length);renderizarChatPaginado();marcarRespuestaIncompleta(mensajeAssistant?.id||bubbleIA.dataset.mensajeId)}catch(err){if(generacionCancelada){generacionCancelada=false;await guardarRespuestaParcial(bubbleIA);return}const isRateLimit=err.message&&(err.message.includes('429')||err.message.toLowerCase().includes('rate limit')||err.message.toLowerCase().includes('quota')||err.message.toLowerCase().includes('too many requests'));if(isRateLimit)mostrarErrorRateLimit(bubbleIA,err.message,'send',{text:textoUsuario,bubbleIA});else{bubbleIA.className='message-bubble error';bubbleIA.innerHTML=`⚠️ ${escapeHtml(err.message)}`;const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';actionsDiv.innerHTML=`<button class="btn-message btn-retry-send" style="background:rgba(255,77,143,.15);border-color:var(--pink);color:var(--pink);"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button>`;bubbleIA.appendChild(actionsDiv)}}finally{terminarGeneracion();chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId}}
-async function enviarMensaje(){if(!currentChatId||isStreaming)return;const texto=chatInput.value.trim();if(!texto)return;ultimoMensajeEnviado=texto;const MAX_MSG_LENGTH=8000;if(texto.length>MAX_MSG_LENGTH){showToast(`Mensaje demasiado largo (máx. ${MAX_MSG_LENGTH} caracteres)`,'error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en Ajustes de Rol (🎭)','error');return}const empty=document.getElementById('chat-empty');if(empty)empty.remove();const userBubble=agregarBubble(texto,'user');chatInput.value='';chatInput.style.height='auto';chatSendBtn.disabled=!0;let mensajeUser;try{mensajeUser=await guardarMensaje(currentChatId,'user',texto);userBubble.dataset.mensajeId=mensajeUser.id;if(!historialCompleto.some(m=>m.id===mensajeUser.id))historialCompleto.push(mensajeUser);historialTotalMensajes=Math.max(historialTotalMensajes+1,historialCompleto.filter(m=>m.rol==='user'||m.rol==='assistant').length);}catch(err){showToast('Error al guardar mensaje: '+err.message,'error');userBubble.remove();isStreaming=!1;chatInput.value=texto;chatInput.style.height='auto';chatInput.style.height=Math.min(chatInput.scrollHeight,150)+'px';chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId;return}empezarGeneracion();const bubbleIA=agregarBubble('','assistant',!0);try{const{mensajes}=await cargarHistorialCompleto(currentChatId);const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(mensajes);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado,texto,currentCharacter.max_tokens||4096);let textoCompleto='';for await(const chunk of generator){textoCompleto+=chunk;const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();pintarStreaming(bubbleIA,textoCompleto)}if(!textoCompleto.trim())bubbleIA.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant');if(!historialCompleto.some(m=>m.id===mensajeAssistant.id))historialCompleto.push(mensajeAssistant);historialTotalMensajes=Math.max(historialTotalMensajes+1,historialCompleto.filter(m=>m.rol==='user'||m.rol==='assistant').length);chatOffset=historialCompleto.filter(m=>m.rol==='user'||m.rol==='assistant').length;renderizarChatPaginado();marcarRespuestaIncompleta(mensajeAssistant?.id||bubbleIA.dataset.mensajeId);}catch(err){if(generacionCancelada){generacionCancelada=false;await guardarRespuestaParcial(bubbleIA);return}const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();ultimoMensajeEnviado=texto;const isRateLimit=err.message&&(err.message.includes('429')||err.message.toLowerCase().includes('rate limit')||err.message.toLowerCase().includes('quota')||err.message.toLowerCase().includes('too many requests'));if(isRateLimit)mostrarErrorRateLimit(bubbleIA,err.message,'send',{text:texto,bubbleIA});else{bubbleIA.className='message-bubble error';bubbleIA.innerHTML=`⚠️ ${escapeHtml(err.message)}`;const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';actionsDiv.innerHTML=`<button class="btn-message btn-retry-send" style="background:rgba(255,77,143,.15);border-color:var(--pink);color:var(--pink);"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button>`;bubbleIA.appendChild(actionsDiv)}}finally{terminarGeneracion();chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId}}
+
+/* ============================================================
+   VARIANTES DE RESPUESTA · estilo Character.AI
+   Regenerar ya no borra la respuesta anterior: se añade como una versión
+   más y se recorre con ‹ ›. Al enviar un mensaje nuevo se fija la versión
+   elegida y se descartan las demás. contenido siempre refleja la elegida,
+   así que resúmenes, diario, exportación y el propio prompt de Gemini
+   siguen funcionando igual.
+   ============================================================ */
+function nuevoIdMensaje(){
+  return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+function variantesDe(mensaje){
+  if(!mensaje)return [];
+  const lista=Array.isArray(mensaje.variantes)?mensaje.variantes.filter(v=>typeof v==='string'&&v.length):[];
+  if(lista.length)return lista;
+  return typeof mensaje.contenido==='string'&&mensaje.contenido.length?[mensaje.contenido]:[];
+}
+function indiceVariante(mensaje){
+  const lista=variantesDe(mensaje);
+  if(!lista.length)return 0;
+  const i=Number(mensaje&&mensaje.variante_activa);
+  return Number.isFinite(i)?Math.min(Math.max(i,0),lista.length-1):0;
+}
+function contenidoVariante(mensaje){
+  const lista=variantesDe(mensaje);
+  return lista.length?lista[indiceVariante(mensaje)]:String((mensaje&&mensaje.contenido)||'');
+}
+/* Copia profunda de las variantes: sin esto, modificar un mensaje alteraría
+   también la copia de seguridad usada para deshacer un error. */
+function copiarHistorial(lista){
+  return (Array.isArray(lista)?lista:[]).map(m=>({...m,variantes:Array.isArray(m.variantes)?m.variantes.slice():m.variantes}));
+}
+function aplicarVariantesUI(bubble,mensaje){
+  if(!bubble)return;
+  const previo=bubble.querySelector('.msg-variantes');
+  if(previo)previo.remove();
+  const lista=variantesDe(mensaje);
+  if(lista.length<2)return;
+  const i=indiceVariante(mensaje);
+  const cont=document.createElement('div');
+  cont.className='msg-variantes';
+  cont.setAttribute('role','group');
+  cont.setAttribute('aria-label','Versiones de esta respuesta');
+  cont.innerHTML=`<button type="button" class="btn-variante" data-dir="-1" title="Versión anterior" aria-label="Ver la versión anterior de la respuesta"${i===0?' disabled':''}>\u2039</button>`
+    +`<span class="variante-contador" aria-live="polite">${i+1}/${lista.length}</span>`
+    +`<button type="button" class="btn-variante" data-dir="1" title="Versión siguiente" aria-label="Ver la versión siguiente de la respuesta"${i===lista.length-1?' disabled':''}>\u203a</button>`;
+  bubble.appendChild(cont);
+}
+function actualizarBubbleVariante(bubble,mensaje){
+  const texto=contenidoVariante(mensaje);
+  bubble.dataset.originalText=texto;
+  bubble.innerHTML=renderMarkdown(texto);
+  agregarBotones(bubble,'assistant');
+  aplicarAvisoRespuestaIncompleta(bubble);
+  aplicarVariantesUI(bubble,mensaje);
+}
+async function persistirVariantes(mensaje){
+  if(!variantesEnNube||!mensaje||!mensaje.id)return;
+  const variantes=variantesDe(mensaje),activa=indiceVariante(mensaje);
+  if(!variantes.length)return;
+  try{
+    const{error}=await sbClient.rpc('guardar_variantes_mensaje',{p_mensaje_id:mensaje.id,p_variantes:variantes,p_variante_activa:activa});
+    if(!error)return;
+    if(error.code==='PGRST202'||error.code==='42883'){
+      // La función no existe todavía: se intenta un update directo antes de
+      // darse por vencido y dejar las variantes solo en memoria.
+      const{error:directo}=await sbClient.from('mensajes')
+        .update({variantes:variantes,variante_activa:activa,contenido:variantes[activa]}).eq('id',mensaje.id);
+      if(!directo)return;
+      if(directo.code==='42703'){variantesEnNube=false;return}
+      throw new Error(directo.message);
+    }
+    if(error.code==='42703'){variantesEnNube=false;return}
+    throw new Error(error.message);
+  }catch(err){
+    console.warn('⚠️ No se pudieron guardar las variantes:',err&&err.message);
+  }
+}
+async function cambiarVariante(bubble,dir){
+  const mensajeId=bubble&&bubble.dataset?bubble.dataset.mensajeId:'';
+  if(!mensajeId||isStreaming||!dir)return;
+  const mensaje=historialCompleto.find(m=>String(m.id)===String(mensajeId));
+  if(!mensaje)return;
+  const lista=variantesDe(mensaje);
+  if(lista.length<2)return;
+  const nuevo=Math.min(Math.max(indiceVariante(mensaje)+dir,0),lista.length-1);
+  if(nuevo===indiceVariante(mensaje))return;
+  mensaje.variante_activa=nuevo;
+  mensaje.contenido=lista[nuevo];
+  actualizarBubbleVariante(bubble,mensaje);
+  await persistirVariantes(mensaje);
+}
+/* Al enviar un mensaje nuevo se fija la versión elegida en todas las
+   respuestas anteriores y se descartan las demás. */
+async function fijarVariantesElegidas(){
+  const pendientes=historialCompleto.filter(m=>m&&m.rol==='assistant'&&variantesDe(m).length>1);
+  if(!pendientes.length)return 0;
+  for(const mensaje of pendientes){
+    const elegida=contenidoVariante(mensaje);
+    mensaje.variantes=[elegida];
+    mensaje.variante_activa=0;
+    mensaje.contenido=elegida;
+    await persistirVariantes(mensaje);
+    const bubble=document.querySelector(`.message-bubble[data-mensaje-id="${mensaje.id}"]`);
+    if(bubble)aplicarVariantesUI(bubble,mensaje);
+  }
+  return pendientes.length;
+}
+/* Recorre el stream pintando la respuesta y devuelve el texto completo.
+   Único sitio para los flujos que generan texto (antes era el mismo bucle
+   copiado en cuatro funciones con pequeñas diferencias entre copias). */
+async function transmitirStream(bubble,generator,prefijo=''){
+  let texto='';
+  for await(const chunk of generator){
+    texto+=chunk;
+    if(!bubble)continue;
+    const typing=bubble.querySelector('.typing-indicator');
+    if(typing)typing.remove();
+    pintarStreaming(bubble,prefijo+texto);
+  }
+  if(bubble)bubble.innerHTML=renderMarkdown(prefijo+texto);
+  return texto;
+}
+async function reintentarRespuestaAsistente(bubbleIA,textoUsuario){if(!currentChatId||isStreaming||!textoUsuario)return;const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en Ajustes de Rol (🎭)','error');return}empezarGeneracion();bubbleIA.className='message-bubble assistant';bubbleIA.innerHTML=`<div class="typing-indicator"><span></span><span></span><span></span></div>`;try{const{mensajes}=await cargarHistorialCompleto(currentChatId);const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(mensajes);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado,textoUsuario,currentCharacter.max_tokens||4096);const textoCompleto=await transmitirStream(bubbleIA,generator);if(!textoCompleto.trim())bubbleIA.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant');const idxUser=historialCompleto.findIndex(m=>m.contenido===textoUsuario&&m.rol==='user');if(idxUser!==-1&&historialCompleto[idxUser+1])historialCompleto[idxUser+1]=mensajeAssistant;else{if(!historialCompleto.some(m=>m.rol==='user'&&m.contenido===textoUsuario))historialCompleto.push({rol:'user',contenido:textoUsuario});historialCompleto.push(mensajeAssistant)}historialTotalMensajes=Math.max(historialTotalMensajes+1,historialCompleto.filter(m=>m.rol==='user'||m.rol==='assistant').length);renderizarChatPaginado();marcarRespuestaIncompleta(mensajeAssistant?.id||bubbleIA.dataset.mensajeId)}catch(err){if(generacionCancelada){generacionCancelada=false;await guardarRespuestaParcial(bubbleIA);return}const isRateLimit=err.message&&(err.message.includes('429')||err.message.toLowerCase().includes('rate limit')||err.message.toLowerCase().includes('quota')||err.message.toLowerCase().includes('too many requests'));if(isRateLimit)mostrarErrorRateLimit(bubbleIA,err.message,'send',{text:textoUsuario,bubbleIA});else{bubbleIA.className='message-bubble error';bubbleIA.innerHTML=`⚠️ ${escapeHtml(err.message)}`;const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';actionsDiv.innerHTML=`<button class="btn-message btn-retry-send" style="background:rgba(255,77,143,.15);border-color:var(--pink);color:var(--pink);"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button>`;bubbleIA.appendChild(actionsDiv)}}finally{terminarGeneracion();chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId}}
+async function enviarMensaje(){if(!currentChatId||isStreaming)return;const texto=chatInput.value.trim();if(!texto)return;ultimoMensajeEnviado=texto;const MAX_MSG_LENGTH=8000;if(texto.length>MAX_MSG_LENGTH){showToast(`Mensaje demasiado largo (máx. ${MAX_MSG_LENGTH} caracteres)`,'error');return}const key=getGeminiKey();if(!key){showToast('⚠️ Configura tu API Key en Ajustes de Rol (🎭)','error');return}const empty=document.getElementById('chat-empty');if(empty)empty.remove();const userBubble=agregarBubble(texto,'user');chatInput.value='';chatInput.style.height='auto';chatSendBtn.disabled=!0;let mensajeUser;try{mensajeUser=await guardarMensaje(currentChatId,'user',texto);userBubble.dataset.mensajeId=mensajeUser.id;if(!historialCompleto.some(m=>m.id===mensajeUser.id))historialCompleto.push(mensajeUser);historialTotalMensajes=Math.max(historialTotalMensajes+1,historialCompleto.filter(m=>m.rol==='user'||m.rol==='assistant').length);}catch(err){showToast('Error al guardar mensaje: '+err.message,'error');userBubble.remove();isStreaming=!1;chatInput.value=texto;chatInput.style.height='auto';chatInput.style.height=Math.min(chatInput.scrollHeight,150)+'px';chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId;return}await fijarVariantesElegidas();empezarGeneracion();const bubbleIA=agregarBubble('','assistant',!0);try{const{mensajes}=await cargarHistorialCompleto(currentChatId);const{historialProcesado,necesitaActualizacion}=await procesarHistorialSiEsNecesario(mensajes);if(necesitaActualizacion)await actualizarHistorialChat(currentChatId,historialProcesado);const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado,texto,currentCharacter.max_tokens||4096);const textoCompleto=await transmitirStream(bubbleIA,generator);if(!textoCompleto.trim())bubbleIA.innerHTML='<em style="color:var(--text-3)">Respuesta vacía</em>';const mensajeAssistant=await guardarMensaje(currentChatId,'assistant',textoCompleto);bubbleIA.dataset.mensajeId=mensajeAssistant.id;bubbleIA.dataset.originalText=textoCompleto;bubbleIA.innerHTML=renderMarkdown(textoCompleto);agregarBotones(bubbleIA,'assistant');if(!historialCompleto.some(m=>m.id===mensajeAssistant.id))historialCompleto.push(mensajeAssistant);historialTotalMensajes=Math.max(historialTotalMensajes+1,historialCompleto.filter(m=>m.rol==='user'||m.rol==='assistant').length);chatOffset=historialCompleto.filter(m=>m.rol==='user'||m.rol==='assistant').length;renderizarChatPaginado();marcarRespuestaIncompleta(mensajeAssistant?.id||bubbleIA.dataset.mensajeId);}catch(err){if(generacionCancelada){generacionCancelada=false;await guardarRespuestaParcial(bubbleIA);return}const typing=bubbleIA.querySelector('.typing-indicator');if(typing)typing.remove();ultimoMensajeEnviado=texto;const isRateLimit=err.message&&(err.message.includes('429')||err.message.toLowerCase().includes('rate limit')||err.message.toLowerCase().includes('quota')||err.message.toLowerCase().includes('too many requests'));if(isRateLimit)mostrarErrorRateLimit(bubbleIA,err.message,'send',{text:texto,bubbleIA});else{bubbleIA.className='message-bubble error';bubbleIA.innerHTML=`⚠️ ${escapeHtml(err.message)}`;const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';actionsDiv.innerHTML=`<button class="btn-message btn-retry-send" style="background:rgba(255,77,143,.15);border-color:var(--pink);color:var(--pink);"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button>`;bubbleIA.appendChild(actionsDiv)}}finally{terminarGeneracion();chatSendBtn.disabled=!chatInput.value.trim()||!currentChatId}}
 function iniciarEdicionMensaje(bubble){if(isStreaming){showToast('Espera a que termine la respuesta actual','error');return}const textoOriginal=bubble.dataset.originalText||'',mensajeId=bubble.dataset.mensajeId;bubble.dataset.backupHTML=bubble.innerHTML;bubble.classList.add('editing');bubble.innerHTML=`<textarea class="edit-textarea">${escapeHtml(textoOriginal)}</textarea><div class="edit-actions"><button class="edit-cancel">Cancelar</button><button class="edit-save">Guardar y regenerar</button></div>`;const textarea=bubble.querySelector('.edit-textarea');textarea.focus();textarea.setSelectionRange(textarea.value.length,textarea.value.length);textarea.style.height='auto';textarea.style.height=Math.min(textarea.scrollHeight,200)+'px';textarea.addEventListener('input',()=>{textarea.style.height='auto';textarea.style.height=Math.min(textarea.scrollHeight,200)+'px'})}
 function cancelarEdicionMensaje(bubble){bubble.classList.remove('editing');bubble.innerHTML=bubble.dataset.backupHTML||'';delete bubble.dataset.backupHTML}
-document.getElementById('chat-messages').addEventListener('click',async e=>{const btnContinuar=e.target.closest('.btn-continuar-respuesta');if(btnContinuar){const b=btnContinuar.closest('.message-bubble');if(b)continuarRespuesta(b);return}const btnRetrySend=e.target.closest('.btn-retry-send');if(btnRetrySend){const bubble=btnRetrySend.closest('.message-bubble');if(bubble)reintentarRespuestaAsistente(bubble,ultimoMensajeEnviado);return}const btnRegen=e.target.closest('.btn-regenerate');if(btnRegen){const mensajeId=btnRegen.dataset.mensajeId,bubble=btnRegen.closest('.message-bubble');if(mensajeId&&bubble)regenerarRespuesta(mensajeId,bubble);return}const btnCopy=e.target.closest('.btn-copy');if(btnCopy){const bubble=btnCopy.closest('.message-bubble'),texto=bubble.dataset.originalText||bubble.innerText.replace(/Copiar|Editar|Regenerar/g,'').trim();try{await navigator.clipboard.writeText(texto);showToast('📋 Mensaje copiado')}catch(err){showToast('❌ No se pudo copiar','error')}return}const btnEdit=e.target.closest('.btn-edit-msg');if(btnEdit){const bubble=btnEdit.closest('.message-bubble');iniciarEdicionMensaje(bubble);return}const btnSave=e.target.closest('.edit-save');if(btnSave){const bubble=btnSave.closest('.message-bubble');await guardarEdicionMensaje(bubble);return}const btnCancel=e.target.closest('.edit-cancel');if(btnCancel){const bubble=btnCancel.closest('.message-bubble');cancelarEdicionMensaje(bubble)}});
+document.getElementById('chat-messages').addEventListener('click',async e=>{const btnVariante=e.target.closest('.btn-variante');if(btnVariante){const b=btnVariante.closest('.message-bubble');if(b&&!btnVariante.disabled)cambiarVariante(b,parseInt(btnVariante.dataset.dir,10)||0);return}const btnContinuar=e.target.closest('.btn-continuar-respuesta');if(btnContinuar){const b=btnContinuar.closest('.message-bubble');if(b)continuarRespuesta(b);return}const btnRetrySend=e.target.closest('.btn-retry-send');if(btnRetrySend){const bubble=btnRetrySend.closest('.message-bubble');if(bubble)reintentarRespuestaAsistente(bubble,ultimoMensajeEnviado);return}const btnRegen=e.target.closest('.btn-regenerate');if(btnRegen){const mensajeId=btnRegen.dataset.mensajeId,bubble=btnRegen.closest('.message-bubble');if(mensajeId&&bubble)regenerarRespuesta(mensajeId,bubble);return}const btnCopy=e.target.closest('.btn-copy');if(btnCopy){const bubble=btnCopy.closest('.message-bubble'),texto=bubble.dataset.originalText||bubble.innerText.replace(/Copiar|Editar|Regenerar/g,'').trim();try{await navigator.clipboard.writeText(texto);showToast('📋 Mensaje copiado')}catch(err){showToast('❌ No se pudo copiar','error')}return}const btnEdit=e.target.closest('.btn-edit-msg');if(btnEdit){const bubble=btnEdit.closest('.message-bubble');iniciarEdicionMensaje(bubble);return}const btnSave=e.target.closest('.edit-save');if(btnSave){const bubble=btnSave.closest('.message-bubble');await guardarEdicionMensaje(bubble);return}const btnCancel=e.target.closest('.edit-cancel');if(btnCancel){const bubble=btnCancel.closest('.message-bubble');cancelarEdicionMensaje(bubble)}});
 /* Mantiene una única fuente de verdad después de operaciones que reemplazan una
    rama del chat. Las burbujas existentes no deben usarse para reconstruir el
    historial porque la paginación puede haber ocultado parte de la conversación. */
@@ -3004,43 +3156,76 @@ function establecerHistorialChat(historial, opciones = {}) {
 
 /* Versiones atómicas: generan usando una copia y persisten el historial final
    completo una sola vez. Esto evita duplicados y carreras entre el DOM y Supabase. */
+/* Regenerar. Si es la última respuesta del chat se añade una VARIANTE nueva
+   (estilo Character.AI) y se puede recorrer con ‹ ›; si es una respuesta
+   antigua se recorta la rama posterior, como antes. */
 async function regenerarRespuesta(mensajeId, bubbleElement) {
   if (isStreaming) { showToast('Espera a que termine la respuesta actual', 'error'); return; }
   if (!getGeminiKey()) { showToast('⚠️ Configura tu API Key en Ajustes de Rol (🎭)', 'error'); return; }
   empezarGeneracion();
   let historialOriginal = null;
+  let modoVariante = false;
   try {
     const { mensajes } = await cargarHistorialCompleto(currentChatId);
     const idx = mensajes.findIndex(m => m.id === mensajeId);
     if (idx < 0 || mensajes[idx].rol !== 'assistant') throw new Error('Mensaje no encontrado o inválido');
+    const objetivo = mensajes[idx];
     const historialBase = mensajes.slice(0, idx);
     const ultimoUser = historialBase[historialBase.length - 1];
     if (!ultimoUser || ultimoUser.rol !== 'user') throw new Error('No se encontró el mensaje del usuario correspondiente');
-    historialOriginal = mensajes.slice();
-    // Elimina la respuesta anterior (y cualquier rama posterior) antes de generar.
-    establecerHistorialChat(historialBase);
-    await actualizarHistorialChat(currentChatId, historialBase);
+
+    // Solo la última respuesta acumula versiones: en una respuesta antigua no
+    // habría forma de saber cuál queda fijada al seguir la conversación.
+    modoVariante = idx === mensajes.length - 1;
+    if (modoVariante && variantesDe(objetivo).length >= MAX_VARIANTES) {
+      showToast(`Esta respuesta ya tiene ${MAX_VARIANTES} versiones. Elige una o edita tu mensaje`, 'error');
+      return;
+    }
+    historialOriginal = copiarHistorial(mensajes);
+
+    if (!modoVariante) {
+      // Rama antigua: se descarta esta respuesta y todo lo posterior.
+      establecerHistorialChat(historialBase);
+      await actualizarHistorialChat(currentChatId, historialBase);
+    }
+
     const { historialProcesado, necesitaActualizacion } = await procesarHistorialSiEsNecesario(historialBase);
-    if (necesitaActualizacion) {
+    if (necesitaActualizacion && !modoVariante) {
       await actualizarHistorialChat(currentChatId, historialProcesado);
       establecerHistorialChat(historialProcesado);
     }
-    const bubbleIA = agregarBubble('', 'assistant', true);
+
+    const bubbleIA = modoVariante
+      ? (bubbleElement || document.querySelector(`.message-bubble[data-mensaje-id="${mensajeId}"]`))
+      : agregarBubble('', 'assistant', true);
+    if (!bubbleIA) throw new Error('No se encontró la respuesta en pantalla');
+    bubbleIA.className = 'message-bubble assistant';
+
     const generator = enviarAGeminiStream(currentCharacter.system_prompt, historialProcesado, ultimoUser.contenido, currentCharacter.max_tokens || 4096);
-    let textoCompleto = '';
-    for await (const chunk of generator) {
-      textoCompleto += chunk;
-      const typing = bubbleIA.querySelector('.typing-indicator');
-      if (typing) typing.remove();
-      pintarStreaming(bubbleIA, textoCompleto);
-    }
+    const textoCompleto = await transmitirStream(bubbleIA, generator);
     if (!textoCompleto.trim()) throw new Error('Gemini no generó ninguna respuesta');
-    const nuevoMensaje = { id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5), rol: 'assistant', contenido: textoCompleto };
-    const historialFinal = [...historialProcesado, nuevoMensaje];
-    await actualizarHistorialChat(currentChatId, historialFinal);
-    establecerHistorialChat(historialFinal);
-    marcarRespuestaIncompleta(nuevoMensaje.id);
-    showToast('✅ Respuesta regenerada');
+
+    if (modoVariante) {
+      // La respuesta ya existe: se le añade la versión nueva y pasa a ser la
+      // activa. No se reescribe el historial para no perder las anteriores.
+      const enMemoria = historialCompleto.find(m => String(m.id) === String(mensajeId)) || objetivo;
+      const lista = variantesDe(enMemoria).slice();
+      lista.push(textoCompleto);
+      enMemoria.variantes = lista;
+      enMemoria.variante_activa = lista.length - 1;
+      enMemoria.contenido = textoCompleto;
+      await persistirVariantes(enMemoria);
+      actualizarBubbleVariante(bubbleIA, enMemoria);
+      marcarRespuestaIncompleta(mensajeId);
+      showToast(`✅ Versión ${lista.length} generada · usa ‹ › para comparar`);
+    } else {
+      const nuevoMensaje = { id: nuevoIdMensaje(), rol: 'assistant', contenido: textoCompleto };
+      const historialFinal = [...historialProcesado, nuevoMensaje];
+      await actualizarHistorialChat(currentChatId, historialFinal);
+      establecerHistorialChat(historialFinal);
+      marcarRespuestaIncompleta(nuevoMensaje.id);
+      showToast('✅ Respuesta regenerada');
+    }
   } catch (err) {
     if (generacionCancelada) {
       generacionCancelada = false;
@@ -3075,10 +3260,11 @@ async function guardarEdicionMensaje(bubble) {
     const { mensajes } = await cargarHistorialCompleto(currentChatId);
     const idx = mensajes.findIndex(m => m.id === mensajeId);
     if (idx < 0 || mensajes[idx].rol !== 'user') throw new Error('Mensaje no encontrado o inválido');
-    historialOriginal = mensajes.slice();
-    const nuevoMsg = { id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5), rol: 'user', contenido: nuevoTexto };
+    historialOriginal = copiarHistorial(mensajes);
+    const nuevoMsg = { id: nuevoIdMensaje(), rol: 'user', contenido: nuevoTexto };
     const historialBase = [...mensajes.slice(0, idx), nuevoMsg];
-    // Confirma visualmente la edición y elimina la respuesta anterior antes del streaming.
+    // Confirma visualmente la edición y elimina la respuesta anterior antes
+    // de empezar el streaming.
     establecerHistorialChat(historialBase);
     await actualizarHistorialChat(currentChatId, historialBase);
     const { historialProcesado, necesitaActualizacion } = await procesarHistorialSiEsNecesario(historialBase);
@@ -3088,15 +3274,9 @@ async function guardarEdicionMensaje(bubble) {
     }
     const bubbleIA = agregarBubble('', 'assistant', true);
     const generator = enviarAGeminiStream(currentCharacter.system_prompt, historialProcesado, nuevoTexto, currentCharacter.max_tokens || 4096);
-    let textoCompleto = '';
-    for await (const chunk of generator) {
-      textoCompleto += chunk;
-      const typing = bubbleIA.querySelector('.typing-indicator');
-      if (typing) typing.remove();
-      pintarStreaming(bubbleIA, textoCompleto);
-    }
+    const textoCompleto = await transmitirStream(bubbleIA, generator);
     if (!textoCompleto.trim()) throw new Error('Gemini no generó ninguna respuesta');
-    const mensajeAssistant = { id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 5), rol: 'assistant', contenido: textoCompleto };
+    const mensajeAssistant = { id: nuevoIdMensaje(), rol: 'assistant', contenido: textoCompleto };
     const historialFinal = [...historialProcesado, mensajeAssistant];
     await actualizarHistorialChat(currentChatId, historialFinal);
     establecerHistorialChat(historialFinal);
@@ -4241,13 +4421,8 @@ async function continuarRespuesta(bubble){
     const historialFinal=historialProcesado.slice();
     let objetivo=historialFinal.findIndex(m=>m.id===mensajeId);
     if(objetivo<0)objetivo=historialFinal.length-1;
-    let extra='';
     const generator=enviarAGeminiStream(currentCharacter.system_prompt,historialProcesado,INSTRUCCION_CONTINUACION,currentCharacter.max_tokens||4096);
-    for await(const chunk of generator){
-      extra+=chunk;
-      pintarStreaming(bubble,parcial+extra);
-    }
-    bubble.innerHTML=renderMarkdown(parcial+extra);
+    const extra=await transmitirStream(bubble,generator,parcial);
     const completo=parcial+extra;
     if(!extra.trim())throw new Error('La IA no añadió contenido nuevo. Intenta de nuevo.');
     historialFinal[objetivo]={...historialFinal[objetivo],id:mensajeId,rol:'assistant',contenido:completo};
