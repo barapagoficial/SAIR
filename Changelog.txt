@@ -2,6 +2,18 @@
  SAIR4 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.0.3 Oficial A] — 2026-11-01
+
+🐛 Correcciones
+- Móvil (modo ligero): la app ya no se queda en negro hasta cambiar el modo
+  visual en Ajustes. En Chrome Android, las capas con desenfoque podían dejar la
+  pantalla pintada en negro; el modo ligero ahora quita todos los desenfoques y
+  la app fuerza un repintado al mostrar cada pantalla.
+- Móvil (modo ligero): ya no hay unos segundos en negro al abrir. El velo de
+  entrada no se anima en este modo, así que ahora se quita al momento en lugar
+  de quedarse 2,6 s tapando la app.
+- Service worker actualizado a sair-v4.0.3-oficial-a.
+
 [4.0.2 Oficial A] — 2026-11-01
 
 🐛 Correcciones
