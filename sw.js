@@ -1,4 +1,5 @@
-const CACHE_NAME = 'sair-v4.0.3-oficial-a';
+importScripts('./version.js');
+const CACHE_NAME = self.SAIR_VERSION.cache; // la versión se cambia solo en version.js
 const NAV_TIMEOUT_MS = 4000;
 const STATIC_ASSETS = [
   './',
@@ -9,7 +10,8 @@ const STATIC_ASSETS = [
   './icon-maskable-512.png',
   './apple-touch-icon.png',
   './ERROR.mp4',
-  './supabase.js'
+  './supabase.js',
+  './version.js'
 ];
 
 // Instalar: cachear assets estáticos
@@ -88,8 +90,8 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Manifest y Service Worker: Network first (nunca servir copias viejas)
-  if (url.pathname.endsWith('/manifest.json') || url.pathname.endsWith('/sw.js')) {
+  // Manifest, Service Worker y versión: Network first (nunca servir copias viejas)
+  if (url.pathname.endsWith('/manifest.json') || url.pathname.endsWith('/sw.js') || url.pathname.endsWith('/version.js')) {
     e.respondWith(
       fetch(e.request)
         .then((response) => {

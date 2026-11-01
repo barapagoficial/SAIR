@@ -55,18 +55,18 @@ jobs:
         run: |
           npx --yes html-validate@8 index.html && echo "HTML válido" || echo "::warning::html-validate reportó avisos (ver el log)"
 
-      - name: La versión de index.html y sw.js coinciden
+      - name: La versión sale solo de version.js
         run: |
           node -e "
-            const fs=require('fs');
-            const i=fs.readFileSync('index.html','utf8');
-            const w=fs.readFileSync('sw.js','utf8');
-            const v=(i.match(/<div class=\"app-version\">([^<]+)<\/div>/)||[])[1]||'';
-            const c=(w.match(/CACHE_NAME = '([^']+)'/)||[])[1]||'';
-            const norm=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
-            console.log('app-version:', v, '| CACHE_NAME:', c);
-            if(!v||!c){ console.error('No se pudo leer alguna de las dos versiones'); process.exit(1); }
-            if(!norm(v).startsWith(norm(c).replace(/^sair-v/,'sair-').replace(/^sair-/,''))){
-              console.warn('::warning::La versión visible y el CACHE_NAME del service worker no coinciden; los usuarios podrían no recibir la actualización.');
-            }
+            const fs=require('fs'), vm=require('vm');
+            const ctx={}; ctx.self=ctx; vm.runInNewContext(fs.readFileSync('version.js','utf8'),ctx);
+            const v=ctx.SAIR_VERSION;
+            if(!v||!/^\\d+\\.\\d+\\.\\d+$/.test(v.numero)){ console.error('version.js no define SAIR_VERSION.numero (x.y.z)'); process.exit(1); }
+            console.log('Versión:', v.texto, '| caché:', v.cache);
+            const w=fs.readFileSync('sw.js','utf8'), i=fs.readFileSync('index.html','utf8');
+            if(!w.includes(\"importScripts('./version.js')\")){ console.error('sw.js no importa version.js'); process.exit(1); }
+            if(!i.includes('<script src=\"version.js\"></script>')){ console.error('index.html no carga version.js'); process.exit(1); }
+            if(/\\d+\\.\\d+\\.\\d+ Oficial/.test(i.replace(/\\/\\*[\\s\\S]*?\\*\\//g,''))){ console.error('index.html tiene una versión escrita a mano; usa data-sair-version'); process.exit(1); }
+            const c=fs.readFileSync('Changelog.txt','utf8');
+            if(!c.includes('['+v.texto+']')) console.log('::warning::Changelog.txt no tiene entrada para '+v.texto);
           "
