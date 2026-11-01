@@ -208,6 +208,7 @@ body[data-theme="light"] .intensity-card.active{background:rgba(255,77,143,0.1)}
 .dashboard-tab:hover{color:var(--text-1)}
 .dashboard-tab.active{color:var(--pink);border-bottom-color:var(--pink)}
 .section-title{font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:var(--text-1);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.btn-message.btn-leer.leyendo{background:rgba(255,77,143,.18);border-color:var(--pink);color:var(--pink)}.chat-mic-btn{width:52px;height:52px;border-radius:var(--radius-md);background:var(--bg-input);border:1px solid var(--border);color:var(--text-2);cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:background .2s,color .2s,border-color .2s}.chat-mic-btn[hidden]{display:none}.chat-mic-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.chat-mic-btn:hover{color:var(--text-1);border-color:var(--pink)}.chat-mic-btn.escuchando{background:rgba(239,68,68,.15);border-color:#ef4444;color:#ef4444;animation:micPulso 1.4s ease-in-out infinite}@keyframes micPulso{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.45)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}@media (max-width:700px){.chat-mic-btn{width:44px;height:44px}}.voz-controles{display:flex;flex-direction:column;gap:.5rem}.voz-check{display:flex;gap:.5rem;align-items:center;font-size:.9rem;color:var(--text-2);cursor:pointer}.voz-mini{font-size:.78rem;color:var(--text-3);margin-top:.3rem}.voz-rango{width:100%;accent-color:var(--pink)}.voz-controles .btn{align-self:flex-start}.voz-nota{font-size:.75rem;color:var(--text-4);margin-top:.5rem}
 .comunidad-toolbar{max-width:1280px;margin:0 auto 1.2rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}.comunidad-busqueda{flex:1 1 240px;min-width:0}.comunidad-orden{flex:0 0 auto;width:auto;min-width:170px}.comunidad-mas{display:flex;justify-content:center;margin:1.5rem 0 .5rem}.character-actions .btn.btn-report{flex:0 0 auto;width:auto;padding-inline:.75rem}.comunidad-toolbar .btn{flex:0 0 auto;width:auto}.reporte-item{border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem;margin-bottom:.8rem;background:var(--bg-card)}.reporte-cabecera{display:flex;justify-content:space-between;gap:.5rem;align-items:center;margin-bottom:.5rem;color:var(--text-1)}.reporte-contador{font-size:.75rem;color:var(--pink);background:rgba(255,77,143,.12);border-radius:999px;padding:.15rem .6rem;white-space:nowrap}.reporte-motivos{margin:0 0 .8rem 1.1rem;color:var(--text-2);font-size:.85rem;line-height:1.6}.reporte-acciones{display:flex;gap:.5rem;flex-wrap:wrap}.reportes-vacio{color:var(--text-3);text-align:center;padding:1.5rem 0}
 .characters-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
 .character-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.6rem;transition:var(--transition-smooth);cursor:pointer;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
@@ -1171,6 +1172,18 @@ body.performance-light .chat-bg-img { display:none!important; }
 <input type="file" id="chat-bg-file" accept="image/*" style="display:none;">
 <p style="font-size:.75rem;color:var(--text-4);margin-top:.5rem;">La imagen se comprime y se guarda localmente en tu navegador</p>
 </div>
+<div class="settings-section" id="voz-section">
+<label class="section-label">Voz</label>
+<div class="voz-controles">
+<label class="voz-check"><input type="checkbox" id="voz-auto"> Leer en voz alta cada respuesta nueva</label>
+<label class="voz-mini" for="voz-voz">Voz</label>
+<select id="voz-voz" class="form-input"></select>
+<label class="voz-mini" for="voz-velocidad">Velocidad <span id="voz-velocidad-valor">1.0×</span></label>
+<input type="range" id="voz-velocidad" class="voz-rango" min="0.6" max="1.6" step="0.1" value="1">
+<button type="button" class="btn btn-ghost btn-small" id="voz-probar">▶️ Probar voz</button>
+</div>
+<p class="voz-nota" id="voz-nota">También puedes pulsar «Leer» en cualquier respuesta, o el micrófono 🎤 del chat para dictar.</p>
+</div>
 <div class="settings-section" style="padding:.85rem 1rem;border:1px solid var(--border);border-radius:12px;background:var(--bg-input);">
 <div style="font-size:.8rem;color:var(--text-2);">🎭 La API Key y el modelo se configuran dentro de cada chat, en <strong>Ajustes de Rol</strong>.</div>
 </div>
@@ -1520,7 +1533,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 <button type="button" class="btn-immersive" id="btn-immersive" title="Modo inmersivo" aria-label="Activar modo inmersivo"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
 <div class="chat-messages" id="chat-messages"><div class="chat-empty" id="chat-empty"><div class="chat-empty-icon">💬</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Comienza una conversación</h3><p>Selecciona un chat o crea uno nuevo</p></div></div>
 <button type="button" id="scroll-to-bottom-btn" class="scroll-to-bottom" style="display:none;" title="Ir al final" aria-label="Ir al final de la conversación"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-<div class="chat-input-area"><div class="chat-input-wrapper"><button class="chat-more-btn" id="chat-more-btn" type="button" title="Más opciones" aria-label="Más opciones" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg></button><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><div class="chat-extra-actions"><button type="button" class="chat-historiador-btn" id="chat-historiador-btn" title="Historiador: escribe el capítulo de la historia a partir de toda la conversación" aria-label="Historiador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="chat-historiador-label">Historiador</span></button><button type="button" class="chat-recap-btn pulse" id="chat-recap-btn" title="Recapitulación de la historia" aria-label="Recapitulación de la historia"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></button><button type="button" class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol" aria-label="Editar tu nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button></div><button class="chat-send-btn" id="chat-send-btn" type="button" aria-label="Enviar mensaje" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button><button class="chat-stop-btn" id="chat-stop-btn" type="button" title="Detener la respuesta" aria-label="Detener la respuesta" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg></button></div><div class="chat-extra-popover" id="chat-extra-popover" aria-hidden="true"><button type="button" class="chat-extra-popover-item" data-target="chat-historiador-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-amber"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span><span class="chat-extra-popover-text"><strong>Historiador</strong><small>Escribe el capítulo de la historia</small></span></button><button type="button" class="chat-extra-popover-item" data-target="chat-recap-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-purple"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></span><span class="chat-extra-popover-text"><strong>Recapitulación</strong><small>Resumen de la historia</small></span></button><button type="button" class="chat-extra-popover-item" data-target="chat-role-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-blue"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="chat-extra-popover-text"><strong>Editar nombre de rol</strong><small>Cambia cómo se llama tu rol</small></span></button></div></div>
+<div class="chat-input-area"><div class="chat-input-wrapper"><button class="chat-more-btn" id="chat-more-btn" type="button" title="Más opciones" aria-label="Más opciones" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg></button><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><div class="chat-extra-actions"><button type="button" class="chat-historiador-btn" id="chat-historiador-btn" title="Historiador: escribe el capítulo de la historia a partir de toda la conversación" aria-label="Historiador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="chat-historiador-label">Historiador</span></button><button type="button" class="chat-recap-btn pulse" id="chat-recap-btn" title="Recapitulación de la historia" aria-label="Recapitulación de la historia"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></button><button type="button" class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol" aria-label="Editar tu nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button></div><button class="chat-mic-btn" id="chat-mic-btn" type="button" title="Dictar por voz" aria-label="Dictar por voz" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></button><button class="chat-send-btn" id="chat-send-btn" type="button" aria-label="Enviar mensaje" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button><button class="chat-stop-btn" id="chat-stop-btn" type="button" title="Detener la respuesta" aria-label="Detener la respuesta" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg></button></div><div class="chat-extra-popover" id="chat-extra-popover" aria-hidden="true"><button type="button" class="chat-extra-popover-item" data-target="chat-historiador-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-amber"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span><span class="chat-extra-popover-text"><strong>Historiador</strong><small>Escribe el capítulo de la historia</small></span></button><button type="button" class="chat-extra-popover-item" data-target="chat-recap-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-purple"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></span><span class="chat-extra-popover-text"><strong>Recapitulación</strong><small>Resumen de la historia</small></span></button><button type="button" class="chat-extra-popover-item" data-target="chat-role-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-blue"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="chat-extra-popover-text"><strong>Editar nombre de rol</strong><small>Cambia cómo se llama tu rol</small></span></button></div></div>
 </main>
 </div>
 </div>
@@ -3171,7 +3184,7 @@ showToast(notasHeredadas?'Nuevo chat creado · 📝 Notas para Rol heredadas del
 showToast(err.message,'error')
 }
 });
-document.getElementById('chat-back-btn').addEventListener('click',()=>{
+document.getElementById('chat-back-btn').addEventListener('click',()=>{detenerLectura();detenerDictado();
   const chatViewEl = document.getElementById('chat-view');
   chatViewEl.style.removeProperty('--pink');
   chatViewEl.style.removeProperty('--pink-glow');
@@ -3227,7 +3240,7 @@ function renderizarChatPaginado(opciones = {}) {
   else if (scrollToBottom) scrollChatToBottom(true);
 }
 function agregarBubble(texto,rol,conTyping=!1,mensajeId=null,autoScroll=!0,parent=null,mensaje=null){const container=parent||document.getElementById('chat-messages'),div=document.createElement('div');div.className=`message-bubble ${rol}`;if(mensajeId)div.dataset.mensajeId=mensajeId;if(conTyping)div.innerHTML=`<div class="typing-indicator"><span></span><span></span><span></span></div>`;else{div.innerHTML=rol==='assistant'?renderMarkdown(texto):escapeHtml(texto);div.dataset.originalText=texto;agregarBotones(div,rol);aplicarAvisoRespuestaIncompleta(div);if(mensaje)aplicarVariantesUI(div,mensaje)}container.appendChild(div);if(autoScroll&&!parent)scrollChatToBottom();return div}
-function agregarBotones(bubble,rol){const oldActions=bubble.querySelector('.message-actions');if(oldActions)oldActions.remove();const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';let buttonsHTML='';buttonsHTML+=`<button type="button" class="btn-message btn-copy" title="Copiar mensaje"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copiar</button>`;buttonsHTML+=`<button type="button" class="btn-message btn-delete-msg" title="Eliminar mensaje" aria-label="Eliminar este mensaje"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Eliminar</button>`;if(rol==='user'){buttonsHTML+=`<button type="button" class="btn-message btn-edit-msg" title="Editar mensaje"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Editar</button>`}else if(rol==='assistant'){buttonsHTML+=`<button type="button" class="btn-message btn-regenerate" data-mensaje-id="${bubble.dataset.mensajeId||''}" title="Regenerar respuesta"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Regenerar</button>`}actionsDiv.innerHTML=buttonsHTML;bubble.appendChild(actionsDiv)}
+function agregarBotones(bubble,rol){const oldActions=bubble.querySelector('.message-actions');if(oldActions)oldActions.remove();const actionsDiv=document.createElement('div');actionsDiv.className='message-actions';let buttonsHTML='';buttonsHTML+=`<button type="button" class="btn-message btn-copy" title="Copiar mensaje"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copiar</button>`;buttonsHTML+=`<button type="button" class="btn-message btn-delete-msg" title="Eliminar mensaje" aria-label="Eliminar este mensaje"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Eliminar</button>`;if(rol==='user'){buttonsHTML+=`<button type="button" class="btn-message btn-edit-msg" title="Editar mensaje"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Editar</button>`}else if(rol==='assistant'){if(vozDisponible)buttonsHTML+=`<button type="button" class="btn-message btn-leer" title="Leer en voz alta" aria-pressed="false">${ICONO_ALTAVOZ}Leer</button>`;buttonsHTML+=`<button type="button" class="btn-message btn-regenerate" data-mensaje-id="${bubble.dataset.mensajeId||''}" title="Regenerar respuesta"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Regenerar</button>`}actionsDiv.innerHTML=buttonsHTML;bubble.appendChild(actionsDiv)}
 function mostrarErrorRateLimit(bubble,errorMessage,actionType,actionData){if(rateLimitTimer){clearInterval(rateLimitTimer);rateLimitTimer=null}let segundos=60;const match=errorMessage.match(/(\d+)\s*seconds?/i);if(match)segundos=parseInt(match[1])||60;rateLimitCountdown=segundos;pendingAction=actionType;pendingData=actionData;const messages=document.getElementById('chat-messages');const div=document.createElement('div');div.className='message-bubble error';div.style.maxWidth='90%';const updateContent=()=>{div.innerHTML=`<div style="display:flex;flex-direction:column;gap:.5rem;"><span style="color:#fca5a5;">⏳ Límite de peticiones excedido. Espera <strong>${rateLimitCountdown}s</strong> para reintentar.</span><div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.3rem;"><button type="button" class="btn-message btn-retry" style="${rateLimitCountdown>0?'opacity:.5;pointer-events:none;':''}"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Reintentar</button></div></div>`};updateContent();if(bubble){bubble.innerHTML=div.innerHTML;bubble.className='message-bubble error';bubble._rateLimitDiv=div}else{messages.appendChild(div);window._rateLimitBubble=div}rateLimitTimer=setInterval(()=>{rateLimitCountdown--;if(rateLimitCountdown<=0){clearInterval(rateLimitTimer);rateLimitTimer=null;const targetBubble=bubble||window._rateLimitBubble;if(targetBubble){const btn=targetBubble.querySelector('.btn-retry');if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto'}const span=targetBubble.querySelector('span');if(span)span.innerHTML='⏳ Límite de peticiones excedido. <strong>¡Ya puedes reintentar!</strong>'}}else{const targetBubble=bubble||window._rateLimitBubble;if(targetBubble){const span=targetBubble.querySelector('span');if(span)span.innerHTML=`⏳ Límite de peticiones excedido. Espera <strong>${rateLimitCountdown}s</strong> para reintentar.`}}},1e3);if(rateLimitRetryHandler)document.removeEventListener('click',rateLimitRetryHandler);
   const retryHandler=e=>{const btn=e.target.closest('.btn-retry');if(!btn)return;if(rateLimitCountdown>0)return;if(rateLimitTimer){clearInterval(rateLimitTimer);rateLimitTimer=null}const targetBubble=bubble||window._rateLimitBubble;if(targetBubble)targetBubble.remove();if(window._rateLimitBubble)delete window._rateLimitBubble;if(pendingAction==='send')reintentarRespuestaAsistente(pendingData.bubbleIA,pendingData.text);else if(pendingAction==='regenerate'){const{mensajeId,bubbleElement}=pendingData;regenerarRespuesta(mensajeId,bubbleElement)}pendingAction=null;pendingData=null;if(rateLimitRetryHandler){document.removeEventListener('click',rateLimitRetryHandler);rateLimitRetryHandler=null}};rateLimitRetryHandler=retryHandler;document.addEventListener('click',retryHandler)}
 let ultimoMensajeEnviado='';
@@ -3244,6 +3257,7 @@ let streamUltimoPintado=0;
 const STREAM_PINTADO_MS=60;
 const chatStopBtn=document.getElementById('chat-stop-btn');
 function empezarGeneracion(){
+  detenerLectura();
   isStreaming=true;
   generacionCancelada=false;
   streamTextoActual='';
@@ -3482,6 +3496,7 @@ function cerrarRespuestaEnChat(mensajeAssistant,bubbleIA){
   chatOffset=contarMensajesVisibles();
   renderizarChatPaginado();
   marcarRespuestaIncompleta(mensajeAssistant?.id||bubbleIA.dataset.mensajeId);
+  leerRespuestaNueva(mensajeAssistant?.id,mensajeAssistant?.contenido);
 }
 /* Para regenerar y editar: si se detiene o falla, el chat vuelve a quedar
    exactamente como estaba antes de empezar. Devuelve true si se canceló. */
@@ -3529,6 +3544,7 @@ async function enviarMensaje(){
   const MAX_MSG_LENGTH=8000;
   if(texto.length>MAX_MSG_LENGTH){showToast(`Mensaje demasiado largo (máx. ${MAX_MSG_LENGTH} caracteres)`,'error');return}
   if(!getGeminiKey()){showToast('⚠️ Configura tu API Key en Ajustes de Rol (🎭)','error');return}
+  detenerDictado();
   document.getElementById('chat-empty')?.remove();
   const userBubble=agregarBubble(texto,'user');
   chatInput.value='';
@@ -3567,7 +3583,7 @@ function iniciarEdicionMensaje(bubble){if(isStreaming){showToast('Espera a que t
 function cancelarEdicionMensaje(bubble){bubble.classList.remove('editing');bubble.innerHTML=bubble.dataset.backupHTML||'';delete bubble.dataset.backupHTML}
 document.getElementById('chat-messages').addEventListener('click',async e=>{const btnDelMensaje=e.target.closest('.btn-delete-msg');
 if(btnDelMensaje){const bubble=btnDelMensaje.closest('.message-bubble'),id=bubble&&bubble.dataset?bubble.dataset.mensajeId:'';if(id&&!isStreaming&&confirm('¿Eliminar este mensaje?')){try{await eliminarMensajeDeChat(currentChatId,id);showToast('🗑️ Mensaje eliminado');const{mensajes}=await cargarHistorialCompleto(currentChatId);establecerHistorialChat(mensajes)}catch(err){showToast(`❌ ${err.message}`,'error')}}return}
-const btnVariante=e.target.closest('.btn-variante');if(btnVariante){const b=btnVariante.closest('.message-bubble');if(b&&!btnVariante.disabled)cambiarVariante(b,parseInt(btnVariante.dataset.dir,10)||0);return}const btnContinuar=e.target.closest('.btn-continuar-respuesta');if(btnContinuar){const b=btnContinuar.closest('.message-bubble');if(b)continuarRespuesta(b);return}const btnRetrySend=e.target.closest('.btn-retry-send');if(btnRetrySend){const bubble=btnRetrySend.closest('.message-bubble');if(bubble)reintentarRespuestaAsistente(bubble,ultimoMensajeEnviado);return}const btnRegen=e.target.closest('.btn-regenerate');if(btnRegen){const mensajeId=btnRegen.dataset.mensajeId,bubble=btnRegen.closest('.message-bubble');if(mensajeId&&bubble)regenerarRespuesta(mensajeId,bubble);return}const btnCopy=e.target.closest('.btn-copy');if(btnCopy){const bubble=btnCopy.closest('.message-bubble'),texto=bubble.dataset.originalText||bubble.innerText.replace(/Copiar|Editar|Regenerar/g,'').trim();try{await navigator.clipboard.writeText(texto);showToast('📋 Mensaje copiado')}catch(err){showToast('❌ No se pudo copiar','error')}return}const btnEdit=e.target.closest('.btn-edit-msg');if(btnEdit){const bubble=btnEdit.closest('.message-bubble');iniciarEdicionMensaje(bubble);return}const btnSave=e.target.closest('.edit-save');if(btnSave){const bubble=btnSave.closest('.message-bubble');await guardarEdicionMensaje(bubble);return}const btnCancel=e.target.closest('.edit-cancel');if(btnCancel){const bubble=btnCancel.closest('.message-bubble');cancelarEdicionMensaje(bubble)}});
+const btnVariante=e.target.closest('.btn-variante');if(btnVariante){const b=btnVariante.closest('.message-bubble');if(b&&!btnVariante.disabled)cambiarVariante(b,parseInt(btnVariante.dataset.dir,10)||0);return}const btnContinuar=e.target.closest('.btn-continuar-respuesta');if(btnContinuar){const b=btnContinuar.closest('.message-bubble');if(b)continuarRespuesta(b);return}const btnRetrySend=e.target.closest('.btn-retry-send');if(btnRetrySend){const bubble=btnRetrySend.closest('.message-bubble');if(bubble)reintentarRespuestaAsistente(bubble,ultimoMensajeEnviado);return}const btnRegen=e.target.closest('.btn-regenerate');if(btnRegen){const mensajeId=btnRegen.dataset.mensajeId,bubble=btnRegen.closest('.message-bubble');if(mensajeId&&bubble)regenerarRespuesta(mensajeId,bubble);return}const btnCopy=e.target.closest('.btn-copy');if(btnCopy){const bubble=btnCopy.closest('.message-bubble'),texto=bubble.dataset.originalText||bubble.innerText.replace(/Copiar|Editar|Regenerar|Eliminar|Leer|Detener/g,'').trim();try{await navigator.clipboard.writeText(texto);showToast('📋 Mensaje copiado')}catch(err){showToast('❌ No se pudo copiar','error')}return}const btnEdit=e.target.closest('.btn-edit-msg');if(btnEdit){const bubble=btnEdit.closest('.message-bubble');iniciarEdicionMensaje(bubble);return}const btnSave=e.target.closest('.edit-save');if(btnSave){const bubble=btnSave.closest('.message-bubble');await guardarEdicionMensaje(bubble);return}const btnCancel=e.target.closest('.edit-cancel');if(btnCancel){const bubble=btnCancel.closest('.message-bubble');cancelarEdicionMensaje(bubble)}});
 /* Mantiene una única fuente de verdad después de operaciones que reemplazan una
    rama del chat. Las burbujas existentes no deben usarse para reconstruir el
    historial porque la paginación puede haber ocultado parte de la conversación. */
@@ -3642,6 +3658,7 @@ async function regenerarRespuesta(mensajeId, bubbleElement) {
       await persistirVariantes(enMemoria);
       actualizarBubbleVariante(bubbleIA, enMemoria);
       marcarRespuestaIncompleta(mensajeId);
+      leerRespuestaNueva(mensajeId, textoCompleto);
       showToast(`✅ Versión ${lista.length} generada · usa ‹ › para comparar`);
     } else {
       const nuevoMensaje = { id: nuevoIdMensaje(), rol: 'assistant', contenido: textoCompleto };
@@ -3649,6 +3666,7 @@ async function regenerarRespuesta(mensajeId, bubbleElement) {
       await actualizarHistorialChat(currentChatId, historialFinal);
       establecerHistorialChat(historialFinal);
       marcarRespuestaIncompleta(nuevoMensaje.id);
+      leerRespuestaNueva(nuevoMensaje.id, textoCompleto);
       showToast('✅ Respuesta regenerada');
     }
   } catch (err) {
@@ -3693,6 +3711,7 @@ async function guardarEdicionMensaje(bubble) {
     await actualizarHistorialChat(currentChatId, historialFinal);
     establecerHistorialChat(historialFinal);
     marcarRespuestaIncompleta(mensajeAssistant.id);
+    leerRespuestaNueva(mensajeAssistant.id, textoCompleto);
     showToast('✅ Mensaje editado y respuesta regenerada');
   } catch (err) {
     if (await restaurarTrasFallo(err, historialOriginal, 'editar')) return;
@@ -3734,6 +3753,165 @@ function forzarRepintado(){
     setTimeout(()=>document.body.classList.remove('intro-anim'),INTRO_LIMPIEZA_MS);
   }catch(err){console.warn('⚠️ No se pudo iniciar la animación de entrada:',err)}
 })();
+
+/* ── Voz: lectura en voz alta y dictado ──
+   Usa las voces del propio navegador (speechSynthesis) y su reconocimiento
+   de voz (SpeechRecognition). No se envía nada a servidores de SAIR y no
+   cuesta nada. Si el navegador no lo soporta, los botones no aparecen. */
+const VOZ_LS={AUTO:'sair1_voz_auto',VOZ:'sair1_voz_nombre',VEL:'sair1_voz_velocidad'};
+const vozDisponible='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
+const Reconocimiento=window.SpeechRecognition||window.webkitSpeechRecognition||null;
+const ICONO_ALTAVOZ='<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+const ICONO_DETENER_VOZ='<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>';
+const voz={burbuja:null,sesion:0};
+function vozConfig(){
+  return{auto:localStorage.getItem(VOZ_LS.AUTO)==='true',nombre:localStorage.getItem(VOZ_LS.VOZ)||'',velocidad:Math.min(1.6,Math.max(0.6,parseFloat(localStorage.getItem(VOZ_LS.VEL))||1))};
+}
+function vocesEspanol(){
+  if(!vozDisponible)return[];
+  const todas=speechSynthesis.getVoices();
+  const es=todas.filter(v=>/^es([-_]|$)/i.test(v.lang));
+  return es.length?es:todas;
+}
+function elegirVoz(){
+  const{nombre}=vozConfig(),vs=vocesEspanol();
+  return vs.find(v=>v.name===nombre)||vs.find(v=>/^es[-_](MX|US|419)/i.test(v.lang))||vs.find(v=>/^es/i.test(v.lang))||vs[0]||null;
+}
+// Quita el formato Markdown para que no se lean asteriscos ni almohadillas.
+function textoParaVoz(texto){
+  return reemplazarUserEnTexto(String(texto||''))
+    .replace(/```[\s\S]*?```/g,' ')
+    .replace(/\{\{\s*(user|char)\s*\}\}/gi,'')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g,'$1')
+    .replace(/[*_~`#>|]+/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+// Trozos cortos: Chrome corta las frases largas a los ~15 s.
+function trocearParaVoz(texto,max=220){
+  const frases=texto.match(/[^.!?…]+[.!?…]+["»”)]*|[^.!?…]+$/g)||[];
+  const trozos=[];
+  for(let f of frases){
+    f=f.trim();
+    while(f.length>max){
+      let corte=f.lastIndexOf(',',max);
+      if(corte<max*0.4)corte=f.lastIndexOf(' ',max);
+      if(corte<=0)corte=max;
+      trozos.push(f.slice(0,corte+1).trim());
+      f=f.slice(corte+1).trim();
+    }
+    if(f)trozos.push(f);
+  }
+  return trozos;
+}
+function actualizarBotonLeer(bubble,activo){
+  const btn=bubble?.querySelector('.btn-leer');if(!btn)return;
+  btn.innerHTML=activo?`${ICONO_DETENER_VOZ}Detener`:`${ICONO_ALTAVOZ}Leer`;
+  btn.setAttribute('aria-pressed',activo?'true':'false');
+  btn.classList.toggle('leyendo',activo);
+}
+function detenerLectura(){
+  voz.sesion++;
+  if(vozDisponible){try{speechSynthesis.cancel()}catch{}}
+  if(voz.burbuja){actualizarBotonLeer(voz.burbuja,false);voz.burbuja=null}
+}
+function leerEnVozAlta(texto,bubble=null){
+  if(!vozDisponible)return;
+  detenerLectura();
+  const partes=trocearParaVoz(textoParaVoz(texto));
+  if(!partes.length)return;
+  const sesion=voz.sesion,{velocidad}=vozConfig(),v=elegirVoz();
+  voz.burbuja=bubble;
+  actualizarBotonLeer(bubble,true);
+  const siguiente=i=>{
+    if(sesion!==voz.sesion)return;
+    if(i>=partes.length){actualizarBotonLeer(voz.burbuja,false);voz.burbuja=null;return}
+    const u=new SpeechSynthesisUtterance(partes[i]);
+    if(v){u.voice=v;u.lang=v.lang}else u.lang='es-ES';
+    u.rate=velocidad;
+    u.onend=()=>siguiente(i+1);
+    u.onerror=e=>{if(!['interrupted','canceled'].includes(e.error))console.warn('⚠️ Voz:',e.error);siguiente(i+1)};
+    speechSynthesis.speak(u);
+  };
+  siguiente(0);
+}
+// Lectura automática de las respuestas nuevas (opción de Ajustes).
+function leerRespuestaNueva(mensajeId,texto){
+  if(!vozDisponible||!vozConfig().auto||!texto?.trim())return;
+  const bubble=document.querySelector(`.message-bubble[data-mensaje-id="${CSS.escape(String(mensajeId||''))}"]`);
+  leerEnVozAlta(texto,bubble);
+}
+document.getElementById('chat-messages')?.addEventListener('click',e=>{
+  const btn=e.target.closest('.btn-leer');if(!btn)return;
+  e.stopPropagation();
+  const bubble=btn.closest('.message-bubble');
+  if(voz.burbuja===bubble){detenerLectura();return}
+  leerEnVozAlta(bubble.dataset.originalText||'',bubble);
+});
+window.addEventListener('pagehide',detenerLectura);
+
+/* Ajustes de voz */
+function rellenarVoces(){
+  const sel=document.getElementById('voz-voz');if(!sel)return;
+  const vs=vocesEspanol(),actual=elegirVoz();
+  sel.innerHTML=vs.length?vs.map(v=>`<option value="${escapeHtml(v.name)}">${escapeHtml(v.name)} (${escapeHtml(v.lang)})</option>`).join(''):'<option value="">Voz predeterminada</option>';
+  if(actual)sel.value=actual.name;
+}
+(function iniciarAjustesVoz(){
+  const seccion=document.getElementById('voz-section');if(!seccion)return;
+  if(!vozDisponible){
+    seccion.querySelector('.voz-controles').hidden=true;
+    document.getElementById('voz-nota').textContent='Tu navegador no permite leer en voz alta.';
+  }else{
+    const cfg=vozConfig(),auto=document.getElementById('voz-auto'),vel=document.getElementById('voz-velocidad'),valor=document.getElementById('voz-velocidad-valor');
+    auto.checked=cfg.auto;vel.value=String(cfg.velocidad);valor.textContent=cfg.velocidad.toFixed(1)+'×';
+    auto.addEventListener('change',()=>{localStorage.setItem(VOZ_LS.AUTO,auto.checked?'true':'false');if(!auto.checked)detenerLectura()});
+    vel.addEventListener('input',()=>{valor.textContent=parseFloat(vel.value).toFixed(1)+'×';localStorage.setItem(VOZ_LS.VEL,vel.value)});
+    document.getElementById('voz-voz').addEventListener('change',e=>localStorage.setItem(VOZ_LS.VOZ,e.target.value));
+    document.getElementById('voz-probar').addEventListener('click',()=>leerEnVozAlta('Hola, soy la voz que leerá las respuestas de tus personajes.'));
+    rellenarVoces();
+    speechSynthesis.addEventListener?.('voiceschanged',rellenarVoces);
+  }
+  if(!Reconocimiento)document.getElementById('voz-nota').textContent+=' El dictado por voz no está disponible en este navegador (prueba Chrome o Edge).';
+})();
+
+/* Dictado: el micrófono escribe en el cuadro de texto. En Android el modo
+   continuo repite frases, así que allí se dicta frase a frase. */
+let dictado=null;
+const micBtn=document.getElementById('chat-mic-btn');
+if(Reconocimiento&&micBtn)micBtn.hidden=false;
+function actualizarBotonMic(activo){
+  if(!micBtn)return;
+  micBtn.classList.toggle('escuchando',activo);
+  micBtn.setAttribute('aria-pressed',activo?'true':'false');
+  micBtn.title=activo?'Dejar de dictar':'Dictar por voz';
+  micBtn.setAttribute('aria-label',micBtn.title);
+}
+function detenerDictado(){if(dictado){try{dictado.abort()}catch{}dictado=null;actualizarBotonMic(false)}}
+function alternarDictado(){
+  if(dictado){dictado.stop();return}
+  if(!Reconocimiento)return;
+  detenerLectura();
+  const rec=new Reconocimiento();
+  rec.lang=/^es/i.test(navigator.language||'')?navigator.language:'es-ES';
+  rec.interimResults=true;
+  rec.continuous=!/Android/i.test(navigator.userAgent);
+  const base=chatInput.value,sep=base&&!/\s$/.test(base)?' ':'';
+  rec.onresult=e=>{
+    let dicho='';
+    for(let i=0;i<e.results.length;i++)dicho+=e.results[i][0].transcript;
+    chatInput.value=(base+sep+dicho.replace(/\s+/g,' ').trim()).slice(0,8000);
+    chatInput.dispatchEvent(new Event('input',{bubbles:true}));
+  };
+  rec.onerror=e=>{
+    const avisos={'not-allowed':'Permite el acceso al micrófono para dictar','service-not-allowed':'Permite el acceso al micrófono para dictar','network':'El dictado necesita conexión y un navegador compatible (Chrome o Edge)','no-speech':'No se oyó nada. Inténtalo de nuevo','audio-capture':'No se encontró ningún micrófono'};
+    if(avisos[e.error])showToast('🎤 '+avisos[e.error],'error');
+  };
+  rec.onend=()=>{if(dictado===rec){dictado=null;actualizarBotonMic(false)}chatInput.focus()};
+  try{rec.start();dictado=rec;actualizarBotonMic(true)}
+  catch(err){console.warn('⚠️ Dictado:',err);showToast('🎤 No se pudo iniciar el dictado','error')}
+}
+micBtn?.addEventListener('click',alternarDictado);
 
 /* ── Arranque a prueba de cuelgues ──
    La PWA se quedaba en negro tras unos días sin abrirla: el token de sesión
