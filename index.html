@@ -1052,7 +1052,9 @@ body.performance-light .chat-input,
 body.performance-light .message-bubble,
 body.performance-light .modal,
 body.performance-light .character-card,
-body.performance-light .auth-container { backdrop-filter:none!important; -webkit-backdrop-filter:none!important; }
+/* En modo ligero se quitan TODOS los desenfoques: en Chrome Android, muchas capas
+   con backdrop-filter podían dejar la pantalla pintada en negro hasta forzar un repintado. */
+body.performance-light *, body.performance-light *::before, body.performance-light *::after { backdrop-filter:none!important; -webkit-backdrop-filter:none!important; }
 body.performance-light * { animation:none!important; transition-duration:.01ms!important; }
 body.performance-light .chat-messages { background:var(--bg-0)!important; }
 body.performance-light .chat-bg-img { display:none!important; }
@@ -1117,10 +1119,10 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div id="intro-veil" aria-hidden="true">
 <div class="intro-brand">SAIR4</div>
 <div class="intro-line"></div>
-<div class="intro-sub">4.0.2 Oficial A</div>
+<div class="intro-sub">4.0.3 Oficial A</div>
 </div>
 
-<div class="app-version">4.0.2 Oficial A</div>
+<div class="app-version">4.0.3 Oficial A</div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="none"></audio>
 
@@ -3443,13 +3445,21 @@ window.addEventListener('DOMContentLoaded', () => {
 // Un velo con la marca SAIR4 entra, brilla y se desliza hacia arriba
 // revelando la app, cuyas vistas aparecen con animaciones escalonadas.
 const INTRO_LIMPIEZA_MS=2600;
+/* Fuerza a Chrome a repintar toda la página. En algunos Android la app quedaba
+   en negro hasta que algo obligaba a repintar (p. ej. cambiar el modo visual). */
+function forzarRepintado(){
+  try{requestAnimationFrame(()=>{document.body.style.opacity='0.999';requestAnimationFrame(()=>{document.body.style.opacity=''})})}catch(e){}
+}
 (function iniciarEntrada(){
   try{
-    document.body.classList.add('intro-anim');
     const veil=document.getElementById('intro-veil');
+    // En modo ligero las animaciones están desactivadas: el velo no se movería
+    // y solo dejaría la pantalla en negro 2,6 s. Se quita al momento.
+    if(document.body.classList.contains('performance-light')){veil?.remove();forzarRepintado();return}
+    document.body.classList.add('intro-anim');
     if(veil){
       let retirado=false;
-      const retirar=()=>{if(!retirado){retirado=true;veil.remove()}};
+      const retirar=()=>{if(!retirado){retirado=true;veil.remove();forzarRepintado()}};
       veil.addEventListener('animationend',e=>{if(e.target===veil&&e.animationName==='veilExit')retirar()});
       setTimeout(retirar,INTRO_LIMPIEZA_MS);
     }
@@ -3559,8 +3569,9 @@ function showAuth(){
   const loginBtn=document.querySelector('#login-form button[type="submit"]');
   if(loginBtn){loginBtn.disabled=!1;loginBtn.textContent='Iniciar Sesión';}
   void authScreen.offsetWidth;
+  forzarRepintado();
 }
-function showDashboard(){authScreen.classList.remove('visible','guest-welcome');dashboard.classList.add('visible');settingsBtn.classList.remove('hidden');limpiarCacheUsuario();verificarPoliticas();renderCharacters()}
+function showDashboard(){authScreen.classList.remove('visible','guest-welcome');dashboard.classList.add('visible');settingsBtn.classList.remove('hidden');limpiarCacheUsuario();verificarPoliticas();renderCharacters();forzarRepintado()}
 document.getElementById('auth-start-btn')?.addEventListener('click',()=>{authScreen.classList.remove('guest-welcome');requestAnimationFrame(()=>document.getElementById('login-email')?.focus())});
 document.querySelectorAll('.auth-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));document.getElementById(`${tab.dataset.tab}-form`).classList.add('active');document.querySelectorAll('.form-message').forEach(m=>{m.className='form-message';m.textContent=''})})});
 document.getElementById('login-form').addEventListener('submit',async e=>{
