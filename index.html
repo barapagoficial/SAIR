@@ -1082,10 +1082,10 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div id="intro-veil" aria-hidden="true">
 <div class="intro-brand">SAIR3</div>
 <div class="intro-line"></div>
-<div class="intro-sub">4.0.0 Oficial A</div>
+<div class="intro-sub">4.0.1 Oficial A</div>
 </div>
 
-<div class="app-version">4.0.0 Oficial A</div>
+<div class="app-version">4.0.1 Oficial A</div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="none"></audio>
 
@@ -3422,7 +3422,29 @@ const INTRO_LIMPIEZA_MS=2600;
   }catch(err){console.warn('⚠️ No se pudo iniciar la animación de entrada:',err)}
 })();
 
+/* ── Arranque a prueba de cuelgues ──
+   La PWA se quedaba en negro tras unos días sin abrirla: el token de sesión
+   había caducado, getSession() intentaba refrescarlo por red y, si la red
+   estaba lenta o colgada, la promesa no terminaba nunca. Como #auth-screen y
+   #dashboard están ocultos por defecto, solo se veía el fondo negro.
+   Ahora cada espera tiene tiempo límite y siempre se muestra una pantalla. */
+const ARRANQUE_TIMEOUT_MS=8000;
+function conTimeout(promesa,ms,etiqueta){
+  let timer;
+  const limite=new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(`Tiempo agotado: ${etiqueta}`)),ms)});
+  return Promise.race([promesa,limite]).finally(()=>clearTimeout(timer));
+}
+function hayPantallaVisible(){
+  return ['auth-screen','dashboard','chat-view'].some(id=>document.getElementById(id)?.classList.contains('visible'));
+}
+function mostrarPantallaDeRespaldo(){
+  if(hayPantallaVisible())return;
+  if(currentUser&&cargarInfoUsuarioLocal()){actualizarUIPerfil();showDashboard()}
+  else showAuth();
+}
 async function initApp(){
+  // Red de seguridad: pase lo que pase, a los pocos segundos hay algo en pantalla.
+  setTimeout(()=>{if(!hayPantallaVisible()){console.warn('⚠️ Arranque lento: mostrando pantalla de respaldo');mostrarPantallaDeRespaldo()}},ARRANQUE_TIMEOUT_MS+2000);
   try{
     // Si el client no se creó al inicio (ej: Supabase CDN cargó tardío), crearlo ahora
     if(!sbClient){
@@ -3432,30 +3454,8 @@ async function initApp(){
       });
       console.log('✅ Supabase client creado en initApp (fallback)');
     }
-    const{data:{session},error:sessionError}=await sbClient.auth.getSession();
-    if(sessionError){console.warn('⚠️ Error obteniendo sesión:',sessionError.message)}
-    if(session){
-      currentUser=session.user;
-      
-      // Cargar la info de perfil/rol desde localStorage al instante
-      const tieneCache = cargarInfoUsuarioLocal();
-      if(tieneCache){
-        actualizarUIPerfil();
-        showDashboard();
-      }
-      
-      // Actualizar en segundo plano sin retrasar el renderizado del dashboard
-      Promise.all([cargarPerfilYRol(), cargarNombreRol()]).then(() => {
-        if(!tieneCache) {
-          actualizarUIPerfil();
-          showDashboard();
-        }
-      });
-    }else{
-      console.log('👤 No session');
-      showAuth();
-    }
-    // Escuchar cambios de autenticación reactivamente
+    // Escuchar cambios de autenticación antes de pedir la sesión, para no
+    // perder el TOKEN_REFRESHED si el refresco termina después del tiempo límite.
     sbClient.auth.onAuthStateChange((event,session)=>{
       if(event==='SIGNED_OUT'){
  currentUser=null;userRole=null;userUsername=null;userDescription='';userAvatarUrl=null;userBackgroundUrl=null;userAvatarPos={x:50,y:50};userBackgroundPos={x:50,y:50};userRoleName=null;
@@ -3471,10 +3471,41 @@ async function initApp(){
         }
       }
     });
+    let session=null;
+    try{
+      const{data,error:sessionError}=await conTimeout(sbClient.auth.getSession(),ARRANQUE_TIMEOUT_MS,'getSession');
+      if(sessionError){console.warn('⚠️ Error obteniendo sesión:',sessionError.message)}
+      session=data?.session||null;
+    }catch(err){
+      console.warn('⚠️ No se pudo comprobar la sesión a tiempo:',err.message);
+    }
+    if(session){
+      currentUser=session.user;
+      
+      // Cargar la info de perfil/rol desde localStorage al instante
+      const tieneCache = cargarInfoUsuarioLocal();
+      if(tieneCache){
+        actualizarUIPerfil();
+        showDashboard();
+      }
+      
+      // Actualizar en segundo plano sin retrasar el renderizado del dashboard
+      conTimeout(Promise.all([cargarPerfilYRol(), cargarNombreRol()]),ARRANQUE_TIMEOUT_MS,'perfil')
+        .catch(err=>console.warn('⚠️ Perfil no cargado a tiempo:',err.message))
+        .finally(() => {
+          if(!tieneCache) {
+            actualizarUIPerfil();
+            showDashboard();
+          }
+        });
+    }else{
+      console.log('👤 No session');
+      showAuth();
+    }
     iniciarNotificaciones();
   }catch(err){
     console.error('❌',err);
-    showAuth();
+    mostrarPantallaDeRespaldo();
   }
 }
 const settingsBtn=document.getElementById('settings-btn');
