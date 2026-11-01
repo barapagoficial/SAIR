@@ -14,6 +14,41 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#ff4d8f">
+<script>
+/* ── Caja negra de arranque ──
+   Script aparte y lo más simple posible para que funcione aunque el script
+   principal falle. Guarda los errores del arranque y, si a los 12 s no se ve
+   ninguna pantalla, muestra el error y un botón para reparar la app (borra la
+   caché y el service worker, sin cerrar la sesión). */
+(function(){
+  var errores=[];
+  function anotar(msg){try{if(errores.length<8)errores.push(String(msg).slice(0,300))}catch(e){}}
+  window.addEventListener('error',function(e){anotar((e.message||'Error')+(e.filename?' ('+e.filename.split('/').pop()+':'+e.lineno+')':''))});
+  window.addEventListener('unhandledrejection',function(e){var r=e.reason;anotar('Promesa: '+(r&&(r.message||r)||'desconocido'))});
+  window.__SAIR_ERRORES_ARRANQUE=errores;
+  function hayPantalla(){var ids=['auth-screen','dashboard','chat-view'];for(var i=0;i<ids.length;i++){var el=document.getElementById(ids[i]);if(el&&el.classList.contains('visible'))return true}return false}
+  function reparar(){
+    var tareas=[];
+    try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)tareas.push(navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister()}))}))}catch(e){}
+    try{if(window.caches&&caches.keys)tareas.push(caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k)}))}))}catch(e){}
+    Promise.all(tareas).catch(function(){}).then(function(){location.replace(location.pathname+'?r='+Date.now())});
+  }
+  function mostrarPanel(){
+    if(hayPantalla()||document.getElementById('sair-rescate'))return;
+    var p=document.createElement('div');p.id='sair-rescate';p.setAttribute('role','alert');
+    p.style.cssText='position:fixed;inset:0;z-index:100000;background:#050507;color:#f2f2f5;font:15px/1.5 system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center';
+    var t=document.createElement('h2');t.textContent='La app no terminó de cargar';t.style.cssText='font-size:20px;margin:0';
+    var d=document.createElement('p');d.textContent=errores.length?'Error detectado:':'No se detectó ningún error. Puede que la conexión esté muy lenta.';d.style.margin='0';
+    var pre=document.createElement('pre');pre.textContent=errores.join('\n')||'(sin errores)';pre.style.cssText='max-width:100%;max-height:35vh;overflow:auto;white-space:pre-wrap;word-break:break-word;background:#12121a;border:1px solid #2a2a35;border-radius:10px;padding:10px;font:12px/1.4 monospace;color:#ffb3cf;text-align:left;margin:0';
+    function boton(txt,fn,principal){var b=document.createElement('button');b.type='button';b.textContent=txt;b.onclick=fn;b.style.cssText='border:0;border-radius:12px;padding:12px 18px;font:600 15px system-ui,sans-serif;cursor:pointer;min-width:220px;'+(principal?'background:linear-gradient(135deg,#ff4d8f,#a855f7);color:#fff':'background:#1c1c26;color:#f2f2f5');return b}
+    p.appendChild(t);p.appendChild(d);p.appendChild(pre);
+    p.appendChild(boton('🔧 Reparar y recargar',reparar,true));
+    p.appendChild(boton('↻ Solo recargar',function(){location.reload()},false));
+    document.body.appendChild(p);
+  }
+  setTimeout(mostrarPanel,12000);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1082,10 +1117,10 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div id="intro-veil" aria-hidden="true">
 <div class="intro-brand">SAIR4</div>
 <div class="intro-line"></div>
-<div class="intro-sub">4.0.1 Oficial A</div>
+<div class="intro-sub">4.0.2 Oficial A</div>
 </div>
 
-<div class="app-version">4.0.1 Oficial A</div>
+<div class="app-version">4.0.2 Oficial A</div>
 
 <audio id="error-sound" src="ERROR.mp4" preload="none"></audio>
 

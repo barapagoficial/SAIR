@@ -2,6 +2,16 @@
  SAIR4 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.0.2 Oficial A] — 2026-11-01
+
+🐛 Correcciones
+- Pantalla de rescate: si la app no consigue mostrar ninguna pantalla en 12 s
+  (por ejemplo, porque un error interrumpe el arranque), ya no se queda en
+  negro. Aparece un aviso con el error detectado y dos botones: "Reparar y
+  recargar" (borra la caché y el service worker sin cerrar la sesión) y
+  "Solo recargar".
+- Service worker actualizado a sair-v4.0.2-oficial-a.
+
 [4.0.1 Oficial A] — 2026-11-01
 
 🐛 Correcciones
