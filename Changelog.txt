@@ -2,6 +2,21 @@
  SAIR3 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.0.1 Oficial A] — 2026-11-01
+
+🐛 Correcciones
+- La app instalada (PWA) ya no se queda en NEGRO al abrirla después de unos
+  días sin usarla. La sesión había caducado y, al intentar renovarla con la red
+  lenta o colgada, la app esperaba para siempre sin mostrar ninguna pantalla.
+  Ahora la comprobación de sesión y la carga del perfil tienen tiempo límite, y
+  si algo falla se muestra el inicio de sesión (o el escritorio con los datos
+  guardados) en lugar de una pantalla vacía. Si la sesión se renueva más tarde,
+  se entra sola al escritorio.
+- El service worker espera como máximo 4 s a la red al abrir la app; si no
+  llega, usa la copia guardada. Además ya no guarda páginas de error (404/500)
+  como si fueran la app.
+- Service worker actualizado a sair-v4.0.1-oficial-a.
+
 [4.0.0 Oficial A] — 2026-10-15
 
 ✨ Novedades

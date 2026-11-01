@@ -1,4 +1,5 @@
-const CACHE_NAME = 'sair-v4.0.0-oficial-a';
+const CACHE_NAME = 'sair-v4.0.1-oficial-a';
+const NAV_TIMEOUT_MS = 4000;
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -52,17 +53,38 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Navegación (HTML): Network first, fallback a caché
+  // Navegación (HTML): Network first con tiempo límite, fallback a caché.
+  // Sin tiempo límite, una red colgada (datos móviles débiles, wifi sin
+  // internet) dejaba la PWA instalada en negro esperando para siempre.
   if (e.request.mode === 'navigate') {
-    e.respondWith(
-      fetch(e.request, { cache: 'no-store' })
-        .then((response) => {
+    e.respondWith((async () => {
+      const desdeCache = async () =>
+        (await caches.match(e.request, { ignoreSearch: true })) ||
+        (await caches.match('./index.html')) ||
+        (await caches.match('./'));
+      const red = fetch(e.request, { cache: 'no-store' }).then((response) => {
+        // Solo guardar respuestas buenas: antes se guardaba también un 404/500
+        // y la app quedaba en blanco/negro hasta que volviera a haber red.
+        if (response && response.ok && response.type === 'basic') {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
-          return response;
-        })
-        .catch(() => caches.match('./index.html'))
-    );
+        }
+        return response;
+      });
+      red.catch(() => {}); // evita avisos si ganó la caché y luego falla la red
+      const limite = new Promise((resolve) => setTimeout(resolve, NAV_TIMEOUT_MS, null));
+      try {
+        const response = await Promise.race([red, limite]);
+        if (response && response.ok) return response;
+        const cached = await desdeCache();
+        if (cached) return cached;
+        return response || await red;
+      } catch (err) {
+        const cached = await desdeCache();
+        if (cached) return cached;
+        throw err;
+      }
+    })());
     return;
   }
 
