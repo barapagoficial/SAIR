@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sair-v4.0.1-oficial-a';
+const CACHE_NAME = 'sair-v4.0.2-oficial-a';
 const NAV_TIMEOUT_MS = 4000;
 const STATIC_ASSETS = [
   './',
