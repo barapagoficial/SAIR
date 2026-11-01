@@ -15,7 +15,8 @@ intermedia ni almacena claves, y no tiene backend propio más allá de Supabase
 | Archivo | Qué es |
 |---|---|
 | `index.html` | **Toda la aplicación**: HTML, CSS y JavaScript en un único archivo. |
-| `sw.js` | Service worker (PWA). El nombre del caché lleva la versión y se sube en cada release. |
+| `version.js` | **Versión de la app.** Único sitio donde se cambia: la usan `index.html` y `sw.js`. |
+| `sw.js` | Service worker (PWA). El nombre del caché sale de `version.js`. |
 | `manifest.json` | Manifiesto PWA (instalación, iconos, colores). |
 | `supabase.js` | Cliente de Supabase vendorizado (versión UMD). No se toca. |
 | `supabase_*.sql` | Migraciones del esquema. Ver abajo el orden. |
@@ -52,16 +53,17 @@ Ejecuta los scripts en el SQL Editor de Supabase, en este orden:
 6. `supabase_user_search.sql` — búsqueda de usuarios y perfiles.
 7. `supabase_variantes_respuesta.sql` — variantes de respuesta (estilo Character.AI).
 8. `supabase_chat_titulos_y_aura.sql` — títulos de chat y color de aura público.
+9. `supabase_comunidad_reportes.sql` — reportes de personajes, moderación e índices de búsqueda de la Comunidad.
 
 Todas son **aditivas e idempotentes** (`add column if not exists`,
-`create or replace function`). La app funciona sin las dos últimas: detecta el error
-`42703` y se repliega (variantes en memoria, títulos calculados al vuelo).
+`create or replace function`). La app funciona sin las tres últimas: detecta el error
+y se repliega (variantes en memoria, títulos calculados al vuelo, aviso al reportar).
 
 ## Despliegue
 
-GitHub Pages sirve la rama `main` desde la raíz. Basta con hacer merge y actualizar la
-versión en **dos** sitios (`index.html` y el `CACHE_NAME` de `sw.js`) para que el
-service worker entregue la app nueva.
+GitHub Pages sirve la rama `main` desde la raíz. Basta con hacer merge y subir el número de
+`version.js` (y añadir la entrada en `Changelog.txt`) para que el service worker
+entregue la app nueva. La CI falla si queda una versión escrita a mano en `index.html`.
 
 ## Validación
 

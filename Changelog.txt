@@ -2,6 +2,37 @@
  SAIR4 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.1.0 Oficial A] — 2026-11-01
+
+✨ Novedades
+- COMUNIDAD renovada: buscador por nombre o descripción, orden (más
+  recientes, más antiguos, A-Z) y botón "Cargar más" de 24 en 24 en lugar de
+  traer solo los 50 últimos.
+- Botón 🚩 para REPORTAR personajes de otros usuarios (motivo + detalles). El
+  owner tiene un panel "🚩 Reportes" para retirar un personaje de la
+  Comunidad (pasa a privado) o descartar los reportes.
+- VOZ: botón "Leer" en cada respuesta para escucharla en voz alta, opción en
+  Ajustes para que las respuestas nuevas se lean solas, con selector de voz
+  y velocidad. Micrófono 🎤 en el chat para dictar los mensajes. Usa las
+  voces del propio navegador: gratis y sin enviar audio a SAIR.
+
+🐛 Correcciones
+- En la Comunidad, el nombre del autor solo aparecía en su primer personaje;
+  el resto se quedaba en "Cargando...".
+- Al reintentar una respuesta fallida ahora se actualiza también la
+  paginación del chat, igual que al enviar.
+
+🔧 Interno
+- La versión se define en un único sitio (version.js); index.html y el
+  service worker la leen de ahí. La CI avisa si falta la entrada del
+  Changelog y falla si queda una versión escrita a mano.
+- Enviar, reintentar, regenerar y editar comparten ahora el mismo flujo de
+  generación y de errores en lugar de cuatro copias.
+
+📌 Requiere ejecutar en Supabase (la app funciona sin ello, pero los
+   reportes avisan de que no están activados):
+   · supabase_comunidad_reportes.sql
+
 [4.0.3 Oficial A] — 2026-11-01
 
 🐛 Correcciones
