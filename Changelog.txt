@@ -2,6 +2,42 @@
  SAIR4 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.2.0 Oficial A] — 2026-11-02
+
+✨ Novedades
+- ❤️ ME GUSTA en la Comunidad: corazón con contador en cada personaje, orden
+  "Más populares" y filtro "Mis favoritos" con los que te gustan.
+- 🏷️ ETIQUETAS: hasta 5 por personaje (fantasía, romance, terror, anime…),
+  visibles en las tarjetas y como filtro en la Comunidad.
+- 📚 LOREBOOK: fichas del mundo de cada personaje (lugares, personajes
+  secundarios, reglas…) con palabras clave. La IA solo las recibe cuando se
+  mencionan en la conversación, así no gasta tokens de más.
+- 📝 BORRADORES: lo que dejas escrito en un chat se guarda solo y vuelve a
+  aparecer al abrirlo.
+- 🔗 COMPARTIR personajes con un enlace (botón del móvil o copiar). Quien lo
+  abre entra directo al chat, también después de iniciar sesión.
+- 🔢 CONTADOR DE USO de tu API Key: tokens y peticiones de cada chat y del
+  día, en la cabecera del chat.
+
+🐛 Correcciones
+- El aura de los personajes de la Comunidad ya no sale siempre rosa: el color
+  se guarda aparte y el SQL recupera el de los personajes existentes.
+
+⚡ Rendimiento
+- "Mis personajes" ya no descarga el prompt completo de cada personaje.
+- index.html pasa de 6.181 a 600 líneas: los estilos y el código están en
+  css/ y js/, se cachean por separado y un error en un archivo ya no tumba
+  toda la app.
+
+🔧 Interno
+- La CI comprueba el orden de carga de los scripts (tools/verificar-scripts.js).
+- El service worker sirve el código de la app con "primero la red" y tiempo
+  límite, para no mezclar nunca una página nueva con scripts viejos.
+
+📌 Requiere ejecutar en Supabase (la app funciona sin ello, pero oculta los
+   "me gusta" y las etiquetas, y el Lorebook se guarda solo en el navegador):
+   · supabase_comunidad_v2.sql
+
 [4.1.0 Oficial A] — 2026-11-01
 
 ✨ Novedades

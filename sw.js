@@ -11,7 +11,16 @@ const STATIC_ASSETS = [
   './apple-touch-icon.png',
   './ERROR.mp4',
   './supabase.js',
-  './version.js'
+  './version.js',
+  './css/app.css',
+  './js/nucleo.js',
+  './js/personajes.js',
+  './js/comunidad.js',
+  './js/chat.js',
+  './js/extras.js',
+  './js/arranque.js',
+  './js/herramientas.js',
+  './js/diario.js'
 ];
 
 // Instalar: cachear assets estáticos
@@ -90,19 +99,32 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Manifest, Service Worker y versión: Network first (nunca servir copias viejas)
-  if (url.pathname.endsWith('/manifest.json') || url.pathname.endsWith('/sw.js') || url.pathname.endsWith('/version.js')) {
-    e.respondWith(
-      fetch(e.request)
-        .then((response) => {
-          if (response && response.status === 200 && response.type === 'basic') {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(e.request))
-    );
+  // Código de la app (js/, css/), versión, manifest y service worker:
+  // primero la red, con tiempo límite y la caché como respaldo. Así una
+  // página nueva nunca se combina con scripts viejos de la caché.
+  const esCodigoApp = /\/(js|css)\/[^/]+\.(js|css)$/.test(url.pathname) ||
+    url.pathname.endsWith('/manifest.json') || url.pathname.endsWith('/sw.js') || url.pathname.endsWith('/version.js');
+  if (esCodigoApp) {
+    e.respondWith((async () => {
+      const red = fetch(e.request, { cache: 'no-cache' }).then((response) => {
+        if (response && response.ok && response.type === 'basic') {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+        }
+        return response;
+      });
+      red.catch(() => {});
+      const limite = new Promise((resolve) => setTimeout(resolve, NAV_TIMEOUT_MS, null));
+      try {
+        const response = await Promise.race([red, limite]);
+        if (response && response.ok) return response;
+        return (await caches.match(e.request, { ignoreSearch: true })) || response || await red;
+      } catch (err) {
+        const cached = await caches.match(e.request, { ignoreSearch: true });
+        if (cached) return cached;
+        throw err;
+      }
+    })());
     return;
   }
 
