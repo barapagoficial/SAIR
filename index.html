@@ -6,6 +6,13 @@
 <title>SAIR — Roleplay con IA</title>
 <meta name="description" content="SAIR: Aplicación premium de roleplay conversacional con personajes de IA impulsados por Gemini.">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SAIR">
+<meta property="og:title" content="SAIR — Roleplay con IA">
+<meta property="og:description" content="Crea personajes, chatea con ellos y descubre los de la comunidad. Roleplay con IA usando tu propia API Key de Gemini.">
+<meta property="og:image" content="https://barapagoficial.github.io/SAIR/icon-512.png">
+<meta property="og:url" content="https://barapagoficial.github.io/SAIR/">
+<meta name="twitter:card" content="summary">
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -208,6 +215,7 @@ body[data-theme="light"] .intensity-card.active{background:rgba(255,77,143,0.1)}
 .dashboard-tab:hover{color:var(--text-1)}
 .dashboard-tab.active{color:var(--pink);border-bottom-color:var(--pink)}
 .section-title{font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:var(--text-1);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.character-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin:-.3rem 0 .9rem}.character-tag{font-size:.68rem;padding:.15rem .5rem;border-radius:999px;background:var(--bg-input);border:1px solid var(--border);color:var(--text-2)}.etiqueta-chip{font:inherit;font-size:.8rem;padding:.35rem .75rem;border-radius:999px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-2);cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s,color .2s}.etiqueta-chip:hover{border-color:var(--pink);color:var(--text-1)}.etiqueta-chip[aria-pressed="true"]{background:rgba(255,77,143,.16);border-color:var(--pink);color:var(--pink)}.etiquetas-editor{display:flex;flex-wrap:wrap;gap:.4rem}.comunidad-etiquetas{max-width:1280px;margin:0 auto 1.2rem;display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.3rem;scrollbar-width:thin}.comunidad-etiquetas[hidden]{display:none}#btn-comunidad-favoritos[aria-pressed="true"]{background:rgba(255,77,143,.16);border-color:var(--pink);color:var(--pink)}.character-actions .btn.btn-like,.character-actions .btn.btn-share{flex:0 0 auto;width:auto;padding-inline:.7rem}.btn-like.activo{border-color:var(--pink);color:var(--pink)}
 .btn-message.btn-leer.leyendo{background:rgba(255,77,143,.18);border-color:var(--pink);color:var(--pink)}.chat-mic-btn{width:52px;height:52px;border-radius:var(--radius-md);background:var(--bg-input);border:1px solid var(--border);color:var(--text-2);cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:background .2s,color .2s,border-color .2s}.chat-mic-btn[hidden]{display:none}.chat-mic-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.chat-mic-btn:hover{color:var(--text-1);border-color:var(--pink)}.chat-mic-btn.escuchando{background:rgba(239,68,68,.15);border-color:#ef4444;color:#ef4444;animation:micPulso 1.4s ease-in-out infinite}@keyframes micPulso{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.45)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}@media (max-width:700px){.chat-mic-btn{width:44px;height:44px}}.voz-controles{display:flex;flex-direction:column;gap:.5rem}.voz-check{display:flex;gap:.5rem;align-items:center;font-size:.9rem;color:var(--text-2);cursor:pointer}.voz-mini{font-size:.78rem;color:var(--text-3);margin-top:.3rem}.voz-rango{width:100%;accent-color:var(--pink)}.voz-controles .btn{align-self:flex-start}.voz-nota{font-size:.75rem;color:var(--text-4);margin-top:.5rem}
 .comunidad-toolbar{max-width:1280px;margin:0 auto 1.2rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}.comunidad-busqueda{flex:1 1 240px;min-width:0}.comunidad-orden{flex:0 0 auto;width:auto;min-width:170px}.comunidad-mas{display:flex;justify-content:center;margin:1.5rem 0 .5rem}.character-actions .btn.btn-report{flex:0 0 auto;width:auto;padding-inline:.75rem}.comunidad-toolbar .btn{flex:0 0 auto;width:auto}.reporte-item{border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem;margin-bottom:.8rem;background:var(--bg-card)}.reporte-cabecera{display:flex;justify-content:space-between;gap:.5rem;align-items:center;margin-bottom:.5rem;color:var(--text-1)}.reporte-contador{font-size:.75rem;color:var(--pink);background:rgba(255,77,143,.12);border-radius:999px;padding:.15rem .6rem;white-space:nowrap}.reporte-motivos{margin:0 0 .8rem 1.1rem;color:var(--text-2);font-size:.85rem;line-height:1.6}.reporte-acciones{display:flex;gap:.5rem;flex-wrap:wrap}.reportes-vacio{color:var(--text-3);text-align:center;padding:1.5rem 0}
 .characters-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
@@ -1339,6 +1347,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 </div>
 <div class="form-group"><label class="form-label" for="char-nombre">Nombre del personaje</label><input type="text" id="char-nombre" name="nombre" class="form-input" placeholder="Ej: Shizu" required maxlength="60"></div>
 <div class="form-group"><label class="form-label" for="char-desc">Descripción corta <span class="hint">(para la tarjeta)</span></label><input type="text" id="char-desc" name="descripcion_corta" class="form-input" placeholder="Ej: Una chica tímida que ama los libros" maxlength="200"></div>
+<div class="form-group" id="char-etiquetas-grupo"><label class="form-label" id="char-etiquetas-label">Etiquetas <span class="hint">(hasta 5, ayudan a encontrarlo en la Comunidad)</span></label><div class="etiquetas-editor" id="char-etiquetas" role="group" aria-labelledby="char-etiquetas-label"></div></div>
 <div class="form-group">
 <label class="form-label">Color de aura del personaje <span class="hint">(efecto de brillo y tema)</span></label>
 <div class="aura-color-picker">
@@ -2571,9 +2580,181 @@ function procesarAvatar(){return new Promise(resolve=>{if(!avatarModificado){res
 function setAvatarForEdit(avatarUrl){avatarModificado=false;const safeUrl=sanitizeImageUrl(avatarUrl);if(safeUrl){avatarData.original=safeUrl;avatarData.final=safeUrl;avatarData.sourceIsRaw=false;resetAvatarSliders();updateAvatarPreview();setAvatarControlsMode('view');avatarControls.classList.add('visible');avatarContainer.classList.add('has-image')}else{document.getElementById('avatar-remove').click()}}
 function actualizarAvatarEnUI(personaje){if(!personaje)return;const safeAvatar=sanitizeImageUrl(personaje.avatar_url);if(currentCharacter&&currentCharacter.id===personaje.id){currentCharacter={...currentCharacter,...personaje};const avatarEl=document.getElementById('chat-char-avatar');if(avatarEl){if(safeAvatar)avatarEl.innerHTML=`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`;else avatarEl.textContent=personaje.nombre.charAt(0).toUpperCase()}}}
 function construirSystemPrompt({nombre,personalidad,escenario,ejemplos,themeColor,intensidad}){const LIMITS={nombre:60,personalidad:3000,escenario:2000,ejemplos:4000};if(nombre&&nombre.length>LIMITS.nombre)throw new Error(`Nombre demasiado largo (máx. ${LIMITS.nombre})`);if(personalidad&&personalidad.length>LIMITS.personalidad)throw new Error(`Personalidad demasiado larga (máx. ${LIMITS.personalidad})`);if(escenario&&escenario.length>LIMITS.escenario)throw new Error(`Escenario demasiado largo (máx. ${LIMITS.escenario})`);if(ejemplos&&ejemplos.length>LIMITS.ejemplos)throw new Error(`Ejemplos demasiado largos (máx. ${LIMITS.ejemplos})`);const partes=[];partes.push(`[Sistema de Roleplay]`);partes.push(`Interpretarás al personaje "${nombre}" de forma inmersiva y consistente.`);partes.push(``);partes.push(`REGLAS ESTRICTAS DE FORMATO:`);partes.push(`- Usa *asteriscos* para acciones, pensamientos, expresiones y entorno.`);partes.push(`- Escribe el diálogo normal sin comillas.`);partes.push(`- NUNCA rompas el personaje. NUNCA hables como IA.`);partes.push(`- Responde siempre en primera persona como ${nombre}.`);partes.push(`- Sé descriptivo con las acciones.`);partes.push(``);if(personalidad?.trim()){partes.push(`[Personalidad de ${nombre}]`);partes.push(personalidad.trim());partes.push(``)}if(escenario?.trim()){partes.push(`[Escenario]`);partes.push(escenario.trim());partes.push(``)}if(ejemplos?.trim()){partes.push(`[Ejemplos de diálogo - imita este estilo]`);partes.push(ejemplos.trim());partes.push(``)}if(themeColor){partes.push(`[ConfiguracionTema]`);partes.push(sanitizeThemeColor(themeColor));partes.push(``)}if(intensidad){partes.push(`[ConfiguracionIntensidad]`);partes.push(intensidad);partes.push(``)}partes.push(`[Final] Mantén siempre el rol de ${nombre}.`);return partes.join('\n')}
-async function crearPersonaje(datos){if(!currentUser)throw new Error('No hay sesión');if(!datos.nombre?.trim())throw new Error('El nombre es obligatorio');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();if(avatar_url===undefined)avatar_url=null;const insertPayload={user_id:currentUser.id,nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,avatar_url,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave'};return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').insert(insertPayload).select().single();if(error?.code==='42703'){const legacyPayload={...insertPayload};delete legacyPayload.intensidad;const{data:d2,error:e2}=await sbClient.from('personajes').insert(legacyPayload).select().single();if(e2)throw new Error(e2.message);return d2}if(error)throw new Error(error.message);return data})}
-async function actualizarPersonaje(id,datos){if(!currentUser)throw new Error('No hay sesión');const system_prompt=construirSystemPrompt(datos);let avatar_url=await procesarAvatar();const updates={nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave'};if(avatar_url!==undefined){updates.avatar_url=avatar_url;}return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').update(updates).eq('id',id).eq('user_id',currentUser.id).select().single();if(error?.code==='42703'){const legacyUpdates={...updates};delete legacyUpdates.intensidad;const{data:d2,error:e2}=await sbClient.from('personajes').update(legacyUpdates).eq('id',id).eq('user_id',currentUser.id).select().single();if(e2)throw new Error(e2.message);return d2}if(error)throw new Error(error.message);return data})}
-async function listarPersonajes(){if(!currentUser)return[];return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').eq('user_id',currentUser.id).order('creado_en',{ascending:!1});if(error)throw new Error(error.message);return data||[]})}
+/* ── Personajes: columnas opcionales, aura y etiquetas ──
+   color_aura, tags y likes_count solo existen si se ejecutaron los SQL de
+   4.0 y 4.2. Si faltan, la app pide las columnas de siempre y oculta lo
+   que dependa de ellas. */
+const COLS_PERSONAJE_BASE='id,nombre,descripcion_corta,avatar_url,publico,user_id,creado_en';
+const COLS_PERSONAJE_EXTRA='color_aura,tags,likes_count';
+let extrasPersonajeEnNube=true;
+const ETIQUETAS_PERSONAJE={fantasia:'🐉 Fantasía',romance:'💕 Romance',aventura:'🗺️ Aventura',accion:'⚔️ Acción',terror:'👻 Terror',misterio:'🔍 Misterio',scifi:'🚀 Ciencia ficción',comedia:'😂 Comedia',drama:'🎭 Drama',anime:'🌸 Anime',historico:'🏛️ Histórico',cotidiano:'☕ Vida cotidiana'};
+const MAX_ETIQUETAS=5;
+function normalizarEtiquetas(lista){return[...new Set((Array.isArray(lista)?lista:[]).filter(t=>ETIQUETAS_PERSONAJE[t]))].slice(0,MAX_ETIQUETAS)}
+function esErrorColumnaInexistente(error){
+  const t=`${error?.code||''} ${error?.message||''}`;
+  return /42703|PGRST204|column .* does not exist|Could not find the '.*' column/i.test(t);
+}
+// Pide las columnas extra y, si no existen, repite la consulta sin ellas.
+async function consultarConExtras(construir,colsRepliegue=COLS_PERSONAJE_BASE){
+  if(extrasPersonajeEnNube){
+    const r=await construir(`${COLS_PERSONAJE_BASE},${COLS_PERSONAJE_EXTRA}`);
+    if(!r.error||!esErrorColumnaInexistente(r.error))return r;
+    extrasPersonajeEnNube=false;
+    console.warn('ℹ️ Faltan columnas de personajes (ejecuta supabase_comunidad_v2.sql). Se usa el modo compatible.');
+    actualizarDisponibilidadEtiquetas();
+  }
+  return construir(colsRepliegue);
+}
+// Guarda y, si alguna columna nueva no existe, reintenta sin ella.
+async function guardarPersonajeConRepliegue(ejecutar,payload){
+  let r=await ejecutar(payload);
+  if(r.error&&esErrorColumnaInexistente(r.error)){
+    const sinExtras={...payload};delete sinExtras.color_aura;delete sinExtras.tags;
+    r=await ejecutar(sinExtras);
+    if(r.error&&esErrorColumnaInexistente(r.error)){delete sinExtras.intensidad;r=await ejecutar(sinExtras)}
+  }
+  if(r.error)throw new Error(r.error.message);
+  return r.data;
+}
+function colorAuraDe(p){
+  if(/^#[0-9a-f]{6}$/i.test(p?.color_aura||''))return sanitizeThemeColor(p.color_aura.toLowerCase());
+  return parsearSystemPrompt(p?.system_prompt).themeColor||'#ff4d8f';
+}
+async function crearPersonaje(datos){
+  if(!currentUser)throw new Error('No hay sesión');
+  if(!datos.nombre?.trim())throw new Error('El nombre es obligatorio');
+  const system_prompt=construirSystemPrompt(datos);
+  let avatar_url=await procesarAvatar();if(avatar_url===undefined)avatar_url=null;
+  const payload={user_id:currentUser.id,nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,avatar_url,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave',color_aura:sanitizeThemeColor(datos.themeColor),tags:normalizarEtiquetas(datos.tags)};
+  return ejecutarConRefresh(()=>guardarPersonajeConRepliegue(p=>sbClient.from('personajes').insert(p).select().single(),payload));
+}
+async function actualizarPersonaje(id,datos){
+  if(!currentUser)throw new Error('No hay sesión');
+  const system_prompt=construirSystemPrompt(datos);
+  const avatar_url=await procesarAvatar();
+  const updates={nombre:datos.nombre.trim(),descripcion_corta:(datos.descripcion_corta||'').slice(0,200),system_prompt,publico:!!datos.publico,saludo:datos.saludo||null,max_tokens:parseInt(datos.max_tokens)||4096,intensidad:datos.intensidad||'suave',color_aura:sanitizeThemeColor(datos.themeColor),tags:normalizarEtiquetas(datos.tags)};
+  if(avatar_url!==undefined)updates.avatar_url=avatar_url;
+  return ejecutarConRefresh(()=>guardarPersonajeConRepliegue(u=>sbClient.from('personajes').update(u).eq('id',id).eq('user_id',currentUser.id).select().single(),updates));
+}
+// Mis personajes: solo lo que necesita la tarjeta (antes se pedía select('*'),
+// prompts completos incluidos). Sin las columnas nuevas se pide el prompt
+// para poder sacar el color del aura, como antes.
+async function listarPersonajes(){
+  if(!currentUser)return[];
+  return ejecutarConRefresh(async()=>{
+    const{data,error}=await consultarConExtras(cols=>sbClient.from('personajes').select(cols).eq('user_id',currentUser.id).order('creado_en',{ascending:false}),`${COLS_PERSONAJE_BASE},system_prompt`);
+    if(error)throw new Error(error.message);
+    return data||[];
+  });
+}
+
+/* Selector de etiquetas del editor */
+function etiquetasSeleccionadas(){return[...document.querySelectorAll('#char-etiquetas .etiqueta-chip[aria-pressed="true"]')].map(b=>b.dataset.tag)}
+function marcarEtiquetasEditor(lista){
+  const sel=new Set(normalizarEtiquetas(lista));
+  document.querySelectorAll('#char-etiquetas .etiqueta-chip').forEach(b=>b.setAttribute('aria-pressed',sel.has(b.dataset.tag)?'true':'false'));
+}
+function actualizarDisponibilidadEtiquetas(){
+  const grupo=document.getElementById('char-etiquetas-grupo');
+  if(grupo)grupo.hidden=!extrasPersonajeEnNube;
+}
+(function iniciarSelectorEtiquetas(){
+  const cont=document.getElementById('char-etiquetas');if(!cont)return;
+  cont.innerHTML=Object.entries(ETIQUETAS_PERSONAJE).map(([k,v])=>`<button type="button" class="etiqueta-chip" data-tag="${k}" aria-pressed="false">${v}</button>`).join('');
+  cont.addEventListener('click',e=>{
+    const b=e.target.closest('.etiqueta-chip');if(!b)return;
+    const activa=b.getAttribute('aria-pressed')==='true';
+    if(!activa&&etiquetasSeleccionadas().length>=MAX_ETIQUETAS){showToast(`Máximo ${MAX_ETIQUETAS} etiquetas`,'error');return}
+    b.setAttribute('aria-pressed',activa?'false':'true');
+  });
+})();
+
+/* Tarjeta de personaje (Mis personajes y Comunidad) */
+function htmlTarjetaPersonaje(p,esComunidad){
+  const safeAvatar=sanitizeImageUrl(p.avatar_url);
+  const avatarContent=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="${escapeHtml(p.nombre)}" loading="lazy">`:escapeHtml(p.nombre.charAt(0).toUpperCase());
+  const badge=esComunidad?'':(p.publico?'<span class="badge-public">Público</span>':'<span class="badge-private">Privado</span>');
+  const authorLine=esComunidad?`<div class="character-author" data-user-id="${escapeHtml(p.user_id)}">Cargando...</div>`:'';
+  const etiquetas=normalizarEtiquetas(p.tags);
+  const tagsHtml=etiquetas.length?`<div class="character-tags">${etiquetas.slice(0,3).map(t=>`<span class="character-tag">${ETIQUETAS_PERSONAJE[t]}</span>`).join('')}</div>`:'';
+  const id=escapeHtml(p.id),propio=p.user_id===currentUser?.id;
+  const chat=`<button type="button" class="btn btn-primary btn-small btn-chat" data-id="${id}">💬 Chatear</button>`;
+  const compartir=p.publico?`<button type="button" class="btn btn-ghost btn-small btn-share" data-id="${id}" data-nombre="${escapeHtml(p.nombre)}" title="Compartir" aria-label="Compartir ${escapeHtml(p.nombre)}">🔗</button>`:'';
+  let acciones;
+  if(esComunidad){
+    const meGusta=likesEnNube&&extrasPersonajeEnNube?(()=>{const dado=misLikes.has(String(p.id));return`<button type="button" class="btn btn-ghost btn-small btn-like${dado?' activo':''}" data-id="${id}" aria-pressed="${dado}" title="${dado?'Quitar me gusta':'Me gusta'}" aria-label="Me gusta ${escapeHtml(p.nombre)}">${dado?'❤️':'🤍'} <span class="like-count">${Number(p.likes_count)||0}</span></button>`})():'';
+    const reportar=!propio?`<button type="button" class="btn btn-ghost btn-small btn-report" data-id="${id}" title="Reportar" aria-label="Reportar ${escapeHtml(p.nombre)}">🚩</button>`:'';
+    acciones=chat+meGusta+compartir+reportar;
+  }else{
+    acciones=chat+compartir+`<button type="button" class="btn btn-ghost btn-small btn-edit" data-id="${id}" title="Editar">✏️</button><button type="button" class="btn btn-danger btn-small btn-delete" data-id="${id}" title="Eliminar">🗑️</button>`;
+  }
+  const themeColor=colorAuraDe(p),glowColor=hexToRgba(themeColor,0.35);
+  return`<div class="character-card" data-id="${id}" style="--char-color: ${themeColor}; --char-glow: ${glowColor};"><div class="character-avatar">${avatarContent}</div><div class="character-name">${escapeHtml(p.nombre)}${badge}</div>${authorLine}<div class="character-desc">${escapeHtml(p.descripcion_corta||'Sin descripción')}</div>${tagsHtml}<div class="character-actions">${acciones}</div></div>`;
+}
+
+/* "Me gusta": también hacen de favoritos */
+let likesEnNube=true;
+let misLikes=new Set();
+let misLikesCargados=false;
+async function cargarMisLikes(){
+  if(misLikesCargados||!likesEnNube||!currentUser)return;
+  const{data,error}=await sbClient.from('personajes_likes').select('personaje_id').eq('user_id',currentUser.id).order('creado_en',{ascending:false}).limit(1000);
+  if(error){if(esErrorTablaInexistente(error)||esErrorColumnaInexistente(error)){likesEnNube=false;return}console.warn('⚠️ No se pudieron cargar tus me gusta:',error.message);return}
+  misLikes=new Set((data||[]).map(r=>String(r.personaje_id)));
+  misLikesCargados=true;
+}
+async function alternarLike(btn){
+  const id=btn.dataset.id,dado=misLikes.has(id);
+  const contador=btn.querySelector('.like-count');
+  const pintar=(activo,delta)=>{
+    btn.classList.toggle('activo',activo);btn.setAttribute('aria-pressed',String(activo));
+    btn.title=activo?'Quitar me gusta':'Me gusta';
+    btn.firstChild.textContent=activo?'❤️ ':'🤍 ';
+    const n=Math.max(0,(parseInt(contador.textContent,10)||0)+delta);contador.textContent=n;
+    const p=comunidad.lista.find(x=>String(x.id)===id);if(p)p.likes_count=n;
+  };
+  btn.disabled=true;
+  if(dado){misLikes.delete(id);pintar(false,-1)}else{misLikes.add(id);pintar(true,1)}
+  try{
+    const{error}=dado
+      ?await sbClient.from('personajes_likes').delete().eq('personaje_id',id).eq('user_id',currentUser.id)
+      :await sbClient.from('personajes_likes').insert({personaje_id:id,user_id:currentUser.id});
+    if(error&&error.code!=='23505')throw new Error(error.message);
+  }catch(err){
+    if(dado){misLikes.add(id);pintar(true,1)}else{misLikes.delete(id);pintar(false,-1)}
+    showToast(`❌ ${err.message}`,'error');
+  }finally{btn.disabled=false}
+}
+
+/* Compartir un personaje con un enlace */
+function enlacePersonaje(id){return`${location.origin}${location.pathname}?personaje=${encodeURIComponent(id)}`}
+async function compartirPersonaje(id,nombre){
+  const url=enlacePersonaje(id);
+  const datos={title:`${nombre} · SAIR`,text:`Chatea con ${nombre} en SAIR`,url};
+  if(navigator.share){
+    try{await navigator.share(datos);return}
+    catch(err){if(err?.name==='AbortError')return}
+  }
+  try{await navigator.clipboard.writeText(url);showToast('🔗 Enlace copiado. Pégalo donde quieras compartirlo')}
+  catch{window.prompt('Copia este enlace:',url)}
+}
+// Si se abrió la app con ?personaje=…, se guarda para abrir ese chat en
+// cuanto haya sesión (también después de iniciar sesión).
+const PERSONAJE_COMPARTIDO_KEY='sair1_personaje_compartido';
+(function capturarPersonajeCompartido(){
+  try{
+    const params=new URLSearchParams(location.search),id=params.get('personaje');
+    if(id&&/^[0-9a-f-]{36}$/i.test(id))sessionStorage.setItem(PERSONAJE_COMPARTIDO_KEY,id);
+    if(params.has('personaje')){params.delete('personaje');const q=params.toString();history.replaceState(null,'',location.pathname+(q?'?'+q:'')+location.hash)}
+  }catch{}
+})();
+async function abrirPersonajeCompartidoPendiente(){
+  let id=null;
+  try{id=sessionStorage.getItem(PERSONAJE_COMPARTIDO_KEY);sessionStorage.removeItem(PERSONAJE_COMPARTIDO_KEY)}catch{}
+  if(!id||!currentUser)return;
+  try{await abrirChatConPersonaje(id)}
+  catch{showToast('Ese personaje ya no existe o dejó de ser público','error')}
+}
 async function obtenerPersonaje(id){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('personajes').select('*').or(`publico.eq.true,user_id.eq.${currentUser.id}`).eq('id',id).single();if(error)throw new Error('Personaje no encontrado');return data})}
 async function eliminarPersonaje(id){return ejecutarConRefresh(async()=>{const{error}=await sbClient.from('personajes').delete().eq('id',id).eq('user_id',currentUser.id);if(error)throw new Error(error.message);return!0})}
 async function listarAnuncios(){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.from('anuncios').select('*').order('creado_en',{ascending:!1}).limit(50);if(error)throw new Error(error.message);return data||[]})}
@@ -2748,26 +2929,33 @@ for(;;){const{done,value}=await reader.read();if(done)break;buffer+=decoder.deco
 }
 async function fetchWithRetry(fn,retries=2,delay=1e3){for(let i=0;i<=retries;i++){try{return await fn()}catch(err){if(err.message&&(err.message.includes('JWT expired')||err.message.includes('jwt expired')||err.message.includes('invalid token')||err.message.includes('token expired'))){try{const{data,error}=await sbClient.auth.refreshSession();if(error){console.error('❌ Error al refrescar sesión:',error);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}if(data.session){currentUser=data.session.user;await cargarPerfilYRol();console.log('✅ Sesión refrescada correctamente');return await fn()}}catch(refreshErr){console.error('❌ Falló el refresco de sesión:',refreshErr);await sbClient.auth.signOut();currentUser=null;userRole=null;userUsername=null;showAuth();throw new Error('Sesión expirada. Inicia sesión de nuevo.')}}if(i===retries)throw err;await new Promise(r=>setTimeout(r,delay*(i+1)))}}}
 async function renderCharacters(){if(currentView==='community'){renderComunidad();return}const container=document.getElementById('characters-container'),cacheKey=currentView==='my-characters'?'personajes':'personajesComunidad';if(LOADING[cacheKey])return;if(isCacheValid(cacheKey)&&CACHE[cacheKey]){renderCharactersGrid(CACHE[cacheKey],currentView!=='my-characters');return}LOADING[cacheKey]=!0;container.innerHTML=`<div style="max-width:1280px;margin:0 auto"><div style="margin-bottom:1.5rem;"><div class="skeleton-line short" style="height:24px;"></div></div><div class="characters-grid">${Array(6).fill(0).map(()=>`<div class="skeleton-card"><div class="skeleton-avatar"></div><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line"></div></div>`).join('')}</div></div>`;try{let personajes,esComunidad=!1;if(currentView==='my-characters')personajes=await fetchWithRetry(()=>listarPersonajes());else{personajes=await fetchWithRetry(()=>listarPersonajesComunidad());esComunidad=!0}CACHE[cacheKey]=personajes;CACHE.cacheTime[cacheKey]=Date.now();renderCharactersGrid(personajes,esComunidad)}catch(err){console.error('Error en renderCharacters:',err);container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Error al cargar</h3><p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p><button type="button" class="btn btn-primary" onclick="renderCharacters()">🔄 Reintentar</button></div>`}finally{LOADING[cacheKey]=!1}}
-function renderCharactersGrid(personajes,esComunidad,container=document.getElementById('characters-container')){if(!personajes||personajes.length===0){if(esComunidad&&comunidad.q){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔎</div><h3>Sin resultados</h3><p>No hay personajes que coincidan con «${escapeHtml(comunidad.q)}»</p></div>`}else if(esComunidad){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🌍</div><h3>Aún no hay personajes públicos</h3><p>Sé el primero en compartir un personaje con la comunidad</p></div>`}else{container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">✨</div><h3>Aún no tienes personajes</h3><p>Crea tu primer personaje para empezar a chatear</p><button type="button" class="btn btn-primary" onclick="document.getElementById('btn-nuevo-personaje').click()">Crear mi primer personaje</button></div>`}return}const titulo=esComunidad?`🌍 Personajes de la Comunidad (${personajes.length}${comunidad.hayMas?'+':''})`:`🎭 Mis Personajes (${personajes.length})`;container.innerHTML=`<div style="max-width:1280px;margin:0 auto 1.5rem"><h2 class="section-title">${titulo}</h2></div><div class="characters-grid" id="characters-grid-content"></div>`;const grid=container.querySelector('#characters-grid-content');grid.innerHTML=personajes.map(p=>{const safeAvatar=sanitizeImageUrl(p.avatar_url);const avatarContent=safeAvatar?`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="${escapeHtml(p.nombre)}">`:p.nombre.charAt(0).toUpperCase();const badge=esComunidad?'':(p.publico?'<span class="badge-public">Público</span>':'<span class="badge-private">Privado</span>');let authorLine='';if(esComunidad)authorLine=`<div class="character-author" data-user-id="${p.user_id}">Cargando...</div>`;const actionsHtml=esComunidad?`<button type="button" class="btn btn-primary btn-small btn-chat" data-id="${p.id}">💬 Chatear</button>${p.user_id!==currentUser?.id?`<button type="button" class="btn btn-ghost btn-small btn-report" data-id="${p.id}" title="Reportar" aria-label="Reportar ${escapeHtml(p.nombre)}">🚩</button>`:''}`:`<button type="button" class="btn btn-primary btn-small btn-chat" data-id="${p.id}">💬 Chatear</button><button type="button" class="btn btn-ghost btn-small btn-edit" data-id="${p.id}" title="Editar">✏️</button><button type="button" class="btn btn-danger btn-small btn-delete" data-id="${p.id}" title="Eliminar">🗑️</button>`;const parsed=parsearSystemPrompt(p.system_prompt);const themeColor=parsed.themeColor||'#ff4d8f';const glowColor=hexToRgba(themeColor,0.35);return`<div class="character-card" data-id="${p.id}" style="--char-color: ${themeColor}; --char-glow: ${glowColor};"><div class="character-avatar">${avatarContent}</div><div class="character-name">${escapeHtml(p.nombre)}${badge}</div>${authorLine}<div class="character-desc">${escapeHtml(p.descripcion_corta||'Sin descripción')}</div><div class="character-actions">${actionsHtml}</div></div>`}).join('');if(esComunidad){const userIds=[...new Set(personajes.map(p=>p.user_id))];obtenerUsernamesBatch(userIds).then(usernamesMap=>{grid.querySelectorAll('.character-author[data-user-id]').forEach(authorEl=>{const uid=authorEl.dataset.userId;authorEl.textContent=uid===currentUser.id?'👤 Tú':`por @${usernamesMap[uid]||'anónimo'}`})})}grid.querySelectorAll('.btn-delete').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();if(confirm('¿Eliminar este personaje? Se borrarán también sus chats.')){try{await fetchWithRetry(()=>eliminarPersonaje(btn.dataset.id));showToast('Personaje eliminado');CACHE.personajes=null;CACHE.cacheTime.personajes=0;renderCharacters()}catch(err){showToast(err.message,'error')}}})});grid.querySelectorAll('.btn-edit').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();await abrirEditorPersonaje(btn.dataset.id)})});grid.querySelectorAll('.btn-chat').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();await abrirChatConPersonaje(btn.dataset.id)})});grid.querySelectorAll('.btn-report').forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const p=personajes.find(x=>String(x.id)===btn.dataset.id);abrirReporte(btn.dataset.id,p?.nombre||'este personaje')})})}
-/* ── Comunidad: búsqueda, orden, "Cargar más" y reportes ──
-   Antes se traían los 50 personajes más recientes de golpe, sin buscar ni
-   paginar. Ahora se piden de 24 en 24 y se puede buscar por nombre o
-   descripción y cambiar el orden. */
+function renderCharactersGrid(personajes,esComunidad,container=document.getElementById('characters-container')){if(!personajes||personajes.length===0){if(esComunidad&&comunidad.favoritos&&!comunidad.q&&!comunidad.etiqueta){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🤍</div><h3>Aún no tienes favoritos</h3><p>Pulsa el corazón de un personaje para guardarlo aquí</p></div>`}else if(esComunidad&&(comunidad.q||comunidad.etiqueta||comunidad.favoritos)){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔎</div><h3>Sin resultados</h3><p>${comunidad.q?`No hay personajes que coincidan con «${escapeHtml(comunidad.q)}»`:'No hay personajes con esos filtros'}</p></div>`}else if(esComunidad){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🌍</div><h3>Aún no hay personajes públicos</h3><p>Sé el primero en compartir un personaje con la comunidad</p></div>`}else{container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">✨</div><h3>Aún no tienes personajes</h3><p>Crea tu primer personaje para empezar a chatear</p><button type="button" class="btn btn-primary" onclick="document.getElementById('btn-nuevo-personaje').click()">Crear mi primer personaje</button></div>`}return}const titulo=esComunidad?`🌍 Personajes de la Comunidad (${personajes.length}${comunidad.hayMas?'+':''})`:`🎭 Mis Personajes (${personajes.length})`;container.innerHTML=`<div style="max-width:1280px;margin:0 auto 1.5rem"><h2 class="section-title">${titulo}</h2></div><div class="characters-grid" id="characters-grid-content"></div>`;const grid=container.querySelector('#characters-grid-content');grid.innerHTML=personajes.map(p=>htmlTarjetaPersonaje(p,esComunidad)).join('');if(esComunidad){const userIds=[...new Set(personajes.map(p=>p.user_id))];obtenerUsernamesBatch(userIds).then(usernamesMap=>{grid.querySelectorAll('.character-author[data-user-id]').forEach(authorEl=>{const uid=authorEl.dataset.userId;authorEl.textContent=uid===currentUser.id?'👤 Tú':`por @${usernamesMap[uid]||'anónimo'}`})})}grid.querySelectorAll('.btn-delete').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();if(confirm('¿Eliminar este personaje? Se borrarán también sus chats.')){try{await fetchWithRetry(()=>eliminarPersonaje(btn.dataset.id));showToast('Personaje eliminado');CACHE.personajes=null;CACHE.cacheTime.personajes=0;renderCharacters()}catch(err){showToast(err.message,'error')}}})});grid.querySelectorAll('.btn-edit').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();await abrirEditorPersonaje(btn.dataset.id)})});grid.querySelectorAll('.btn-chat').forEach(btn=>{btn.addEventListener('click',async e=>{e.stopPropagation();await abrirChatConPersonaje(btn.dataset.id)})});grid.querySelectorAll('.btn-report').forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const p=personajes.find(x=>String(x.id)===btn.dataset.id);abrirReporte(btn.dataset.id,p?.nombre||'este personaje')})})}
+/* ── Comunidad: búsqueda, orden, etiquetas, favoritos y "Cargar más" ──
+   Se piden de 24 en 24. "Más populares", las etiquetas y los favoritos
+   solo aparecen si la base de datos tiene las columnas de la 4.2. */
 const COMUNIDAD_POR_PAGINA=24;
-const ORDENES_COMUNIDAD={recientes:['creado_en',false],antiguos:['creado_en',true],nombre:['nombre',true]};
-const comunidad={q:'',orden:'recientes',lista:[],hayMas:false,peticion:0};
+const ORDENES_COMUNIDAD={recientes:[['creado_en',false]],antiguos:[['creado_en',true]],nombre:[['nombre',true]],populares:[['likes_count',false],['creado_en',false]]};
+const comunidad={q:'',orden:'recientes',etiqueta:'',favoritos:false,lista:[],hayMas:false,peticion:0};
 const MOTIVOS_REPORTE={contenido_sexual_menores:'Contenido sexual con menores',odio_acoso:'Odio o acoso',violencia_extrema:'Violencia extrema',spam:'Spam o publicidad',suplantacion:'Suplanta a una persona real',otro:'Otro motivo'};
 // Quita los caracteres con significado especial en los filtros de PostgREST.
 function limpiarBusquedaComunidad(q){return String(q||'').replace(/[%_,()*\\:."'`]/g,' ').replace(/\s+/g,' ').trim().slice(0,60)}
-async function listarPersonajesComunidad({q='',orden='recientes',desde=0}={}){
+async function listarPersonajesComunidad({q='',orden='recientes',etiqueta='',favoritos=false,desde=0}={}){
   if(!currentUser)return{filas:[],hayMas:false};
+  if(favoritos&&!misLikes.size)return{filas:[],hayMas:false};
   return ejecutarConRefresh(async()=>{
-    const[col,asc]=ORDENES_COMUNIDAD[orden]||ORDENES_COMUNIDAD.recientes;
-    let consulta=sbClient.from('personajes').select('id,nombre,descripcion_corta,avatar_url,publico,user_id,creado_en').eq('publico',true);
-    const texto=limpiarBusquedaComunidad(q);
-    if(texto)consulta=consulta.or(`nombre.ilike.*${texto}*,descripcion_corta.ilike.*${texto}*`);
-    // Se pide uno de más para saber si queda otra página.
-    const{data,error}=await consulta.order(col,{ascending:asc}).order('id',{ascending:true}).range(desde,desde+COMUNIDAD_POR_PAGINA);
+    const construir=cols=>{
+      const extras=cols.includes('likes_count');
+      let consulta=sbClient.from('personajes').select(cols).eq('publico',true);
+      const texto=limpiarBusquedaComunidad(q);
+      if(texto)consulta=consulta.or(`nombre.ilike.*${texto}*,descripcion_corta.ilike.*${texto}*`);
+      if(etiqueta&&extras&&ETIQUETAS_PERSONAJE[etiqueta])consulta=consulta.contains('tags',[etiqueta]);
+      if(favoritos)consulta=consulta.in('id',[...misLikes].slice(0,300));
+      const criterios=(orden==='populares'&&!extras)?ORDENES_COMUNIDAD.recientes:(ORDENES_COMUNIDAD[orden]||ORDENES_COMUNIDAD.recientes);
+      for(const[col,asc]of criterios)consulta=consulta.order(col,{ascending:asc});
+      // Se pide uno de más para saber si queda otra página.
+      return consulta.order('id',{ascending:true}).range(desde,desde+COMUNIDAD_POR_PAGINA);
+    };
+    const{data,error}=await consultarConExtras(construir);
     if(error)throw new Error(error.message);
     const filas=data||[];
     return{filas:filas.slice(0,COMUNIDAD_POR_PAGINA),hayMas:filas.length>COMUNIDAD_POR_PAGINA};
@@ -2777,17 +2965,39 @@ function renderComunidad(){
   const container=document.getElementById('characters-container');
   container.innerHTML=`<div class="comunidad-toolbar">
 <input id="comunidad-q" class="form-input comunidad-busqueda" type="search" placeholder="Buscar por nombre o descripción…" maxlength="60" autocomplete="off" aria-label="Buscar personajes de la comunidad">
-<select id="comunidad-orden" class="form-input comunidad-orden" aria-label="Ordenar personajes"><option value="recientes">Más recientes</option><option value="antiguos">Más antiguos</option><option value="nombre">Nombre (A-Z)</option></select>
+<select id="comunidad-orden" class="form-input comunidad-orden" aria-label="Ordenar personajes"><option value="recientes">Más recientes</option><option value="populares">❤️ Más populares</option><option value="antiguos">Más antiguos</option><option value="nombre">Nombre (A-Z)</option></select>
+<button type="button" class="btn btn-ghost btn-small" id="btn-comunidad-favoritos" aria-pressed="false">❤️ Mis favoritos</button>
 ${isOwner()?'<button type="button" class="btn btn-ghost btn-small" id="btn-ver-reportes">🚩 Reportes</button>':''}
-</div><div id="comunidad-resultados" aria-live="polite"></div><div class="comunidad-mas"><button type="button" class="btn btn-ghost" id="btn-comunidad-mas" hidden>Cargar más</button></div>`;
-  const input=document.getElementById('comunidad-q'),orden=document.getElementById('comunidad-orden');
+</div>
+<div class="comunidad-etiquetas" id="comunidad-etiquetas" role="group" aria-label="Filtrar por etiqueta"><button type="button" class="etiqueta-chip" data-tag="" aria-pressed="true">Todas</button>${Object.entries(ETIQUETAS_PERSONAJE).map(([k,v])=>`<button type="button" class="etiqueta-chip" data-tag="${k}" aria-pressed="false">${v}</button>`).join('')}</div>
+<div id="comunidad-resultados" aria-live="polite"></div><div class="comunidad-mas"><button type="button" class="btn btn-ghost" id="btn-comunidad-mas" hidden>Cargar más</button></div>`;
+  const input=document.getElementById('comunidad-q'),orden=document.getElementById('comunidad-orden'),fav=document.getElementById('btn-comunidad-favoritos'),chips=document.getElementById('comunidad-etiquetas');
   input.value=comunidad.q;orden.value=comunidad.orden;
+  fav.setAttribute('aria-pressed',String(comunidad.favoritos));
+  chips.querySelectorAll('.etiqueta-chip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tag===comunidad.etiqueta)));
+  actualizarToolbarComunidad();
   let timer=null;
   input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(()=>{const q=input.value.trim();if(q===comunidad.q)return;comunidad.q=q;cargarComunidad(true)},350)});
   orden.addEventListener('change',()=>{comunidad.orden=orden.value;cargarComunidad(true)});
+  fav.addEventListener('click',()=>{comunidad.favoritos=!comunidad.favoritos;fav.setAttribute('aria-pressed',String(comunidad.favoritos));cargarComunidad(true)});
+  chips.addEventListener('click',e=>{
+    const b=e.target.closest('.etiqueta-chip');if(!b)return;
+    comunidad.etiqueta=b.dataset.tag;
+    chips.querySelectorAll('.etiqueta-chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+    cargarComunidad(true);
+  });
   document.getElementById('btn-comunidad-mas').addEventListener('click',()=>cargarComunidad(false));
   document.getElementById('btn-ver-reportes')?.addEventListener('click',abrirReportes);
   cargarComunidad(true);
+}
+// Oculta los controles que dependen de columnas o tablas que no existen.
+function actualizarToolbarComunidad(){
+  const extras=extrasPersonajeEnNube,likes=likesEnNube&&extras;
+  const chips=document.getElementById('comunidad-etiquetas');if(chips)chips.hidden=!extras;
+  const fav=document.getElementById('btn-comunidad-favoritos');if(fav)fav.hidden=!likes;
+  const pop=document.querySelector('#comunidad-orden option[value="populares"]');if(pop){pop.hidden=!extras;pop.disabled=!extras}
+  if(!extras){comunidad.etiqueta='';if(comunidad.orden==='populares'){comunidad.orden='recientes';const o=document.getElementById('comunidad-orden');if(o)o.value='recientes'}}
+  if(!likes)comunidad.favoritos=false;
 }
 async function cargarComunidad(reiniciar){
   const res=document.getElementById('comunidad-resultados');if(!res)return;
@@ -2800,8 +3010,10 @@ async function cargarComunidad(reiniciar){
   }
   if(btn){btn.disabled=true;btn.textContent='Cargando…'}
   try{
-    const{filas,hayMas}=await fetchWithRetry(()=>listarPersonajesComunidad({q:comunidad.q,orden:comunidad.orden,desde:comunidad.lista.length}));
+    await cargarMisLikes();
+    const{filas,hayMas}=await fetchWithRetry(()=>listarPersonajesComunidad({q:comunidad.q,orden:comunidad.orden,etiqueta:comunidad.etiqueta,favoritos:comunidad.favoritos,desde:comunidad.lista.length}));
     if(id!==comunidad.peticion)return; // llegó una respuesta más nueva
+    actualizarToolbarComunidad();
     const vistos=new Set(comunidad.lista.map(p=>p.id));
     comunidad.lista.push(...filas.filter(p=>!vistos.has(p.id)));
     comunidad.hayMas=hayMas;
@@ -2815,6 +3027,13 @@ async function cargarComunidad(reiniciar){
     else showToast(`❌ ${err.message}`,'error');
   }
 }
+// Botones de las tarjetas que no dependen de qué lista se pintó.
+document.getElementById('characters-container')?.addEventListener('click',e=>{
+  const like=e.target.closest('.btn-like');
+  if(like){e.stopPropagation();if(!like.disabled)alternarLike(like);return}
+  const share=e.target.closest('.btn-share');
+  if(share){e.stopPropagation();compartirPersonaje(share.dataset.id,share.dataset.nombre||'este personaje')}
+});
 function esErrorTablaInexistente(error){
   const t=`${error?.code||''} ${error?.message||''}`;
   return /42P01|PGRST20[0-5]|does not exist|schema cache|Could not find/i.test(t);
@@ -2890,6 +3109,8 @@ async function abrirEditorPersonaje(id=null){
   irAPasoCharacter(1,false);
   document.getElementById('avatar-remove').click();
   document.getElementById('char-id').value='';
+  marcarEtiquetasEditor([]);
+  actualizarDisponibilidadEtiquetas();
   if(id){
     document.getElementById('character-modal-title').textContent='✏️ Editar Personaje';
     document.getElementById('btn-crear-personaje').textContent='Guardar cambios';
@@ -2899,6 +3120,7 @@ async function abrirEditorPersonaje(id=null){
       document.getElementById('char-nombre').value=p.nombre;
       document.getElementById('char-desc').value=p.descripcion_corta||'';
       document.getElementById('char-publico').checked=!!p.publico;
+      marcarEtiquetasEditor(p.tags);
       const parsed=parsearSystemPrompt(p.system_prompt);
       document.getElementById('char-personalidad').value=parsed.personalidad;
       document.getElementById('char-escenario').value=parsed.escenario;
@@ -2988,6 +3210,7 @@ const datos = {
   publico: document.getElementById('char-publico').checked,
   max_tokens: Math.min(16384, Math.max(256, parseInt(document.getElementById('char-max-tokens').value) || 4096)),
   themeColor: sanitizeThemeColor(document.getElementById('char-color').value || '#ff4d8f'),
+  tags: etiquetasSeleccionadas(),
   intensidad: normalizarIntensidad(document.getElementById('char-intensidad').value)
 };
 const id = document.getElementById('char-id').value;if(id){const updated=await actualizarPersonaje(id,datos);actualizarAvatarEnUI(updated);showToast('✅ Personaje actualizado')}else{const created=await crearPersonaje(datos);showToast('✅ Personaje creado')}closeModal('character-modal');CACHE.personajes=null;CACHE.cacheTime.personajes=0;CACHE.personajesComunidad=null;CACHE.cacheTime.personajesComunidad=0;renderCharacters()}catch(err){showToast(`❌ ${err.message}`,'error')}finally{btn.disabled=!1;btn.textContent=originalText}});
@@ -4017,7 +4240,7 @@ function showAuth(){
   void authScreen.offsetWidth;
   forzarRepintado();
 }
-function showDashboard(){authScreen.classList.remove('visible','guest-welcome');dashboard.classList.add('visible');settingsBtn.classList.remove('hidden');limpiarCacheUsuario();verificarPoliticas();renderCharacters();forzarRepintado()}
+function showDashboard(){authScreen.classList.remove('visible','guest-welcome');dashboard.classList.add('visible');settingsBtn.classList.remove('hidden');limpiarCacheUsuario();verificarPoliticas();renderCharacters();forzarRepintado();abrirPersonajeCompartidoPendiente()}
 document.getElementById('auth-start-btn')?.addEventListener('click',()=>{authScreen.classList.remove('guest-welcome');requestAnimationFrame(()=>document.getElementById('login-email')?.focus())});
 document.querySelectorAll('.auth-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));document.getElementById(`${tab.dataset.tab}-form`).classList.add('active');document.querySelectorAll('.form-message').forEach(m=>{m.className='form-message';m.textContent=''})})});
 document.getElementById('login-form').addEventListener('submit',async e=>{
