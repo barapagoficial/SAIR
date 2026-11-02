@@ -215,6 +215,7 @@ body[data-theme="light"] .intensity-card.active{background:rgba(255,77,143,0.1)}
 .dashboard-tab:hover{color:var(--text-1)}
 .dashboard-tab.active{color:var(--pink);border-bottom-color:var(--pink)}
 .section-title{font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:var(--text-1);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.chat-uso-badge{cursor:pointer}.chat-uso-badge:hover{color:var(--text-1);border-color:var(--pink)}.uso-titulo{font-size:.85rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin:1rem 0 .4rem}.uso-titulo:first-child{margin-top:0}.uso-fila{display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid var(--border);color:var(--text-2);font-size:.9rem}.uso-fila strong{color:var(--text-1);font-variant-numeric:tabular-nums}.uso-nota{font-size:.75rem;color:var(--text-4);line-height:1.6;margin:1rem 0}
 .lorebook-hint{color:var(--text-3);font-size:.85rem;line-height:1.6;margin-bottom:.8rem}.lorebook-barra{display:flex;justify-content:space-between;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap}.lorebook-estado{font-size:.75rem;color:var(--text-4)}.lorebook-form{border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem;margin:.8rem 0;background:var(--bg-card)}.lorebook-form h3{font-size:1rem;margin-bottom:.8rem;color:var(--text-1)}.lorebook-form-acciones{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.8rem}.lorebook-lista{margin-top:1rem;display:flex;flex-direction:column;gap:.7rem}.lorebook-item{border:1px solid var(--border);border-radius:var(--radius-md);padding:.9rem 1rem;background:var(--bg-card)}.lorebook-item.inactiva{opacity:.55}.lorebook-item-cabecera{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;color:var(--text-1)}.lorebook-siempre{font-size:.68rem;color:var(--purple);background:rgba(168,85,247,.14);border-radius:999px;padding:.1rem .5rem}.lorebook-claves{display:flex;flex-wrap:wrap;gap:.3rem;margin:.45rem 0}.lorebook-claves span{font-size:.7rem;font-family:var(--font-mono);color:var(--pink);background:rgba(255,77,143,.1);border-radius:6px;padding:.1rem .4rem}.lorebook-contenido{color:var(--text-2);font-size:.85rem;line-height:1.55;white-space:pre-wrap;margin:.3rem 0 .6rem}.lorebook-acciones{display:flex;gap:.4rem;flex-wrap:wrap}.lorebook-vacio{color:var(--text-3);text-align:center;padding:1.2rem 0;font-size:.9rem}
 .character-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin:-.3rem 0 .9rem}.character-tag{font-size:.68rem;padding:.15rem .5rem;border-radius:999px;background:var(--bg-input);border:1px solid var(--border);color:var(--text-2)}.etiqueta-chip{font:inherit;font-size:.8rem;padding:.35rem .75rem;border-radius:999px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-2);cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s,color .2s}.etiqueta-chip:hover{border-color:var(--pink);color:var(--text-1)}.etiqueta-chip[aria-pressed="true"]{background:rgba(255,77,143,.16);border-color:var(--pink);color:var(--pink)}.etiquetas-editor{display:flex;flex-wrap:wrap;gap:.4rem}.comunidad-etiquetas{max-width:1280px;margin:0 auto 1.2rem;display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.3rem;scrollbar-width:thin}.comunidad-etiquetas[hidden]{display:none}#btn-comunidad-favoritos[aria-pressed="true"]{background:rgba(255,77,143,.16);border-color:var(--pink);color:var(--pink)}.character-actions .btn.btn-like,.character-actions .btn.btn-share{flex:0 0 auto;width:auto;padding-inline:.7rem}.btn-like.activo{border-color:var(--pink);color:var(--pink)}
 .btn-message.btn-leer.leyendo{background:rgba(255,77,143,.18);border-color:var(--pink);color:var(--pink)}.chat-mic-btn{width:52px;height:52px;border-radius:var(--radius-md);background:var(--bg-input);border:1px solid var(--border);color:var(--text-2);cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:background .2s,color .2s,border-color .2s}.chat-mic-btn[hidden]{display:none}.chat-mic-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.chat-mic-btn:hover{color:var(--text-1);border-color:var(--pink)}.chat-mic-btn.escuchando{background:rgba(239,68,68,.15);border-color:#ef4444;color:#ef4444;animation:micPulso 1.4s ease-in-out infinite}@keyframes micPulso{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.45)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}@media (max-width:700px){.chat-mic-btn{width:44px;height:44px}}.voz-controles{display:flex;flex-direction:column;gap:.5rem}.voz-check{display:flex;gap:.5rem;align-items:center;font-size:.9rem;color:var(--text-2);cursor:pointer}.voz-mini{font-size:.78rem;color:var(--text-3);margin-top:.3rem}.voz-rango{width:100%;accent-color:var(--pink)}.voz-controles .btn{align-self:flex-start}.voz-nota{font-size:.75rem;color:var(--text-4);margin-top:.5rem}
@@ -1526,7 +1527,7 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div class="chat-sidebar-header">
 <button type="button" class="chat-back-btn" id="chat-back-btn" title="Volver" aria-label="Volver a mis personajes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
 <div class="chat-char-avatar" id="chat-char-avatar"></div>
-<div class="chat-char-info"><div class="chat-char-name" id="chat-char-name">Personaje</div><div class="chat-char-sub" id="chat-char-sub"><span id="chat-count-label">Chats</span><span id="chat-intensity-indicator" class="chat-status-badge">Intensidad: —</span><span id="chat-model-indicator" class="chat-status-badge">Modelo: —</span></div></div>
+<div class="chat-char-info"><div class="chat-char-name" id="chat-char-name">Personaje</div><div class="chat-char-sub" id="chat-char-sub"><span id="chat-count-label">Chats</span><span id="chat-intensity-indicator" class="chat-status-badge">Intensidad: —</span><span id="chat-model-indicator" class="chat-status-badge">Modelo: —</span><span id="chat-uso-indicator" class="chat-status-badge chat-uso-badge" role="button" tabindex="0">🔢 Uso</span></div></div>
 </div>
 <button type="button" class="chat-new-btn" id="chat-new-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo chat</button>
 <button type="button" class="chat-new-btn" id="chat-export-btn" style="background:var(--bg-card);color:var(--text-2);border:1px solid var(--border);box-shadow:none;margin-top:.5rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar chat</button>
@@ -1563,6 +1564,14 @@ body.performance-light .chat-bg-img { display:none!important; }
 <div class="lorebook-form-acciones"><button type="button" class="btn btn-ghost" id="lorebook-cancelar">Cancelar</button><button type="submit" class="btn btn-primary">💾 Guardar ficha</button></div>
 </form>
 <div id="lorebook-lista" class="lorebook-lista"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="uso-modal">
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="uso-title" tabindex="-1" style="max-width:440px">
+<div class="modal-header"><h2 class="modal-title" id="uso-title">🔢 Uso de tu API Key</h2><button type="button" class="modal-close" data-close-modal="uso-modal" aria-label="Cerrar ventana">✕</button></div>
+<div id="uso-detalle"></div>
+<button type="button" class="btn btn-ghost btn-small" id="uso-reiniciar">Poner a cero</button>
 </div>
 </div>
 
@@ -1952,7 +1961,7 @@ async function peticionGeminiTexto({systemPrompt,contenido,mensajes,instruccion,
     e.tipo=response.status>=500?'servidor':'modelo';
     throw e;
   }
-  const data=await response.json();
+  const data=await response.json();anotarUsoUnico(data.usageMetadata);
   const candidato=data.candidates?.[0];
   const finish=String(candidato?.finishReason||'').toUpperCase();
   const texto=(candidato?.content?.parts||[]).map(p=>p.text||'').join('').trim();
@@ -2917,7 +2926,7 @@ async function reemplazarHistorialNormalizado(chatId,historial){const resumenIte
 async function guardarMensaje(chatId,rol,contenido){return ejecutarConRefresh(async()=>{const{data,error}=await sbClient.rpc('guardar_mensaje_chat',{p_chat_id:chatId,p_rol:rol,p_contenido:contenido});if(error)throw new Error(error.message);const nuevoMsg=Array.isArray(data)?data[0]:data;if(!nuevoMsg)throw new Error('No se pudo guardar el mensaje');return nuevoMsg})}
 async function eliminarMensajeDeChat(chatId,mensajeId){return ejecutarConRefresh(async()=>{const{mensajes}=await cargarHistorialCompleto(chatId),nuevoHistorial=mensajes.filter(m=>m.id!==mensajeId);if(nuevoHistorial.length===mensajes.length)throw new Error('Mensaje no encontrado');await reemplazarHistorialNormalizado(chatId,nuevoHistorial);return!0})}
 async function actualizarHistorialChat(chatId,nuevoHistorial){return ejecutarConRefresh(async()=>reemplazarHistorialNormalizado(chatId,nuevoHistorial))}
-async function* enviarAGeminiStream(systemPrompt,mensajes,nuevoMensaje,maxTokens=4096){const apiKey=getGeminiKey();if(!apiKey)throw new Error('⚠️ Configura tu API Key de Gemini en los Ajustes de Rol (🎭)');let resumen='',mensajesSinResumen=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant');const summaries=mensajes.filter(m=>m.rol==='summary');if(summaries.length>0){resumen=summaries.map(s=>s.contenido).join('\n\n');mensajesSinResumen=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant')}const systemPromptFinal=anexarLorebookAlPrompt(mensajesSinResumen,nuevoMensaje,anexarNotasRolAlPrompt(resumen?`${systemPrompt}\n\n[RESUMEN DE CONVERSACIONES ANTERIORES - CONTEXTO IMPORTANTE]:\n${resumen}\n\n[FIN DEL RESUMEN - Continúa con el roleplay normal manteniendo toda la información del resumen]`:systemPrompt));const model=getGeminiModel();let historialGemini=mensajesSinResumen.map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));const ultimo=mensajesSinResumen[mensajesSinResumen.length-1];if(nuevoMensaje&&!(ultimo&&ultimo.rol==='user'&&ultimo.contenido===nuevoMensaje)){historialGemini.push({role:'user',parts:[{text:nuevoMensaje}]})}if(historialGemini.length===0)throw new Error('No hay mensajes para enviar a Gemini');const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);const intensidadVal=currentCharacter?.intensidad||parsed.intensidad||'suave';const body={system_instruction:{parts:[{text:systemPromptFinal}]},contents:historialGemini,safetySettings:getSafetySettings(intensidadVal),generationConfig:{temperature:.9,topP:.95,topK:40,maxOutputTokens:maxTokens}},url=geminiUrl(model,true),controller=new AbortController();
+async function* enviarAGeminiStream(systemPrompt,mensajes,nuevoMensaje,maxTokens=4096){const idUso=iniciarPeticionUso();const apiKey=getGeminiKey();if(!apiKey)throw new Error('⚠️ Configura tu API Key de Gemini en los Ajustes de Rol (🎭)');let resumen='',mensajesSinResumen=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant');const summaries=mensajes.filter(m=>m.rol==='summary');if(summaries.length>0){resumen=summaries.map(s=>s.contenido).join('\n\n');mensajesSinResumen=mensajes.filter(m=>m.rol==='user'||m.rol==='assistant')}const systemPromptFinal=anexarLorebookAlPrompt(mensajesSinResumen,nuevoMensaje,anexarNotasRolAlPrompt(resumen?`${systemPrompt}\n\n[RESUMEN DE CONVERSACIONES ANTERIORES - CONTEXTO IMPORTANTE]:\n${resumen}\n\n[FIN DEL RESUMEN - Continúa con el roleplay normal manteniendo toda la información del resumen]`:systemPrompt));const model=getGeminiModel();let historialGemini=mensajesSinResumen.map(m=>({role:m.rol==='assistant'?'model':'user',parts:[{text:m.contenido}]}));const ultimo=mensajesSinResumen[mensajesSinResumen.length-1];if(nuevoMensaje&&!(ultimo&&ultimo.rol==='user'&&ultimo.contenido===nuevoMensaje)){historialGemini.push({role:'user',parts:[{text:nuevoMensaje}]})}if(historialGemini.length===0)throw new Error('No hay mensajes para enviar a Gemini');const parsed=parsearSystemPrompt(currentCharacter?.system_prompt);const intensidadVal=currentCharacter?.intensidad||parsed.intensidad||'suave';const body={system_instruction:{parts:[{text:systemPromptFinal}]},contents:historialGemini,safetySettings:getSafetySettings(intensidadVal),generationConfig:{temperature:.9,topP:.95,topK:40,maxOutputTokens:maxTokens}},url=geminiUrl(model,true),controller=new AbortController();
 abortarGeneracion=controller;
 let timeoutId=setTimeout(()=>controller.abort('timeout'),30e4);
 let response;try{response=await fetch(url,{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body),signal:controller.signal})}catch(err){
@@ -2930,7 +2939,7 @@ let response;try{response=await fetch(url,{method:'POST',headers:geminiHeaders(a
 }
 finally{clearTimeout(timeoutId)}
 clearTimeout(timeoutId);
-timeoutId=setTimeout(()=>controller.abort('stall'),90000);if(!response.ok){const errText=await response.text();let msg=`Error de Gemini (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(mensajeErrorGemini(msg))}if(!response.body)throw new Error('Gemini no devolvió una respuesta válida');const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',yieldedText=!1;const parseLine=line=>{const trimmed=line.trim();if(!trimmed)return;let payload=trimmed;if(payload.startsWith('data:'))payload=payload.slice(5).trim();if(!payload||payload==='[DONE]')return;let json;try{json=JSON.parse(payload)}catch{return}if(json.error?.message)throw new Error(mensajeErrorGemini(json.error.message));const candidate=json.candidates?.[0];if(!candidate)return;const finishReason=candidate.finishReason;if(finishReason)lastGeminiFinishReason=finishReason;if(finishReason&&finishReason!=='STOP'&&finishReason!=='MAX_TOKENS'){throw new Error(finishReason==='SAFETY'?'Respuesta bloqueada por filtros de seguridad':`Gemini detuvo la respuesta (${finishReason})`)}const text=candidate.content?.parts?.map(p=>p.text||'').join('')||'';if(text){yieldedText=true;return text}};try{
+timeoutId=setTimeout(()=>controller.abort('stall'),90000);if(!response.ok){const errText=await response.text();let msg=`Error de Gemini (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(mensajeErrorGemini(msg))}if(!response.body)throw new Error('Gemini no devolvió una respuesta válida');const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',yieldedText=!1;const parseLine=line=>{const trimmed=line.trim();if(!trimmed)return;let payload=trimmed;if(payload.startsWith('data:'))payload=payload.slice(5).trim();if(!payload||payload==='[DONE]')return;let json;try{json=JSON.parse(payload)}catch{return}if(json.usageMetadata)anotarUso(idUso,json.usageMetadata);if(json.error?.message)throw new Error(mensajeErrorGemini(json.error.message));const candidate=json.candidates?.[0];if(!candidate)return;const finishReason=candidate.finishReason;if(finishReason)lastGeminiFinishReason=finishReason;if(finishReason&&finishReason!=='STOP'&&finishReason!=='MAX_TOKENS'){throw new Error(finishReason==='SAFETY'?'Respuesta bloqueada por filtros de seguridad':`Gemini detuvo la respuesta (${finishReason})`)}const text=candidate.content?.parts?.map(p=>p.text||'').join('')||'';if(text){yieldedText=true;return text}};try{
 for(;;){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()||'';for(const line of lines){const text=parseLine(line);if(text)yield text}}buffer+=decoder.decode();for(const line of buffer.split('\n')){const text=parseLine(line);if(text)yield text}if(!yieldedText)throw new Error('Gemini no generó ninguna respuesta. Intenta de nuevo.')
 }catch(err){
   // Abortar el stream hace que reader.read() rechace (con un AbortError o con
@@ -3297,7 +3306,7 @@ El tono debe ser consistente con la idea del usuario.`;
     const body={system_instruction:{parts:[{text:systemPrompt}]},contents:[{role:'user',parts:[{text:`Idea: ${idea}`}]}],safetySettings:getSafetySettings('mediana'),generationConfig:{temperature:1,topP:.95,topK:40,maxOutputTokens:2048}};
     const response=await fetch(geminiUrl(getSummaryModel(),false),{method:'POST',headers:geminiHeaders(apiKey),body:JSON.stringify(body)});
     if(!response.ok){const errText=await response.text();let msg=`Error al generar (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(msg)}
-    const data=await response.json();
+    const data=await response.json();anotarUsoUnico(data.usageMetadata);
     const texto=data.candidates?.[0]?.content?.parts?.[0]?.text;
     if(!texto){
       if(data.promptFeedback&&data.promptFeedback.blockReason)throw new Error(`Generación bloqueada (${data.promptFeedback.blockReason}). Probá con otra idea.`);
@@ -3386,6 +3395,7 @@ async function seleccionarChat(chatId){
 guardarBorradorAhora();
 currentChatId=chatId;
 restaurarBorrador(chatId);
+actualizarIndicadorUso();
 cargarNotasRol(chatId);
 prepararDiarioLocal(chatId);
 document.querySelectorAll('.chat-list-item').forEach(i=>{i.classList.toggle('active',i.dataset.id===chatId)});
@@ -4135,6 +4145,65 @@ document.getElementById('lorebook-lista')?.addEventListener('click',async e=>{
     if(b.dataset.accion==='alternar')await guardarEntradaLorebook({...entrada,claves:(entrada.claves||[]).join(','),activa:entrada.activa===false});
     pintarLorebook();
   }catch(err){showToast(`❌ ${err.message}`,'error')}
+});
+
+/* ── Contador de uso de la API de Gemini ──
+   Cada respuesta de Gemini trae usageMetadata (tokens de entrada y de
+   salida). Se suman por chat y por día, solo en este navegador, para que
+   sepas cuánto gastas de tu cuota. En streaming los totales llegan
+   acumulados, así que se suma solo la diferencia con el último aviso. */
+const USO_CHAT_PREFIX='sair1_uso_chat_';
+const USO_DIA_KEY='sair1_uso_dia';
+let usoSiguienteId=0;
+const usoPeticiones=new Map();
+function fechaLocalHoy(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function leerUso(clave){try{const u=JSON.parse(localStorage.getItem(clave)||'null');return u&&typeof u==='object'?u:null}catch{return null}}
+function usoVacio(extra={}){return{entrada:0,salida:0,peticiones:0,...extra}}
+function leerUsoDia(){const u=leerUso(USO_DIA_KEY);return u&&u.fecha===fechaLocalHoy()?u:usoVacio({fecha:fechaLocalHoy()})}
+function leerUsoChat(chatId){return(chatId&&leerUso(USO_CHAT_PREFIX+chatId))||usoVacio()}
+function sumarUso(chatId,entrada,salida,peticion){
+  const sumar=u=>{u.entrada+=entrada;u.salida+=salida;if(peticion)u.peticiones+=1;return u};
+  try{
+    localStorage.setItem(USO_DIA_KEY,JSON.stringify(sumar(leerUsoDia())));
+    if(chatId)localStorage.setItem(USO_CHAT_PREFIX+chatId,JSON.stringify(sumar(leerUsoChat(chatId))));
+  }catch{}
+  actualizarIndicadorUso();
+}
+function iniciarPeticionUso(){const id=++usoSiguienteId;usoPeticiones.set(id,{chatId:currentChatId,entrada:0,salida:0,contada:false});return id}
+function anotarUso(id,meta){
+  const p=usoPeticiones.get(id);if(!p||!meta)return;
+  const entrada=Number(meta.promptTokenCount)||0;
+  const salida=(Number(meta.candidatesTokenCount)||0)+(Number(meta.thoughtsTokenCount)||0);
+  const dE=Math.max(0,entrada-p.entrada),dS=Math.max(0,salida-p.salida);
+  if(!dE&&!dS&&p.contada)return;
+  sumarUso(p.chatId,dE,dS,!p.contada);
+  p.entrada=Math.max(p.entrada,entrada);p.salida=Math.max(p.salida,salida);p.contada=true;
+  if(usoPeticiones.size>50)usoPeticiones.delete(usoPeticiones.keys().next().value);
+}
+// Peticiones sin streaming (resúmenes, generar personaje…).
+function anotarUsoUnico(meta){if(meta)anotarUso(iniciarPeticionUso(),meta)}
+function formatoTokens(n){try{return new Intl.NumberFormat('es',{notation:'compact',maximumFractionDigits:1}).format(n)}catch{return String(n)}}
+function actualizarIndicadorUso(){
+  const el=document.getElementById('chat-uso-indicator');if(!el)return;
+  const u=leerUsoChat(currentChatId),total=u.entrada+u.salida;
+  el.textContent=total?`🔢 ${formatoTokens(total)} tokens`:'🔢 Uso';
+  el.title=total?`Este chat: ${u.peticiones} respuestas · ${total.toLocaleString('es')} tokens. Pulsa para ver el detalle.`:'Uso de tu API Key en este chat';
+}
+function abrirUso(){
+  const c=leerUsoChat(currentChatId),d=leerUsoDia();
+  const fila=(t,v)=>`<div class="uso-fila"><span>${t}</span><strong>${v}</strong></div>`;
+  document.getElementById('uso-detalle').innerHTML=`
+<h3 class="uso-titulo">Este chat</h3>${fila('Respuestas y peticiones',c.peticiones.toLocaleString('es'))}${fila('Tokens enviados (contexto)',c.entrada.toLocaleString('es'))}${fila('Tokens generados',c.salida.toLocaleString('es'))}
+<h3 class="uso-titulo">Hoy, en todos tus chats</h3>${fila('Peticiones',d.peticiones.toLocaleString('es'))}${fila('Tokens enviados',d.entrada.toLocaleString('es'))}${fila('Tokens generados',d.salida.toLocaleString('es'))}
+<p class="uso-nota">Modelo actual: <strong>${escapeHtml(getGeminiModel())}</strong>. El nivel gratuito de Gemini limita las peticiones por minuto y por día según el modelo; consulta tus límites en Google AI Studio. Los datos son aproximados y se guardan solo en este navegador.</p>`;
+  openModal('uso-modal');
+}
+document.getElementById('chat-uso-indicator')?.addEventListener('click',abrirUso);
+document.getElementById('chat-uso-indicator')?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();abrirUso()}});
+document.getElementById('uso-reiniciar')?.addEventListener('click',()=>{
+  if(!confirm('¿Poner a cero los contadores de este chat y de hoy?'))return;
+  try{if(currentChatId)localStorage.removeItem(USO_CHAT_PREFIX+currentChatId);localStorage.removeItem(USO_DIA_KEY)}catch{}
+  actualizarIndicadorUso();abrirUso();
 });
 
 /* ── Borradores ──
