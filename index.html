@@ -3327,7 +3327,7 @@ document.getElementById('btn-buscar-amigos').addEventListener('click',()=>{crear
 document.getElementById('friends-search-input').addEventListener('input',()=>{clearTimeout(friendsSearchTimer);friendsSearchTimer=setTimeout(buscarAmigos,280)});
 document.getElementById('friends-modal').addEventListener('click',e=>{if(e.target===document.getElementById('friends-modal'))closeModal('friends-modal')});
 document.querySelectorAll('.dashboard-tab').forEach(tab=>{tab.addEventListener('click',()=>{if(!tab.dataset.view)return;document.querySelectorAll('.dashboard-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');currentView=tab.dataset.view;const title=document.getElementById('dashboard-title'),subtitle=document.getElementById('dashboard-subtitle'),btnNuevo=document.getElementById('btn-nuevo-personaje');if(currentView==='my-characters'){title.textContent='Tus personajes';subtitle.textContent='Crea, edita y chatea con tus personajes de IA';btnNuevo.style.display='inline-flex';renderCharacters()}else if(currentView==='community'){title.textContent='Comunidad';subtitle.textContent='Descubre personajes creados por otros usuarios';btnNuevo.style.display='none';renderCharacters()}else if(currentView==='announcements'){title.textContent='Anuncios';subtitle.textContent=isOwner()?'Publica anuncios para toda la comunidad':'Anuncios oficiales del Owner';btnNuevo.style.display='none';renderAnuncios()}})});
-async function abrirChatConPersonaje(personajeId){try{currentCharacter=await obtenerPersonaje(personajeId);currentChatId=null;await verificarYMostrarModalRol();const avatarEl=document.getElementById('chat-char-avatar');const safeAvatar=sanitizeImageUrl(currentCharacter.avatar_url);if(safeAvatar)avatarEl.innerHTML=`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`;else avatarEl.textContent=currentCharacter.nombre.charAt(0).toUpperCase();document.getElementById('chat-char-name').textContent=currentCharacter.nombre;document.getElementById('chat-char-sub').textContent='Chats';document.getElementById('chat-view').classList.add('visible');document.getElementById('dashboard').style.display='none';document.body.style.overflow='hidden';
+async function abrirChatConPersonaje(personajeId){guardarBorradorAhora();try{currentCharacter=await obtenerPersonaje(personajeId);currentChatId=null;await verificarYMostrarModalRol();const avatarEl=document.getElementById('chat-char-avatar');const safeAvatar=sanitizeImageUrl(currentCharacter.avatar_url);if(safeAvatar)avatarEl.innerHTML=`<img src="${safeAvatar.replace(/"/g,'&quot;')}" alt="">`;else avatarEl.textContent=currentCharacter.nombre.charAt(0).toUpperCase();document.getElementById('chat-char-name').textContent=currentCharacter.nombre;document.getElementById('chat-char-sub').textContent='Chats';document.getElementById('chat-view').classList.add('visible');document.getElementById('dashboard').style.display='none';document.body.style.overflow='hidden';
 
 // Aplicar tema dinámico de aura
 const parsed = parsearSystemPrompt(currentCharacter.system_prompt);
@@ -3364,7 +3364,9 @@ function pintarListaChats(){
 async function renderChatList(){const list=document.getElementById('chat-list');try{const chats=await listarChats(currentCharacter.id);chatsCache=chats;document.getElementById('chat-char-sub').textContent=`${chats.length} chat${chats.length!==1?'s':''}`;pintarListaChats()}catch(err){console.error('Error en renderChatList:',err);list.innerHTML=`<p style="color:#fca5a5;padding:1rem;font-size:.85rem">Error al cargar chats</p>`}}
 function mostrarChatVacio(){const messages=document.getElementById('chat-messages');messages.innerHTML=`<div class="chat-empty" id="chat-empty"><div class="chat-empty-icon">💬</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Comienza una conversación</h3><p>Selecciona un chat o crea uno nuevo</p></div>`}
 async function seleccionarChat(chatId){
+guardarBorradorAhora();
 currentChatId=chatId;
+restaurarBorrador(chatId);
 cargarNotasRol(chatId);
 prepararDiarioLocal(chatId);
 document.querySelectorAll('.chat-list-item').forEach(i=>{i.classList.toggle('active',i.dataset.id===chatId)});
@@ -3407,7 +3409,7 @@ showToast(notasHeredadas?'Nuevo chat creado · 📝 Notas para Rol heredadas del
 showToast(err.message,'error')
 }
 });
-document.getElementById('chat-back-btn').addEventListener('click',()=>{detenerLectura();detenerDictado();
+document.getElementById('chat-back-btn').addEventListener('click',()=>{guardarBorradorAhora();detenerLectura();detenerDictado();
   const chatViewEl = document.getElementById('chat-view');
   chatViewEl.style.removeProperty('--pink');
   chatViewEl.style.removeProperty('--pink-glow');
@@ -3776,6 +3778,7 @@ async function enviarMensaje(){
   try{
     const mensajeUser=await guardarMensaje(currentChatId,'user',texto);
     userBubble.dataset.mensajeId=mensajeUser.id;
+    borrarBorrador(currentChatId);
     if(!historialCompleto.some(m=>m.id===mensajeUser.id))historialCompleto.push(mensajeUser);
     historialTotalMensajes=Math.max(historialTotalMensajes+1,contarMensajesVisibles());
   }catch(err){
@@ -3976,6 +3979,37 @@ function forzarRepintado(){
     setTimeout(()=>document.body.classList.remove('intro-anim'),INTRO_LIMPIEZA_MS);
   }catch(err){console.warn('⚠️ No se pudo iniciar la animación de entrada:',err)}
 })();
+
+/* ── Borradores ──
+   Lo que escribes en un chat se guarda en este navegador mientras escribes
+   y vuelve a aparecer al abrir ese chat. Se borra al enviar el mensaje. */
+const BORRADOR_PREFIX='sair1_borrador_';
+let borradorTimer=null;
+function guardarBorradorAhora(){
+  clearTimeout(borradorTimer);borradorTimer=null;
+  if(!currentChatId)return;
+  try{
+    const t=chatInput.value;
+    if(t.trim())localStorage.setItem(BORRADOR_PREFIX+currentChatId,JSON.stringify({t:t.slice(0,8000),f:Date.now()}));
+    else localStorage.removeItem(BORRADOR_PREFIX+currentChatId);
+  }catch{}
+}
+function borrarBorrador(chatId){
+  clearTimeout(borradorTimer);borradorTimer=null;
+  try{localStorage.removeItem(BORRADOR_PREFIX+chatId)}catch{}
+}
+function restaurarBorrador(chatId){
+  let t='';
+  try{const raw=localStorage.getItem(BORRADOR_PREFIX+chatId);if(raw)t=JSON.parse(raw).t||''}catch{}
+  chatInput.value=t;
+  chatInput.style.height='auto';
+  if(t)chatInput.style.height=Math.min(chatInput.scrollHeight,150)+'px';
+  actualizarEstadoBotonEnviar();
+  if(t)showToast('📝 Recuperado lo que dejaste escrito');
+}
+chatInput.addEventListener('input',()=>{clearTimeout(borradorTimer);borradorTimer=setTimeout(guardarBorradorAhora,400)});
+window.addEventListener('pagehide',guardarBorradorAhora);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')guardarBorradorAhora()});
 
 /* ── Voz: lectura en voz alta y dictado ──
    Usa las voces del propio navegador (speechSynthesis) y su reconocimiento
