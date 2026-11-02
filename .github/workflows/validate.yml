@@ -16,40 +16,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Extraer el script embebido de index.html
+      - name: Sintaxis de los scripts
         run: |
-          node -e "
-            const fs=require('fs');
-            const s=fs.readFileSync('index.html','utf8');
-            const i=s.indexOf('<script src=\"supabase.js\"></script>');
-            const a=s.indexOf('<script>',i)+8;
-            const b=s.indexOf('</script>',a);
-            fs.writeFileSync('app.check.js', s.slice(a,b));
-            console.log('script extraído:', b-a, 'bytes');
-          "
+          for f in js/*.js sw.js version.js; do node --check "$f" && echo "✓ $f"; done
 
-      - name: Sintaxis del JavaScript embebido
-        run: node --check app.check.js
-
-      - name: Funciones duplicadas de nivel superior
+      - name: Declaraciones repetidas y orden de carga de js/
         run: |
           npm i --no-save acorn@8 >/dev/null 2>&1
-          node -e "
-            const fs=require('fs'), acorn=require('acorn');
-            const src=fs.readFileSync('app.check.js','utf8');
-            const ast=acorn.parse(src,{ecmaVersion:2022,sourceType:'script'});
-            const nombres=[];
-            for(const n of ast.body){
-              if(n.type==='FunctionDeclaration') nombres.push(n.id.name);
-              if(n.type==='VariableDeclaration') for(const d of n.declarations)
-                if(d.id.type==='Identifier'&&d.init&&['ArrowFunctionExpression','FunctionExpression'].includes(d.init.type))
-                  nombres.push(d.id.name);
-            }
-            const c={}; for(const n of nombres) c[n]=(c[n]||0)+1;
-            const dup=Object.entries(c).filter(([,v])=>v>1);
-            if(dup.length){ console.error('Funciones duplicadas:', dup); process.exit(1); }
-            console.log('Sin funciones duplicadas ('+nombres.length+' declaraciones).');
-          "
+          node tools/verificar-scripts.js
 
       - name: Validación del HTML
         run: |

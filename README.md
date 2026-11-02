@@ -14,14 +14,17 @@ intermedia ni almacena claves, y no tiene backend propio más allá de Supabase
 
 | Archivo | Qué es |
 |---|---|
-| `index.html` | **Toda la aplicación**: HTML, CSS y JavaScript en un único archivo. |
+| `index.html` | El HTML de la app, más dos scripts mínimos en línea (caja negra de arranque y versión). |
+| `css/app.css` | Todos los estilos. |
+| `js/*.js` | El JavaScript, por áreas. Se cargan **en este orden** y comparten el ámbito global: `nucleo` (configuración, Supabase, Gemini) → `personajes` → `comunidad` → `chat` → `extras` (Lorebook, uso, borradores, voz) → `arranque` (sesión) → `herramientas` (recap, historiador, notas) → `diario`. |
+| `tools/verificar-scripts.js` | Comprueba que no haya declaraciones repetidas entre archivos ni código que, al cargar, use algo de un archivo posterior. Lo ejecuta la CI. |
 | `version.js` | **Versión de la app.** Único sitio donde se cambia: la usan `index.html` y `sw.js`. |
 | `sw.js` | Service worker (PWA). El nombre del caché sale de `version.js`. |
 | `manifest.json` | Manifiesto PWA (instalación, iconos, colores). |
 | `supabase.js` | Cliente de Supabase vendorizado (versión UMD). No se toca. |
 | `supabase_*.sql` | Migraciones del esquema. Ver abajo el orden. |
 | `icon-*.png`, `apple-touch-icon.png` | Iconos. Requieren PNG para la instalación PWA. |
-| `ERROR.mp4` | Sonido de error. El nombre es histórico; **no** renombrar sin cambiar `index.html`. |
+| `ERROR.mp4` | Sonido de error. El nombre es histórico; **no** renombrar sin cambiar `index.html` y `sw.js`. |
 
 ## Puesta en marcha local
 
@@ -38,7 +41,7 @@ de un personaje. Se guarda en el `localStorage` de tu navegador.
 
 ## Base de datos
 
-`CONFIG.SUPABASE_URL` y `CONFIG.SUPABASE_ANON_KEY` están en `index.html`. La clave
+`CONFIG.SUPABASE_URL` y `CONFIG.SUPABASE_ANON_KEY` están en `js/nucleo.js`. La clave
 `anon` es pública por diseño: **toda la seguridad depende de las políticas RLS de
 Supabase**, así que nunca se debe exponer la `service_role`.
 
@@ -54,10 +57,12 @@ Ejecuta los scripts en el SQL Editor de Supabase, en este orden:
 7. `supabase_variantes_respuesta.sql` — variantes de respuesta (estilo Character.AI).
 8. `supabase_chat_titulos_y_aura.sql` — títulos de chat y color de aura público.
 9. `supabase_comunidad_reportes.sql` — reportes de personajes, moderación e índices de búsqueda de la Comunidad.
+10. `supabase_comunidad_v2.sql` — aura pública (rellena la de los personajes existentes), etiquetas, "me gusta" y Lorebook.
 
 Todas son **aditivas e idempotentes** (`add column if not exists`,
-`create or replace function`). La app funciona sin las tres últimas: detecta el error
-y se repliega (variantes en memoria, títulos calculados al vuelo, aviso al reportar).
+`create or replace function`). La app funciona sin las cuatro últimas: detecta el error
+y se repliega (variantes en memoria, títulos calculados al vuelo, aviso al reportar, sin
+etiquetas ni "me gusta" y Lorebook guardado solo en el navegador).
 
 ## Despliegue
 
@@ -68,9 +73,9 @@ entregue la app nueva. La CI falla si queda una versión escrita a mano en `inde
 ## Validación
 
 ```bash
-npx html-validate index.html                 # estructura y accesibilidad del HTML
-node --check app.js                          # sintaxis del script embebido
-gzip -9 -c index.html | wc -c                # peso real en tránsito
+npx html-validate index.html                       # estructura y accesibilidad del HTML
+for f in js/*.js sw.js version.js; do node --check "$f"; done   # sintaxis
+npm i --no-save acorn@8 && node tools/verificar-scripts.js     # orden de carga y repetidos
 ```
 
 El script embebido se extrae entre `<script src="supabase.js"></script>` y el

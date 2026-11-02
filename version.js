@@ -4,7 +4,7 @@
    service worker nuevo y los usuarios reciben la actualización.
    Recuerda añadir la entrada correspondiente en Changelog.txt. */
 self.SAIR_VERSION = {
-  numero: '4.1.0',
+  numero: '4.2.0',
   canal: 'Oficial A'
 };
 self.SAIR_VERSION.texto = self.SAIR_VERSION.numero + ' ' + self.SAIR_VERSION.canal;
