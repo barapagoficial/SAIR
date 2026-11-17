@@ -2,6 +2,50 @@
  SAIR4 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.3.0 Oficial A] — 2026-11-17
+
+✨ Novedades
+- 🎨 PULIDO VISUAL:
+  · Las tarjetas de personaje usan su color de aura en el avatar y el borde.
+  · En el chat, los botones de cada mensaje (Copiar, Editar, Regenerar…)
+    flotan sobre el borde al pasar el ratón: las burbujas ya no tienen una
+    franja vacía al final.
+  · Barra lateral del chat más compacta: Exportar, Importar, Notas, Diario y
+    Lorebook en una cuadrícula.
+  · Móvil: cabecera del panel en dos filas limpias (ya no se sale "Salir").
+  · Tema claro: botones de peligro, avisos y "Chatear" con contraste legible.
+- **Negrita** en los mensajes: Gemini la usa mucho y antes salía como
+  asteriscos sueltos con cursiva.
+
+🔧 Arreglos
+- Las respuestas largas ya no se cortan a los 90 s con "Tiempo de espera
+  agotado": el límite ahora cuenta el tiempo SIN recibir texto, no la
+  respuesta entera.
+- El modelo de recap/resúmenes se guardaba bajo la clave "undefined" del
+  navegador. Ahora tiene su propia clave y se migra la elección anterior.
+- Al pasar el ratón por una tarjeta, el borde ya no se vuelve blanco
+  (CSS inválido con colores de aura).
+- La lista de chats decía "Sin mensajes todavía" en chats con mensajes pero
+  sin resumen; ahora dice "Aún sin resumen".
+- Los botones flotantes (pantalla completa en escritorio, menú ☰ en móvil)
+  ya no tapan el primer mensaje del chat.
+- El icono del menú en móvil queda centrado.
+- Cerrar una ventana con Esc o clic fuera devuelve el foco a donde estaba.
+
+🔧 Interno
+- Los campos del Lorebook declaran su tipo: html-validate pasa sin errores.
+- Service worker actualizado a sair-v4.3.0-oficial-a.
+
+[4.2.1 Oficial A] — 2026-11-17
+
+✨ Novedades
+- Nuevo modelo Gemini 3.8 Flash (roleplay y resúmenes). Es ahora el modelo por
+  defecto de recap, resúmenes y generación IA.
+
+🔧 Arreglos
+- La cadena de modelos de respaldo ante bloqueos ya no pasa por Gemini 3.6
+  Flash (en retirada) y empieza por 3.8.
+
 [4.2.0 Oficial A] — 2026-11-02
 
 ✨ Novedades
@@ -91,6 +135,10 @@
   "Solo recargar".
 - Service worker actualizado a sair-v4.0.2-oficial-a.
 
+🎨 Marca
+- SAIR3 pasa a llamarse SAIR4 en la pantalla de entrada, el título, el
+  manifiesto de la app, el README y el Changelog.
+
 [4.0.1 Oficial A] — 2026-11-01
 
 🐛 Correcciones
@@ -159,6 +207,11 @@
   escribe y cancela la respuesta al instante. Lo que ya se había generado se
   guarda igualmente, y la respuesta queda marcada como incompleta con el
   botón "✂️ Continuar respuesta" por si quieres seguirla más tarde.
+- 📖 EL HISTORIADOR: nuevo botón en el chat que convierte la conversación en
+  un capítulo de novela en prosa, fiel al tono del personaje y a lo que
+  ocurrió, sin inventar hechos.
+- Móvil: Historiador, Recapitulación y Nombre de rol se agrupan en un menú
+  "⋯" junto al campo de escritura, para que el input tenga más espacio.
 - El chat ahora detecta que Gemini dejó de enviar datos: si pasan 90 segundos
   sin recibir nada, la petición se corta sola en vez de dejar la app colgada.
 
@@ -389,6 +442,18 @@
 - Versión de la app visible en la esquina inferior derecha
 - Splash de carga un poco más duradero para que se lea la versión
 
+🔁 Actualizaciones posteriores (19–22 ago, sin cambiar de número)
+- API Key: lectura más robusta de la clave guardada y avisos más claros
+  (ya no exigen un prefijo concreto, sirven todos los formatos de Google).
+- "Regenerar" y "Editar mensaje": si Gemini falla a mitad, se restaura la
+  conversación anterior en lugar de perder la respuesta.
+- Ajustes del diseño en pantallas de menos de 480 px.
+- Chats guardados en formato normalizado: cada mensaje es una fila de la
+  tabla mensajes y el resumen vive en su propia columna (la columna
+  historial queda como respaldo). Requiere supabase_chat_storage_v2.sql.
+- Avisos (toasts) que se descartan deslizando y modo visual
+  ligero/completo.
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [2.2.5] — 2026-08-19
@@ -530,5 +595,75 @@
 - Seguridad: reforzada en todo el sistema
 - Chat: corregido el bug de scroll
 - IA: corregido el error que cortaba las respuestas antes de tiempo
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[1.8.0] — 2026-07-07
+
+✨ Características
+- 🎭 Nombre de rol: eliges cómo te llaman los personajes. Cada {{user}} del
+  personaje se sustituye automáticamente por tu nombre de rol. Se pide al
+  abrir el primer chat y se cambia desde el botón 🎭 del chat.
+
+🐛 Correcciones y Mejoras
+- Estabilidad general del chat y de la carga de la app.
+- Primeros ajustes del resumidor de contexto (todavía en pruebas).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[1.7.2] — 2026-07-07
+
+🐛 Correcciones y Mejoras
+- Editar un personaje ya no borra su foto de perfil al guardar.
+- Lavado de cara general de la estética de la página.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[1.5.0] — 2026-07-06
+
+✨ Características
+- Importar chats desde un archivo JSON (complementa a Exportar chat).
+- Resumen automático de conversaciones largas: cuando el historial se
+  acerca al límite de la IA, los mensajes antiguos se resumen con Gemini
+  para que el personaje no olvide lo ocurrido.
+- Confirmación antes de cerrar sesión.
+
+🐛 Correcciones y Mejoras
+- Avisos más claros al regenerar, editar, exportar e importar.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[1.3.0] — 2026-07-05
+
+✨ Características
+- Modelo fijo gemini-3.5-flash para el roleplay (antes se escribía el
+  nombre del modelo a mano y era fácil equivocarse).
+
+🐛 Correcciones y Mejoras
+- Validación de la API Key al guardarla, con aviso si no es válida.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[1.2.0] — 2026-07-02
+
+✨ Características
+- Sonido de aviso cuando algo falla.
+
+🐛 Correcciones y Mejoras
+- Código de la app reorganizado y más ligero (unos 10 KB menos).
+- Pantallas de entrada con la marca SAIR1.2.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[1.1.0] — 2026-07-01
+
+✨ Primera versión publicada (ShizuAI Rebirth 1 · SAIR1)
+- Cuentas con correo y contraseña, y perfil de usuario.
+- Crear personajes con avatar, descripción, personalidad, escenario y
+  ejemplos de diálogo, privados o públicos.
+- Chat con IA usando tu propia API Key de Google AI Studio (Gemini).
+- Regenerar respuestas, editar mensajes y exportar chats.
+- Pestañas Mis Personajes, Comunidad y Anuncios (publicados por el Owner).
+- Tema claro y oscuro, y fondo de chat personalizado.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

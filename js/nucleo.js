@@ -1,6 +1,6 @@
 /* SAIR · Configuración, cliente de Supabase, utilidades y peticiones a Gemini.
    Se carga en orden desde index.html: los archivos comparten el ámbito global. */
-const CONFIG={SUPABASE_URL:'https://tcnzimhqjyivlrvqzwpb.supabase.co',SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',LS:{THEME:'sair1_theme',GEMINI_KEY:'sair1_gemini_key',GEMINI_MODEL:'sair1_gemini_model',DISPLAY_MODE:'sair1_display_mode'}};
+const CONFIG={SUPABASE_URL:'https://tcnzimhqjyivlrvqzwpb.supabase.co',SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk',LS:{THEME:'sair1_theme',GEMINI_KEY:'sair1_gemini_key',GEMINI_MODEL:'sair1_gemini_model',GEMINI_SUMMARY_MODEL:'sair1_gemini_summary_model',DISPLAY_MODE:'sair1_display_mode'}};
 let sbClient=null,currentUser=null,userRole=null,userUsername=null,userDescription='',userAvatarUrl=null,userRoleName=null,userAvatarPos={x:50,y:50},userBackgroundUrl=null,userBackgroundPos={x:50,y:50},currentView='my-characters',currentCharacter=null,currentChatId=null,isStreaming=!1,rateLimitTimer=null,rateLimitCountdown=0,pendingAction=null,pendingData=null,lastGeminiFinishReason='';
 
 // Crear el cliente Supabase inmediatamente al cargar el script
@@ -93,7 +93,7 @@ function lightenColor(hex, percent) {
   return `#${rHex}${gHex}${bHex}`;
 }
 function sanitizeImageUrl(url){if(!url||typeof url!=='string')return '';const trimmed=url.trim(),cleanData=trimmed.replace(/[\r\n\s]+/g,'');if(cleanData.startsWith('data:image/'))return /^data:image\/[a-z0-9\+\-\.]+;(?:base64|utf8),/i.test(cleanData)?cleanData:'';try{const u=new URL(trimmed);if(u.protocol==='https:'||u.protocol==='http:')return trimmed}catch{}return ''}
-function renderMarkdown(texto){if(!texto)return '';let textoProcesado=reemplazarUserEnTexto(texto);const escaped=textoProcesado.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return escaped.replace(/\*([^*\n]+)\*/g,(m,p1)=>`<em class="accion">*${p1}*</em>`).replace(/\n/g,'<br>')}function formatDate(dateStr){const d=new Date(dateStr),now=new Date(),diff=now-d;if(diff<6e4)return'ahora';if(diff<36e5)return`hace ${Math.floor(diff/6e4)}m`;if(diff<864e5)return`hace ${Math.floor(diff/36e5)}h`;if(diff<6048e5)return`hace ${Math.floor(diff/864e5)}d`;return d.toLocaleDateString()}
+function renderMarkdown(texto){if(!texto)return '';let textoProcesado=reemplazarUserEnTexto(texto);const escaped=textoProcesado.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return escaped.replace(/\*\*(?=\S)([^*\n]+?)\*\*/g,'<strong>$1</strong>').replace(/\*([^*\n]+)\*/g,(m,p1)=>`<em class="accion">*${p1}*</em>`).replace(/\n/g,'<br>')}function formatDate(dateStr){const d=new Date(dateStr),now=new Date(),diff=now-d;if(diff<6e4)return'ahora';if(diff<36e5)return`hace ${Math.floor(diff/6e4)}m`;if(diff<864e5)return`hace ${Math.floor(diff/36e5)}h`;if(diff<6048e5)return`hace ${Math.floor(diff/864e5)}d`;return d.toLocaleDateString()}
 // La API Key se guarda en localStorage para que persista entre sesiones
 // (antes vivía en sessionStorage y se perdía al cerrar la pestaña)
 const GEMINI_KEY_STORAGE=window.localStorage;
@@ -104,12 +104,12 @@ function mensajeErrorGemini(msg){const m=String(msg||'');if(/invalid authenticat
 function saveGeminiKey(raw){const key=(raw||'').trim().replace(/\s+/g,'');if(!isGeminiApiKey(key))throw new Error('API Key inválida. Pega una clave válida de Google AI Studio.');GEMINI_KEY_STORAGE.setItem(CONFIG.LS.GEMINI_KEY,_obf_k(key));try{window.sessionStorage.removeItem(CONFIG.LS.GEMINI_KEY)}catch{};return key}
 function geminiHeaders(apiKey){return{'Content-Type':'application/json','x-goog-api-key':apiKey}}
 function geminiUrl(model,stream=false){const action=stream?'streamGenerateContent':'generateContent';const qs=stream?'?alt=sse':'';return`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:${action}${qs}`}
-const GEMINI_MODELS=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.6-flash','gemini-3.7-flash'];
+const GEMINI_MODELS=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.6-flash','gemini-3.7-flash','gemini-3.8-flash'];
 function getGeminiModel(){const saved=localStorage.getItem(CONFIG.LS.GEMINI_MODEL);return GEMINI_MODELS.includes(saved)?saved:'gemini-3.5-flash'}
 function setGeminiModel(model){const safe=GEMINI_MODELS.includes(model)?model:'gemini-3.5-flash';localStorage.setItem(CONFIG.LS.GEMINI_MODEL,safe);return safe}
 function etiquetaModelo(model){const m=String(model||'gemini-3.5-flash').replace(/^gemini-/,'');return 'Gemini '+m.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')}
-const DEFAULT_SUMMARY_MODEL='gemini-3.7-flash';
-function getSummaryModel(){const saved=localStorage.getItem(CONFIG.LS.GEMINI_SUMMARY_MODEL);return GEMINI_MODELS.includes(saved)?saved:DEFAULT_SUMMARY_MODEL}
+const DEFAULT_SUMMARY_MODEL='gemini-3.8-flash';
+function getSummaryModel(){let saved=localStorage.getItem(CONFIG.LS.GEMINI_SUMMARY_MODEL);if(!saved){/* Hasta 4.2.1 se guardaba por error bajo la clave literal "undefined". */const viejo=localStorage.getItem('undefined');if(GEMINI_MODELS.includes(viejo)){saved=viejo;try{localStorage.setItem(CONFIG.LS.GEMINI_SUMMARY_MODEL,viejo);localStorage.removeItem('undefined')}catch{}}}return GEMINI_MODELS.includes(saved)?saved:DEFAULT_SUMMARY_MODEL}
 function setSummaryModel(model){const safe=GEMINI_MODELS.includes(model)?model:DEFAULT_SUMMARY_MODEL;localStorage.setItem(CONFIG.LS.GEMINI_SUMMARY_MODEL,safe);return safe}
 function normalizarIntensidad(value){const clean=String(value||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');return ['suave','mediana','maxima'].includes(clean)?clean:'suave'}
 function obtenerIntensidadPersonaje(personaje=currentCharacter){if(!personaje)return'suave';const parsed=parsearSystemPrompt(personaje.system_prompt||'');return normalizarIntensidad(personaje.intensidad||parsed.intensidad||'suave')}
@@ -149,7 +149,7 @@ function getSafetySettings(intensidad='suave'){
    El chat normal no cambia: la escalera solo se activa cuando algo se
    bloquea. Diagnóstico: ejecuta sairDiagnostico() en la consola. */
 
-const GEMINI_MODELOS_RESPALDO=['gemini-3.7-flash','gemini-3.6-flash','gemini-3.5-flash','gemini-3.5-flash-lite'];
+const GEMINI_MODELOS_RESPALDO=['gemini-3.8-flash','gemini-3.7-flash','gemini-3.5-flash','gemini-3.5-flash-lite'];
 const CATEGORIAS_SEGURIDAD=['HARM_CATEGORY_HARASSMENT','HARM_CATEGORY_HATE_SPEECH','HARM_CATEGORY_SEXUALLY_EXPLICIT','HARM_CATEGORY_DANGEROUS_CONTENT'];
 const SISTEMA_NEUTRO='Eres un asistente que analiza y redacta textos con precisión, siguiendo exactamente las instrucciones del usuario.';
 
@@ -862,7 +862,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay=>{
     }
     // Permitir cierre para otros modales (excepto summary-modal)
     if (e.target === this && this.id !== 'summary-modal') {
-      this.classList.remove('visible');
+      closeModal(this.id);
     }
   });
 });
@@ -890,7 +890,7 @@ document.addEventListener('keydown', function(e) {
     // Cerrar los demás modales (excepto summary-modal)
     document.querySelectorAll('.modal-overlay.visible').forEach(m => {
       if (m.id !== 'summary-modal' && m.id !== 'politicas-modal') {
-        m.classList.remove('visible');
+        closeModal(m.id);
       }
     });
   }

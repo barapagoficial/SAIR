@@ -201,7 +201,7 @@ async function listarChats(personajeId){
 function tituloChat(chat){return (chat&&chat.titulo&&chat.titulo.trim())||`Chat ${String((chat&&chat.id)||'').substring(0,6)}`}
 function vistaPreviaChat(chat){
   const resumen=String((chat&&chat.resumen)||'').replace(/\s+/g,' ').trim();
-  return resumen?resumen.slice(0,90):'Sin mensajes todavía';
+  return resumen?resumen.slice(0,90):'Aún sin resumen';
 }
 async function guardarTituloChat(chatId,titulo){
   const limpio=String(titulo||'').trim().slice(0,80);
@@ -332,7 +332,7 @@ let response;try{response=await fetch(url,{method:'POST',headers:geminiHeaders(a
 finally{clearTimeout(timeoutId)}
 clearTimeout(timeoutId);
 timeoutId=setTimeout(()=>controller.abort('stall'),90000);if(!response.ok){const errText=await response.text();let msg=`Error de Gemini (${response.status})`;try{const errJson=JSON.parse(errText);if(errJson.error?.message)msg=errJson.error.message}catch{}throw new Error(mensajeErrorGemini(msg))}if(!response.body)throw new Error('Gemini no devolvió una respuesta válida');const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',yieldedText=!1;const parseLine=line=>{const trimmed=line.trim();if(!trimmed)return;let payload=trimmed;if(payload.startsWith('data:'))payload=payload.slice(5).trim();if(!payload||payload==='[DONE]')return;let json;try{json=JSON.parse(payload)}catch{return}if(json.usageMetadata)anotarUso(idUso,json.usageMetadata);if(json.error?.message)throw new Error(mensajeErrorGemini(json.error.message));const candidate=json.candidates?.[0];if(!candidate)return;const finishReason=candidate.finishReason;if(finishReason)lastGeminiFinishReason=finishReason;if(finishReason&&finishReason!=='STOP'&&finishReason!=='MAX_TOKENS'){throw new Error(finishReason==='SAFETY'?'Respuesta bloqueada por filtros de seguridad':`Gemini detuvo la respuesta (${finishReason})`)}const text=candidate.content?.parts?.map(p=>p.text||'').join('')||'';if(text){yieldedText=true;return text}};try{
-for(;;){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()||'';for(const line of lines){const text=parseLine(line);if(text)yield text}}buffer+=decoder.decode();for(const line of buffer.split('\n')){const text=parseLine(line);if(text)yield text}if(!yieldedText)throw new Error('Gemini no generó ninguna respuesta. Intenta de nuevo.')
+for(;;){const{done,value}=await reader.read();if(done)break;/* El límite de 90 s es por silencio, no por la respuesta entera: se reinicia con cada fragmento. */clearTimeout(timeoutId);timeoutId=setTimeout(()=>controller.abort('stall'),90000);buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()||'';for(const line of lines){const text=parseLine(line);if(text)yield text}}buffer+=decoder.decode();for(const line of buffer.split('\n')){const text=parseLine(line);if(text)yield text}if(!yieldedText)throw new Error('Gemini no generó ninguna respuesta. Intenta de nuevo.')
 }catch(err){
   // Abortar el stream hace que reader.read() rechace (con un AbortError o con
   // el propio motivo del abort), así que la cancelación se traduce aquí.
