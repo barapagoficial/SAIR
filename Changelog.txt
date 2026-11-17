@@ -2,6 +2,35 @@
  SAIR4 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.3.0 Oficial A] — 2026-11-17
+
+✨ Novedades
+- 🎨 PULIDO VISUAL:
+  · Las tarjetas de personaje usan su color de aura en el avatar y el borde.
+  · En el chat, los botones de cada mensaje (Copiar, Editar, Regenerar…)
+    flotan sobre el borde al pasar el ratón: las burbujas ya no tienen una
+    franja vacía al final.
+  · Barra lateral del chat más compacta: Exportar, Importar, Notas, Diario y
+    Lorebook en una cuadrícula.
+  · Móvil: cabecera del panel en dos filas limpias (ya no se sale "Salir").
+  · Tema claro: botones de peligro, avisos y "Chatear" con contraste legible.
+- **Negrita** en los mensajes: Gemini la usa mucho y antes salía como
+  asteriscos sueltos con cursiva.
+
+🔧 Arreglos
+- Las respuestas largas ya no se cortan a los 90 s con "Tiempo de espera
+  agotado": el límite ahora cuenta el tiempo SIN recibir texto, no la
+  respuesta entera.
+- El modelo de recap/resúmenes se guardaba bajo la clave "undefined" del
+  navegador. Ahora tiene su propia clave y se migra la elección anterior.
+- Al pasar el ratón por una tarjeta, el borde ya no se vuelve blanco
+  (CSS inválido con colores de aura).
+- La lista de chats decía "Sin mensajes todavía" en chats con mensajes pero
+  sin resumen; ahora dice "Aún sin resumen".
+- El botón de pantalla completa ya no tapa el primer mensaje.
+- El icono del menú en móvil queda centrado.
+- Cerrar una ventana con Esc o clic fuera devuelve el foco a donde estaba.
+
 [4.2.1 Oficial A] — 2026-11-17
 
 ✨ Novedades

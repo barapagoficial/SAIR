@@ -1063,3 +1063,90 @@ body.performance-light .chat-bg-img { display:none!important; }
 .btn-continuar-respuesta:hover{background:rgba(255,77,143,.3)}
 .btn-continuar-respuesta:disabled{opacity:.55;cursor:progress}
 
+
+/* ═════ Pulido visual 4.3 ═════
+   Capa final: se apoya en lo de arriba y solo corrige o refina. */
+
+/* Tarjetas: el aura del personaje tiñe el avatar y el borde (antes
+   rgba(var(--char-color),.25) era CSS inválido con colores hex y el borde
+   caía a currentColor al pasar el ratón). */
+.character-card{display:flex;flex-direction:column;padding:1.35rem}
+.character-card[style*="--char-color"] .character-avatar:not(:has(img)){background:linear-gradient(135deg,var(--char-color) 0%,color-mix(in srgb,var(--char-color) 55%,#a855f7) 100%)}
+.character-card[style*="--char-color"]:hover{border-color:color-mix(in srgb,var(--char-color) 40%,transparent);box-shadow:0 20px 40px rgba(0,0,0,.35),0 0 0 1px color-mix(in srgb,var(--char-color) 20%,transparent),0 10px 30px var(--card-glow)}
+.character-card:hover .character-avatar{transform:scale(1.06) rotate(3deg)}
+.character-desc{flex:1 0 auto}
+.character-actions{margin-top:auto;flex-wrap:nowrap;align-items:stretch}
+.character-actions .btn-chat{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.character-actions .btn:not(.btn-chat){flex:0 0 auto;padding-inline:.7rem}
+
+/* Botón principal pequeño: .btn-small (más abajo en la cascada) le ponía
+   texto oscuro sobre el degradado en el tema claro. */
+.btn-primary.btn-small,.btn-small.primary{color:#fff}
+
+/* Tema claro: los botones de peligro tenían texto rosa pálido sobre blanco. */
+body[data-theme="light"] .btn-danger,body[data-theme="light"] .diario-acciones .btn-danger,body[data-theme="light"] .btn-small.danger{color:#c81e1e;border-color:rgba(200,30,30,.35)}
+body[data-theme="light"] .btn-danger:hover{background:rgba(220,38,38,.08)}
+body[data-theme="light"] .message-bubble.error{color:#b91c1c}
+body[data-theme="light"] .respuesta-incompleta{color:#92400e}
+body[data-theme="light"] .respuesta-incompleta.bloqueo{color:#b91c1c}
+
+/* Pestañas: "Buscar Amigos" ya no parece estar siempre seleccionada. */
+.dashboard-tab.friends-trigger{color:var(--text-3)}
+.dashboard-tab.friends-trigger:hover{color:var(--text-1)}
+.dashboard-tab:hover:not(.active){color:var(--text-1)}
+
+/* Chat: texto en negrita del markdown. */
+.message-bubble strong{font-weight:700;color:inherit}
+.message-bubble.assistant strong{color:var(--text-1)}
+
+/* Chat: con ratón, las acciones del mensaje flotan sobre el borde en
+   lugar de reservar una franja vacía al final de cada burbuja. */
+@media (hover:hover) and (pointer:fine){
+  .message-bubble .message-actions{position:absolute;bottom:-.9rem;margin:0;z-index:5;padding:.2rem;gap:.2rem;flex-wrap:nowrap;background:var(--bg-2);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.35);pointer-events:none;transform:translateY(4px);transition:opacity .18s ease,transform .18s ease}
+  .message-bubble.assistant .message-actions{left:1rem}
+  .message-bubble.user .message-actions{right:1rem}
+  .message-bubble:hover .message-actions,.message-bubble:focus-within .message-actions{pointer-events:auto;transform:none;opacity:1}
+  .message-bubble .message-actions .btn-message{box-shadow:none;padding:.28rem .6rem}
+  .message-bubble .message-actions .btn-message:hover{transform:none}
+  .message-bubble:hover{z-index:4}
+  .chat-messages{gap:1.15rem}
+}
+/* Los botones flotantes (pantalla completa / menú en móvil) ya no tapan el
+   primer mensaje. */
+.chat-main > .chat-messages,#chat-view.immersive .chat-messages{padding-top:3.75rem}
+@media (max-width:768px){
+  .chat-main > .chat-messages,#chat-view.immersive .chat-messages{padding-top:4.25rem}
+}
+
+/* Barra lateral del chat: herramientas en una cuadrícula compacta. */
+.chat-tools{display:grid;grid-template-columns:repeat(6,1fr);gap:.45rem;padding:0 1rem .9rem;border-bottom:1px solid var(--border);margin-bottom:.6rem}
+.chat-tools .chat-tool-btn{grid-column:span 2;margin:0;padding:.6rem .3rem;flex-direction:column;gap:.3rem;font-size:.74rem;font-weight:600;background:var(--bg-card);color:var(--text-2);border:1px solid var(--border);box-shadow:none;animation:none;position:relative;line-height:1.1}
+.chat-tools .chat-tool-btn:nth-child(-n+2){grid-column:span 3;flex-direction:row;padding:.55rem .5rem}
+.chat-tools .chat-tool-btn::before{display:none}
+.chat-tools .chat-tool-btn:hover{transform:translateY(-1px);color:var(--text-1);border-color:var(--border-strong);background:var(--bg-card-hover);box-shadow:none}
+.chat-tools .chat-tool-btn svg{flex-shrink:0;opacity:.85}
+.chat-tools .notas-rol-dot,.chat-tools .diario-dot{position:absolute;top:.4rem;right:.45rem;margin:0}
+#chat-new-btn{margin-bottom:.7rem}
+
+/* Móvil: el icono del menú queda centrado en su botón. */
+.btn-hamburger{place-items:center}
+
+/* Modales: sin contorno al recibir el foco por programa. */
+.modal:focus{outline:none}
+
+/* Móvil: cabecera del panel más compacta, en una sola fila. */
+@media (max-width:768px){
+  .dashboard-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.5rem;width:100%;align-items:center}
+  .dashboard-actions .user-badge{grid-column:1;grid-row:1;justify-self:start;min-width:0;max-width:100%}
+  .dashboard-actions #user-badge-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .dashboard-actions #logout-btn{grid-column:2;grid-row:1;padding:.55rem 1rem}
+  .dashboard-actions #btn-nuevo-personaje{grid-column:1/-1;grid-row:2;width:100%;justify-content:center}
+  .dashboard-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  .dashboard-tabs::-webkit-scrollbar{display:none}
+  .dashboard-tab[data-view="announcements"]{margin-left:0!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .message-bubble .message-actions{transition:none}
+  .character-card:hover .character-avatar{transform:none}
+}
