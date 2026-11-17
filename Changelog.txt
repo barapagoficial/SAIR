@@ -2,6 +2,16 @@
  SAIR4 — Changelog
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[4.2.1 Oficial A] — 2026-11-17
+
+✨ Novedades
+- Nuevo modelo Gemini 3.8 Flash (roleplay y resúmenes). Es ahora el modelo por
+  defecto de recap, resúmenes y generación IA.
+
+🔧 Arreglos
+- La cadena de modelos de respaldo ante bloqueos ya no pasa por Gemini 3.6
+  Flash (en retirada) y empieza por 3.8.
+
 [4.2.0 Oficial A] — 2026-11-02
 
 ✨ Novedades
