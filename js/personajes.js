@@ -32,7 +32,7 @@ async function guardarPersonajeConRepliegue(ejecutar, payload) {
       r = await ejecutar(sinExtras);
     }
   }
-  if (r.error) throw new Error(r.error.message);
+  if (r.error) throw new Error(mensajeErrorImagen(r.error.message));
   return r.data;
 }
 function colorAuraDe(p) {

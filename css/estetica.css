@@ -4182,3 +4182,102 @@ body[data-theme=light] .historiador-pagina {
     flex-basis: 100%;
   }
 }
+.avatar-preview-container,
+.avatar-preview-container.has-image {
+  cursor: pointer;
+  touch-action: auto;
+}
+.avatar-preview-container.has-image:hover {
+  border-color: var(--pink);
+}
+.avatar-preview {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.biblioteca-overlay {
+  z-index: 10040;
+}
+.biblioteca-modal {
+  max-width: 560px;
+}
+.biblioteca-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.biblioteca-grupo-titulo {
+  margin: 0 0 .6rem;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.biblioteca-grupo.especial {
+  padding: .8rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 77, 143, .35);
+  background: linear-gradient(135deg, rgba(255, 77, 143, .1), rgba(168, 85, 247, .1));
+}
+.biblioteca-grupo.especial .biblioteca-grupo-titulo {
+  color: var(--pink);
+}
+.biblioteca-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: .6rem;
+}
+.biblioteca-grid.forma-banner {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.biblioteca-opcion {
+  position: relative;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: var(--bg-input);
+  cursor: pointer;
+  transition: border-color .2s ease, transform .2s ease;
+}
+.forma-circulo .biblioteca-opcion {
+  border-radius: 50%;
+}
+.forma-banner .biblioteca-opcion {
+  aspect-ratio: 3 / 1;
+}
+.biblioteca-opcion img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.biblioteca-opcion:hover,
+.biblioteca-opcion:focus-visible {
+  border-color: var(--pink);
+  transform: translateY(-2px);
+  outline: none;
+}
+.biblioteca-opcion.seleccionada {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(255, 77, 143, .35);
+}
+.biblioteca-nota {
+  margin: 1.1rem 0 0;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: var(--text-3);
+  text-align: center;
+}
+@media (max-width: 480px) {
+  .biblioteca-grid {
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  }
+  .biblioteca-grid.forma-banner {
+    grid-template-columns: 1fr;
+  }
+}

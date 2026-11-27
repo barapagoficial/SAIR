@@ -493,69 +493,6 @@ function actualizarPosicionesPerfil() {
   if (avatarImg) avatarImg.style.objectPosition = `${perfilAvatarPosPendiente.x}% ${perfilAvatarPosPendiente.y}%`;
   if (cover) cover.style.backgroundPosition = `${perfilFondoPosPendiente.x}% ${perfilFondoPosPendiente.y}%`;
 }
-function prepararAvatarPerfil(file) {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-      resolve(null);
-      return;
-    }
-    if (!file.type.startsWith("image/")) {
-      reject(new Error("Solo se permiten imágenes"));
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      reject(new Error("La imagen debe pesar máximo 5 MB"));
-      return;
-    }
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("No se pudo leer la imagen"));
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onerror = () => reject(new Error("Imagen inválida"));
-      img.onload = () => {
-        const corto = Math.min(img.width, img.height), largo = Math.max(img.width, img.height), ratio = Math.min(320 / corto, 640 / largo, 1) || 1, w = Math.max(1, Math.round(img.width * ratio)), h = Math.max(1, Math.round(img.height * ratio)), canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL("image/jpeg", 0.85));
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-function prepararFondoPerfil(file) {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-      resolve(null);
-      return;
-    }
-    if (!file.type.startsWith("image/")) {
-      reject(new Error("Solo se permiten imágenes"));
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      reject(new Error("La imagen debe pesar máximo 5 MB"));
-      return;
-    }
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("No se pudo leer la imagen"));
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onerror = () => reject(new Error("Imagen inválida"));
-      img.onload = () => {
-        const maxWidth = 1200, ratio = Math.min(1, maxWidth / img.width), w = Math.max(1, Math.round(img.width * ratio)), h = Math.max(1, Math.round(img.height * ratio)), canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL("image/jpeg", 0.78));
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
 document.getElementById("user-badge").addEventListener("click", () => {
   actualizarUIPerfil();
   perfilAvatarPendiente = userAvatarUrl;
@@ -574,41 +511,28 @@ document.getElementById("user-badge").addEventListener("keydown", (e) => {
     document.getElementById("user-badge").click();
   }
 });
-document.getElementById("profile-avatar-change").addEventListener("click", () => document.getElementById("profile-avatar-file").click());
-document.getElementById("profile-avatar-file").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  try {
-    perfilAvatarPendiente = await prepararAvatarPerfil(file);
-    perfilAvatarPosPendiente = { x: 50, y: 50 };
-    actualizarPreviewAvatarPerfil(perfilAvatarPendiente);
-    actualizarPosicionesPerfil();
-    iniciarAjustePerfil("avatar");
-  } catch (err) {
-    showToast(`❌ ${err.message}`, "error");
-  } finally {
-    e.target.value = "";
-  }
+document.getElementById("profile-avatar-change").addEventListener("click", async () => {
+  const ruta = await elegirDeBiblioteca("avatar", perfilAvatarPendiente);
+  if (!ruta) return;
+  terminarAjustePerfil();
+  perfilAvatarPendiente = ruta;
+  perfilAvatarPosPendiente = { x: 50, y: 50 };
+  actualizarPreviewAvatarPerfil(perfilAvatarPendiente);
+  actualizarPosicionesPerfil();
 });
 document.getElementById("profile-avatar-remove").addEventListener("click", () => {
   perfilAvatarPendiente = null;
   terminarAjustePerfil();
   actualizarPreviewAvatarPerfil(null);
 });
-document.getElementById("profile-background-change").addEventListener("click", () => document.getElementById("profile-background-file").click());
-document.getElementById("profile-background-file").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  try {
-    perfilFondoPendiente = await prepararFondoPerfil(file);
-    perfilFondoPosPendiente = { x: 50, y: 50 };
-    actualizarPreviewFondoPerfil(perfilFondoPendiente);
-    iniciarAjustePerfil("fondo");
-  } catch (err) {
-    showToast(`❌ ${err.message}`, "error");
-  } finally {
-    e.target.value = "";
-  }
+document.getElementById("profile-background-change").addEventListener("click", async () => {
+  const ruta = await elegirDeBiblioteca("fondo", perfilFondoPendiente);
+  if (!ruta) return;
+  terminarAjustePerfil();
+  perfilFondoPendiente = ruta;
+  perfilFondoPosPendiente = { x: 50, y: 50 };
+  actualizarPreviewFondoPerfil(perfilFondoPendiente);
+  actualizarPosicionesPerfil();
 });
 document.getElementById("profile-background-remove").addEventListener("click", () => {
   perfilFondoPendiente = null;
@@ -638,7 +562,7 @@ function sobranteCover(caja, nat) {
 async function iniciarAjustePerfil(tipo) {
   const url = tipo === "avatar" ? perfilAvatarPendiente : perfilFondoPendiente;
   if (!sanitizeImageUrl(url)) {
-    showToast(tipo === "avatar" ? "Primero sube una foto de perfil" : "Primero sube un fondo", "error");
+    showToast(tipo === "avatar" ? "Primero elige una foto de perfil" : "Primero elige un fondo", "error");
     return;
   }
   const el = tipo === "avatar" ? perfilAvatarEl : perfilCoverEl;
@@ -723,7 +647,7 @@ formProfile.addEventListener("submit", async (e) => {
   btn.textContent = "Guardando...";
   try {
     const { error } = await sbClient.from("perfiles").update({ username: nuevoUsername, descripcion: nuevoDescription || null, avatar_url: sanitizeImageUrl(perfilAvatarPendiente) || null, fondo_url: sanitizeImageUrl(perfilFondoPendiente) || null, avatar_pos_x: posEntera(perfilAvatarPosPendiente.x), avatar_pos_y: posEntera(perfilAvatarPosPendiente.y), fondo_pos_x: posEntera(perfilFondoPosPendiente.x), fondo_pos_y: posEntera(perfilFondoPosPendiente.y) }).eq("user_id", currentUser.id);
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(mensajeErrorImagen(error.message));
     userUsername = nuevoUsername;
     userDescription = nuevoDescription;
     userAvatarUrl = sanitizeImageUrl(perfilAvatarPendiente) || null;

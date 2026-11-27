@@ -22,7 +22,8 @@ const STATIC_ASSETS = [
   "./js/arranque.js",
   "./js/herramientas.js",
   "./js/diario.js",
-  "./js/creditos.js"
+  "./js/creditos.js",
+  "./js/biblioteca.js"
 ];
 self.addEventListener("install", (e) => {
   e.waitUntil(

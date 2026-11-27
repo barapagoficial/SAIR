@@ -1,5 +1,12 @@
 SAIR — Changelog
 
+[5.1] — 2026-11-26
+
+✨ Novedades
+- 🖼️ Biblioteca de SAIR: la foto de perfil, el fondo y la foto de tus personajes ahora se eligen de una biblioteca de imágenes, para que SAIR sea un lugar seguro para todos.
+- 🎞️ Algunas fotos de la biblioteca son animadas.
+- La foto de tu perfil y el fondo se pueden seguir encuadrando.
+
 [5.0] — 2026-11-26
 
 ✨ Novedades

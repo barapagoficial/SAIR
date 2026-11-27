@@ -377,6 +377,7 @@ function lightenColor(hex, percent) {
 function sanitizeImageUrl(url) {
   if (!url || typeof url !== "string") return "";
   const trimmed = url.trim(), cleanData = trimmed.replace(/[\r\n\s]+/g, "");
+  if (/^biblioteca\/(perfiles|banners|personajes|owner)\/[a-z0-9-]+\.(webp|gif|png|jpg)$/.test(trimmed)) return trimmed;
   if (cleanData.startsWith("data:image/")) return /^data:image\/[a-z0-9\+\-\.]+;(?:base64|utf8),/i.test(cleanData) ? cleanData : "";
   try {
     const u = new URL(trimmed);
@@ -1859,285 +1860,43 @@ if (bgImgEl) bgImgEl.addEventListener("error", () => {
     showToast("❌ El fondo guardado no se pudo cargar y fue eliminado", "error");
   }
 });
-const AVATAR_ZOOM_MAX = 4, AVATAR_OUT = 512;
-let avatarData = { original: null, img: null, zoom: 1, ox: 0, oy: 0, sourceIsRaw: false };
+let avatarData = { original: null };
 let avatarModificado = false;
-let avatarBloqueado = false;
-const avatarContainer = document.getElementById("avatar-preview-container"), avatarPreview = document.getElementById("avatar-preview"), avatarPlaceholder = document.getElementById("avatar-placeholder"), avatarControls = document.getElementById("avatar-controls"), avatarFile = document.getElementById("avatar-file"), avatarZoomLabel = document.getElementById("avatar-zoom-value");
-function bloquearAvatar(si) {
-  avatarBloqueado = !!si;
-  avatarContainer.classList.toggle("locked", avatarBloqueado);
-  avatarControls.classList.toggle("locked", avatarBloqueado);
-  const b = document.getElementById("avatar-lock");
-  if (b) {
-    b.textContent = avatarBloqueado ? "🔒 Bloqueada" : "🔓 Bloquear";
-    b.classList.toggle("activo", avatarBloqueado);
-    b.setAttribute("aria-pressed", String(avatarBloqueado));
-  }
-  const h = document.getElementById("avatar-hint");
-  if (h) h.textContent = avatarBloqueado ? "🔒 Foto bloqueada: puedes hacer scroll sin moverla. Toca «Bloqueada» para ajustarla otra vez." : "✋ Arrastra la foto para moverla · 🤏 pellizca o usa la rueda para el zoom · lo oscuro puede quedar recortado";
+const avatarContainer = document.getElementById("avatar-preview-container"), avatarPreview = document.getElementById("avatar-preview"), avatarPlaceholder = document.getElementById("avatar-placeholder"), avatarControls = document.getElementById("avatar-controls");
+function mostrarAvatarPersonaje(url) {
+  const safe = sanitizeImageUrl(url);
+  avatarData.original = safe || null;
+  if (safe) avatarPreview.src = safe;
+  else avatarPreview.removeAttribute("src");
+  avatarPreview.style.display = safe ? "block" : "none";
+  avatarPlaceholder.style.display = safe ? "none" : "block";
+  avatarContainer.classList.toggle("has-image", !!safe);
+  avatarControls.classList.toggle("visible", !!safe);
 }
-function avatarGeom(S) {
-  const img = avatarData.img;
-  if (!img || !img.naturalWidth) return null;
-  const base = S / Math.min(img.naturalWidth, img.naturalHeight);
-  const w = img.naturalWidth * base * avatarData.zoom, h = img.naturalHeight * base * avatarData.zoom;
-  return { w, h, mx: (w - S) / 2 / S, my: (h - S) / 2 / S };
-}
-function clampAvatar() {
-  const g = avatarGeom(1);
-  if (!g) return;
-  avatarData.ox = Math.max(-g.mx, Math.min(g.mx, avatarData.ox));
-  avatarData.oy = Math.max(-g.my, Math.min(g.my, avatarData.oy));
-}
-function resetAvatarSliders() {
-  avatarData.zoom = 1;
-  avatarData.ox = 0;
-  avatarData.oy = 0;
-}
-function setAvatarControlsMode() {
-}
-function drawAvatarCrop(ctx, S) {
-  const g = avatarGeom(S);
-  if (!g) return;
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, S, S);
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(avatarData.img, S / 2 + avatarData.ox * S - g.w / 2, S / 2 + avatarData.oy * S - g.h / 2, g.w, g.h);
-}
-function updateAvatarPreview() {
-  if (!avatarData.original) return;
-  avatarPreview.style.display = "block";
-  avatarPlaceholder.style.display = "none";
-  const S = avatarContainer.clientWidth || 220;
-  clampAvatar();
-  const g = avatarGeom(S);
-  if (g) {
-    avatarPreview.style.width = g.w + "px";
-    avatarPreview.style.height = g.h + "px";
-    avatarPreview.style.left = S / 2 + avatarData.ox * S - g.w / 2 + "px";
-    avatarPreview.style.top = S / 2 + avatarData.oy * S - g.h / 2 + "px";
-  }
-  if (avatarZoomLabel) avatarZoomLabel.textContent = Math.round(avatarData.zoom * 100) + "%";
-}
-function marcarAvatarModificado() {
-  if (!avatarData.original) return;
+async function elegirAvatarPersonaje() {
+  const ruta = await elegirDeBiblioteca("personaje", avatarData.original);
+  if (!ruta) return;
   avatarModificado = true;
+  mostrarAvatarPersonaje(ruta);
 }
-function cargarImagenAvatar(src, { raw }) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    if (!/^data:|^blob:/.test(src)) img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = () => {
-      if (img.crossOrigin) {
-        const plain = new Image();
-        plain.onload = () => resolve(plain);
-        plain.onerror = () => resolve(null);
-        plain.src = src;
-      } else resolve(null);
-    };
-    img.src = src;
-  }).then((img) => {
-    if (!img) return false;
-    avatarData.original = src;
-    avatarData.img = img;
-    avatarData.sourceIsRaw = raw;
-    resetAvatarSliders();
-    avatarPreview.src = src;
-    avatarControls.classList.add("visible");
-    avatarContainer.classList.add("has-image");
-    updateAvatarPreview();
-    return true;
-  });
-}
-function zoomAvatar(nuevo, cx = 0.5, cy = 0.5) {
-  if (!avatarData.img) return;
-  const z0 = avatarData.zoom, z = Math.max(1, Math.min(AVATAR_ZOOM_MAX, nuevo));
-  if (z === z0) return;
-  const px = cx - 0.5, py = cy - 0.5;
-  avatarData.ox = px - (px - avatarData.ox) * (z / z0);
-  avatarData.oy = py - (py - avatarData.oy) * (z / z0);
-  avatarData.zoom = z;
-  marcarAvatarModificado();
-  updateAvatarPreview();
-}
-const avatarPunteros = /* @__PURE__ */ new Map();
-let avatarGesto = null;
-function avatarPuntoRel(e) {
-  const r = avatarContainer.getBoundingClientRect();
-  return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height, S: r.width };
-}
-function iniciarGestoAvatar() {
-  const pts = [...avatarPunteros.values()];
-  if (pts.length >= 2) {
-    const [a, b] = pts;
-    avatarGesto = { tipo: "pinch", dist: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), zoom: avatarData.zoom };
-  } else if (pts.length === 1) {
-    avatarGesto = { tipo: "drag", x: pts[0].clientX, y: pts[0].clientY, ox: avatarData.ox, oy: avatarData.oy };
-  } else avatarGesto = null;
-}
-avatarContainer.addEventListener("pointerdown", (e) => {
-  if (!avatarData.img || avatarBloqueado) return;
-  e.preventDefault();
-  avatarContainer.setPointerCapture?.(e.pointerId);
-  avatarPunteros.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
-  avatarContainer.classList.add("dragging");
-  iniciarGestoAvatar();
-});
-avatarContainer.addEventListener("pointermove", (e) => {
-  if (!avatarPunteros.has(e.pointerId) || !avatarGesto) return;
-  avatarPunteros.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
-  const S = avatarContainer.clientWidth || 220;
-  if (avatarGesto.tipo === "drag") {
-    avatarData.ox = avatarGesto.ox + (e.clientX - avatarGesto.x) / S;
-    avatarData.oy = avatarGesto.oy + (e.clientY - avatarGesto.y) / S;
-    marcarAvatarModificado();
-    updateAvatarPreview();
-  } else {
-    const [a, b] = [...avatarPunteros.values()];
-    const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
-    const m = avatarPuntoRel({ clientX: (a.clientX + b.clientX) / 2, clientY: (a.clientY + b.clientY) / 2 });
-    zoomAvatar(avatarGesto.zoom * d / (avatarGesto.dist || 1), m.x, m.y);
-  }
-});
-function finGestoAvatar(e) {
-  if (!avatarPunteros.delete(e.pointerId)) return;
-  if (!avatarPunteros.size) avatarContainer.classList.remove("dragging");
-  iniciarGestoAvatar();
-}
-["pointerup", "pointercancel", "lostpointercapture"].forEach((ev) => avatarContainer.addEventListener(ev, finGestoAvatar));
-avatarContainer.addEventListener("wheel", (e) => {
-  if (!avatarData.img || avatarBloqueado) return;
-  e.preventDefault();
-  const p = avatarPuntoRel(e);
-  zoomAvatar(avatarData.zoom * Math.exp(-e.deltaY * 15e-4), p.x, p.y);
-}, { passive: false });
-avatarContainer.addEventListener("dblclick", () => {
-  if (!avatarData.img || avatarBloqueado) return;
-  resetAvatarSliders();
-  marcarAvatarModificado();
-  updateAvatarPreview();
-});
-avatarContainer.addEventListener("click", () => {
-  if (!avatarData.original) {
-    avatarFile.value = "";
-    avatarFile.click();
-  }
-});
+avatarContainer.addEventListener("click", elegirAvatarPersonaje);
 avatarContainer.addEventListener("keydown", (e) => {
-  if (!avatarData.img) {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      avatarFile.click();
-    }
-    return;
-  }
-  if (avatarBloqueado) return;
-  const paso = 0.03;
-  const k = { ArrowLeft: [-paso, 0], ArrowRight: [paso, 0], ArrowUp: [0, -paso], ArrowDown: [0, paso] }[e.key];
-  if (k) {
-    e.preventDefault();
-    avatarData.ox += k[0];
-    avatarData.oy += k[1];
-    marcarAvatarModificado();
-    updateAvatarPreview();
-  } else if (e.key === "+" || e.key === "=") {
-    e.preventDefault();
-    zoomAvatar(avatarData.zoom * 1.15);
-  } else if (e.key === "-") {
-    e.preventDefault();
-    zoomAvatar(avatarData.zoom / 1.15);
-  }
+  if (e.key !== "Enter" && e.key !== " ") return;
+  e.preventDefault();
+  elegirAvatarPersonaje();
 });
-document.getElementById("avatar-lock").addEventListener("click", () => bloquearAvatar(!avatarBloqueado));
-document.getElementById("avatar-zoom-in").addEventListener("click", () => zoomAvatar(avatarData.zoom * 1.2));
-document.getElementById("avatar-zoom-out").addEventListener("click", () => zoomAvatar(avatarData.zoom / 1.2));
-document.getElementById("avatar-reset").addEventListener("click", () => {
-  if (!avatarData.img) return;
-  resetAvatarSliders();
-  marcarAvatarModificado();
-  updateAvatarPreview();
-});
-window.addEventListener("resize", () => {
-  if (avatarData.img) updateAvatarPreview();
-});
-avatarFile.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (!file.type.startsWith("image/")) {
-    showToast("❌ Solo se permiten imágenes", "error");
-    avatarFile.value = "";
-    return;
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    showToast("❌ Imagen muy grande (máx. 5MB)", "error");
-    avatarFile.value = "";
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    const ok = await cargarImagenAvatar(ev.target.result, { raw: true });
-    if (!ok) {
-      showToast("❌ No se pudo leer la imagen", "error");
-      return;
-    }
-    avatarModificado = true;
-    bloquearAvatar(false);
-  };
-  reader.readAsDataURL(file);
-});
-document.getElementById("avatar-change").addEventListener("click", () => {
-  avatarFile.value = "";
-  avatarFile.click();
-});
+document.getElementById("avatar-change").addEventListener("click", elegirAvatarPersonaje);
 document.getElementById("avatar-remove").addEventListener("click", () => {
   avatarModificado = true;
-  avatarData = { original: null, img: null, zoom: 1, ox: 0, oy: 0, sourceIsRaw: false };
-  avatarPreview.removeAttribute("src");
-  avatarPreview.style.display = "none";
-  avatarPlaceholder.style.display = "block";
-  avatarContainer.classList.remove("has-image");
-  avatarControls.classList.remove("visible");
-  avatarFile.value = "";
-  bloquearAvatar(false);
+  mostrarAvatarPersonaje(null);
 });
 function procesarAvatar() {
-  return new Promise((resolve) => {
-    if (!avatarModificado) {
-      resolve(void 0);
-      return;
-    }
-    if (!avatarData.original || !avatarData.img) {
-      resolve(null);
-      return;
-    }
-    try {
-      const S = AVATAR_OUT, canvas = document.createElement("canvas");
-      canvas.width = S;
-      canvas.height = S;
-      drawAvatarCrop(canvas.getContext("2d"), S);
-      resolve(canvas.toDataURL("image/jpeg", 0.88));
-    } catch (err) {
-      console.warn("[avatar] no se pudo recortar", err);
-      resolve(avatarData.sourceIsRaw ? null : avatarData.original);
-    }
-  });
+  if (!avatarModificado) return Promise.resolve(void 0);
+  return Promise.resolve(esImagenBiblioteca(avatarData.original) ? avatarData.original : null);
 }
 function setAvatarForEdit(avatarUrl) {
+  mostrarAvatarPersonaje(avatarUrl);
   avatarModificado = false;
-  const safeUrl = sanitizeImageUrl(avatarUrl);
-  if (!safeUrl) {
-    document.getElementById("avatar-remove").click();
-    avatarModificado = false;
-    return;
-  }
-  cargarImagenAvatar(safeUrl, { raw: false }).then((ok) => {
-    if (!ok) {
-      document.getElementById("avatar-remove").click();
-    } else bloquearAvatar(true);
-    avatarModificado = false;
-  });
 }
 function actualizarAvatarEnUI(personaje) {
   if (!personaje) return;
