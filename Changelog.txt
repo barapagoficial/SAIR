@@ -1,0 +1,406 @@
+SAIR — Changelog
+
+[4.6.0 Oficial A] — 2026-11-26
+
+✨ Novedades
+- ⚡ Créditos de Rol: una forma nueva de rolear sin API Key.
+- 💜 Pestaña «Créditos de Rol» en el panel: tu saldo y cuándo vence, los paquetes (Flash Pequeño 350 CR · $20.000, Flash…
+- 🛒 Compra con Wompi: confirmas el paquete, apartas tu cupo 15 minutos y pagas con tarjeta, PSE, Nequi y más.
+- 🎭 Ajustes de Rol: nuevo selector «¿Quién responde por tu personaje?» con tu API Key de Gemini, Créditos de Rol Flash o Pro.
+- 🪙 En el chat, tu saldo de CR aparece siempre junto al medidor de memoria, aunque no tengas créditos o uses tu API Key…
+- Costos: 1 CR por mensaje, regenerar, editar o continuar.
+- Si la IA falla sin escribir nada, el crédito se devuelve solo.
+- 🛒 Un cupo apartado (alguien está pagando) ya no aparece como «Agotado».
+- 📖 Recapitulación rediseñada: «Actualmente» (dónde está la historia ahora) va destacado y, en PC, fijo a un lado mientras…
+- ✍️ Historiador rediseñado como la página de un libro.
+- 💜 Diario de Personajes: sin el título repetido, tarjetas en dos columnas en PC y cada sección con su color.
+- ⏳ Las pantallas de carga (recap, Historiador, diario y resumen automático) muestran los pasos que va haciendo la IA y el…
+- La barra de acciones de estas ventanas queda fija abajo y ya no tapa el texto.
+- 🖥️ Ventanas en PC: ya no se ven estrechas y con su propia barra de scroll como en el móvil.
+
+[4.5.3 Oficial A] — 2026-11-26
+
+🔧 Arreglos
+- Importar un chat exportado fallaba si el chat original seguía existiendo (por ejemplo, para probar otra versión de la…
+- La exportación (formato 4) guarda también hasta qué mensaje cubre el resumen y las variantes de cada respuesta, que antes…
+
+[4.5.2 Oficial A] — 2026-11-25
+
+✨ Novedades
+- 🧠 Contexto de los chats más corto: el resumen automático se activa a los ~15.000 tokens (antes 28.000) y conserva ~5.000…
+- ⚡ Más aprovechamiento de la caché: el lorebook y las notas para rol ya no van dentro de la ficha del personaje, sino al…
+
+[4.5.1 Oficial A] — 2026-11-25
+
+✨ Novedades
+- ⬇️ Botón «ir al final» nuevo: ahora está centrado encima de la caja de texto (ya no se cruza con el medidor de memoria)…
+- 🔔 Notificaciones rehechas: tiempo que les queda (se pausa al pasar el ratón).
+
+🔧 Arreglos
+- En Android no se podían quitar las notificaciones deslizando.
+- Con el dedo, tocar la X de una notificación no la cerraba.
+- El aviso «Instala SAIR» se veía apretado en móvil (una palabra por línea).
+
+[4.5.0 Oficial A] — 2026-11-25
+
+✨ Novedades
+- 🧠 Medidor de memoria en el chat: sobre la caja de texto se ve cuántos tokens lleva el contexto del chat frente al límite…
+- ⚙️ Ajustes rediseñados: tarjetas con icono, controles segmentados para tema y rendimiento, interruptor para la lectura en…
+- 📜 Política de privacidad: el mismo texto, ahora en secciones con icono, un resumen corto arriba y los botones siempre…
+- 🌍 Comunidad: cabecera nueva, buscador con icono, orden y favoritos con iconos y etiquetas en una fila deslizable.
+- 🎭 Ajustes de rol: vista previa en vivo de cómo te llamará el personaje, contador de caracteres y el motor de Gemini en un…
+
+[4.4.0 Oficial A] — 2026-11-25
+
+✨ Novedades
+- 🎨 Rediseño visual: personaje difuminada, avatar grande, insignia Público/Privado flotante y botones con iconos.
+- 🖼️ Avatar del personaje: lo que queda fuera del círculo se ve oscurecido (es lo que puede recortarse) y hay un botón 🔒…
+- 👤 Editor de perfil nuevo: adiós a los 4 deslizadores.
+- 📖 Historiador: ya no se corta en capítulos largos.
+- 🧠 Resumen más temprano: el chat se resume al pasar de ~28.000 tokens de contexto (antes 80.000), conservando ~9.000…
+
+🔧 Arreglos
+- El formulario de inicio de sesión ya no deja un hueco vacío abajo.
+- La etiqueta de versión ya no tapa las tarjetas en móvil.
+- Los deslizadores de posición del perfil dejaban de funcionar tras abrir el editor una vez (se quedaban apuntando a la…
+- La foto de perfil se recortaba en cuadrado al subirla, así que ajustar su posición no hacía nada.
+- «Continuar respuesta» guardaba solo el contexto enviado a Gemini.
+
+[4.3.1 Oficial A] — 2026-11-25
+
+✨ Novedades
+- 🖼️ NUEVO EDITOR DE AVATAR del personaje: pellizcas (móvil) o usas la rueda (PC) para el zoom, con botones − / + y…
+- ✨ Generar con IA: el campo para describir el personaje es mucho más grande (hasta 6000 caracteres, redimensionable y con…
+
+🔧 Arreglos
+- Los avatares ya no se guardan incompletos: antes los deslizadores de posición dejaban sacar la foto del marco y quedaban…
+- La vista previa del avatar y la imagen guardada usaban cuentas distintas y no coincidían.
+- Generar con IA: los textos generados se recortan a los límites de cada campo, así un personaje largo ya no da error al…
+
+[4.3.0 Oficial A] — 2026-11-17
+
+✨ Novedades
+- 🎨 Pulido visual: flotan sobre el borde al pasar el ratón: las burbujas ya no tienen una franja vacía al final.
+- **Negrita** en los mensajes: Gemini la usa mucho y antes salía como asteriscos sueltos con cursiva.
+
+🔧 Arreglos
+- Las respuestas largas ya no se cortan a los 90 s con "Tiempo de espera agotado".
+- El modelo de recap/resúmenes se guardaba bajo la clave "undefined" del navegador.
+- Al pasar el ratón por una tarjeta, el borde ya no se vuelve blanco.
+- La lista de chats decía "Sin mensajes todavía" en chats con mensajes pero sin resumen.
+- Los botones flotantes (pantalla completa en escritorio, menú ☰ en móvil) ya no tapan el primer mensaje del chat.
+- El icono del menú en móvil queda centrado.
+- Cerrar una ventana con Esc o clic fuera devuelve el foco a donde estaba.
+
+[4.2.1 Oficial A] — 2026-11-17
+
+✨ Novedades
+- Nuevo modelo Gemini 3.8 Flash (roleplay y resúmenes).
+
+🔧 Arreglos
+- La cadena de modelos de respaldo ante bloqueos ya no pasa por Gemini 3.6 Flash (en retirada) y empieza por 3.8.
+
+[4.2.0 Oficial A] — 2026-11-02
+
+✨ Novedades
+- ❤️ ME GUSTA en la Comunidad: corazón con contador en cada personaje, orden "Más populares" y filtro "Mis favoritos" con…
+- 🏷️ Etiquetas: hasta 5 por personaje (fantasía, romance, terror, anime…), visibles en las tarjetas y como filtro en la…
+- 📚 Lorebook: fichas del mundo de cada personaje (lugares, personajes secundarios, reglas…) con palabras clave.
+- 📝 Borradores: lo que dejas escrito en un chat se guarda solo y vuelve a aparecer al abrirlo.
+- 🔗 COMPARTIR personajes con un enlace (botón del móvil o copiar).
+- 🔢 Contador de uso de tu api key: tokens y peticiones de cada chat y del día, en la cabecera del chat.
+
+[4.1.0 Oficial A] — 2026-11-01
+
+✨ Novedades
+- COMUNIDAD renovada: buscador por nombre o descripción, orden (más recientes, más antiguos, A-Z) y botón "Cargar más" de…
+- Botón 🚩 para REPORTAR personajes de otros usuarios (motivo + detalles).
+- Voz: botón "Leer" en cada respuesta para escucharla en voz alta, opción en Ajustes para que las respuestas nuevas se lean…
+
+🔧 Arreglos
+- En la Comunidad, el nombre del autor solo aparecía en su primer personaje.
+- Al reintentar una respuesta fallida ahora se actualiza también la paginación del chat, igual que al enviar.
+
+[4.0.3 Oficial A] — 2026-11-01
+
+🔧 Arreglos
+- Móvil (modo ligero): la app ya no se queda en negro hasta cambiar el modo visual en Ajustes.
+- Móvil (modo ligero): ya no hay unos segundos en negro al abrir.
+
+[4.0.2 Oficial A] — 2026-11-01
+
+🎨 Marca
+- SAIR3 pasa a llamarse SAIR4 en la pantalla de entrada, el título, el manifiesto de la app, el README y el Changelog.
+
+[4.0.1 Oficial A] — 2026-11-01
+
+🔧 Arreglos
+- La app instalada (PWA) ya no se queda en NEGRO al abrirla después de unos días sin usarla.
+
+[4.0.0 Oficial A] — 2026-10-15
+
+✨ Novedades
+- VARIANTES DE RESPUESTA (estilo Character.AI): al pulsar "Regenerar" ya no se pierde la respuesta anterior.
+- Títulos de chat: cada chat se llama ahora como su primer mensaje (en lugar de "Chat a1b2c3") y se puede renombrar con…
+- Buscador en la lista de chats, con vista previa del último contenido.
+- Botón para ELIMINAR un mensaje concreto (antes solo se podía borrar el chat entero).
+- Pestaña "Anuncios" (📢) en el escritorio, integrada en el diseño.
+
+🔧 Arreglos
+- Los botones ‹ › de las variantes funcionan correctamente.
+- El foco vuelve al botón desde el que abriste un modal al cerrarlo, y Tab queda atrapado dentro del diálogo (antes se…
+
+♿ Accesibilidad
+- Se puede volver a hacer zoom con los dedos (el viewport bloqueaba el zoom en iOS).
+- 17 botones que solo tenían icono ahora tienen nombre accesible.
+- Los modales se anuncian como diálogos y las respuestas terminadas y los cambios de versión se anuncian a los lectores de…
+- Corregido el contraste del texto secundario: estaba en 3.05:1 y ahora supera el mínimo AA de 4.5:1.
+
+[3.1.2 Oficial A] — 2026-10-15
+
+✨ Novedades
+- Botón rojo de DETENER junto al de enviar: se muestra mientras el personaje escribe y cancela la respuesta al instante.
+- 📖 El historiador: nuevo botón en el chat que convierte la conversación en un capítulo de novela en prosa, fiel al tono…
+- Móvil: Historiador, Recapitulación y Nombre de rol se agrupan en un menú "⋯" junto al campo de escritura, para que el…
+- El chat ahora detecta que Gemini dejó de enviar datos.
+
+🔧 Arreglos
+- Arreglado un bloqueo real del chat: el tiempo de espera de Gemini sólo cubría la conexión inicial, así que un stream que…
+- Arreglada una fuga de escuchadores en el reintento por límite de peticiones que podía lanzar DOS peticiones a Gemini con…
+- Eliminadas dos funciones duplicadas (regenerarRespuesta y guardarEdicionMensaje).
+
+[3.1.1 Oficial A] — 2026-10-07
+
+🔧 Arreglos
+- Arreglado que la recapitulación y el Diario de Personajes se quedaran sin respuesta con "Gemini bloqueó la petición…
+- El aviso final (cuando ninguna estrategia funciona) ya no muestra el error técnico en crudo.
+- El resumidor automático de chats largos usa el mismo motor.
+
+🎨 Experiencia de usuario
+- Durante el modo por tramos, la recapitulación y el diario muestran el progreso real ("Resumiendo la historia por partes……
+- El diario avisa si algún fragmento quedó fuera por los filtros.
+
+[3.1.0 Oficial A · Fix 1] — 2026-10-07
+
+🔧 Arreglos
+- Arreglado que la recapitulación, el Diario de Personajes y el resumidor automático fallaran con "Gemini bloqueó la…
+- Al bloquearse una petición, la consola ahora registra el promptFeedback completo de Gemini para poder diagnosticar el…
+
+[3.1.0 Oficial A] — 2026-10-07
+
+✨ Novedades
+- 📖 Diario de Personajes en el chat: pulsa “Diario de Personajes” en la barra lateral y la IA lee la historia, detecta a…
+
+🔧 Arreglos
+- Arreglado que el resumidor automático no contestara por “contenido prohibido” en conversaciones normales o románticas.
+- La recapitulación usa la misma estrategia de reintentos, así que tampoco se queda sin respuesta por un bloqueo puntual.
+- La orden de resumen ya no usa lenguaje que disparaba los filtros (“sin censurar”, “prohibido”).
+
+[3.0.0 Preview H] — 2026-10-07
+
+✨ Novedades
+- 📝 Notas para Rol: cada chat tiene su propio cuaderno de contexto.
+- Indicador en el botón “Notas para Rol”: se ilumina cuando el chat tiene notas activas.
+
+🔧 Arreglos
+- Arreglada la respuesta que se cortaba a la mitad al regenerar un mensaje o al editar un mensaje propio.
+- Las continuaciones se unen sin repetir el tramo que Gemini vuelve a escribir al retomar (solape detectado y recortado).
+- Si una respuesta sigue incompleta, la burbuja muestra un aviso con el motivo y un botón “✂️ Continuar respuesta” para…
+
+🎨 Experiencia de usuario
+- La longitud de respuesta de los personajes ahora admite hasta 16.384 tokens (antes 8.192).
+- El tiempo de espera de Gemini sube a 5 minutos para que las respuestas largas no se corten por lentitud de la red.
+- El texto ya recibido nunca se descarta: si Gemini falla a mitad de la respuesta, ves exactamente hasta dónde llegó y…
+- Indicadores de versión actualizados a 3.0.0 Preview H.
+
+[3.0.0 Preview G] — 2026-09-29
+
+✨ Novedades
+- Nuevo selector de modelo para la recapitulación, los resúmenes automáticos del chat y la generación de personajes con IA…
+- La API Key de Gemini ahora se guarda de forma persistente en el navegador.
+- Los modelos de roleplay y de resúmenes quedan guardados aunque no vuelvas a pegar la API Key al guardar los Ajustes de Rol.
+- El estado del motor (Ajustes de Rol) y la confirmación de la recapitulación muestran los modelos realmente configurados.
+
+🎨 Experiencia de usuario
+- Nueva animación de entrada cinematográfica que reemplaza la pantalla de carga.
+- Indicadores de versión actualizados a 3.0.0 Preview G.
+
+[3.0.0 Preview F] — 2026-08-27
+
+✨ Novedades
+- Nueva pantalla de bienvenida para usuarios sin sesión, con una presentación animada de SAIR3 y el botón “Empieza ahora”.
+- Descripción amigable del roleplay con IA y del uso de la API Key propia de Google AI Studio.
+- Buscador de personas para descubrir perfiles dentro de la comunidad.
+- Indicadores de versión actualizados a 3.0.0 Preview F.
+
+🎨 Experiencia de usuario
+- Transiciones más suaves entre iniciar sesión y registrarse.
+- El formulario de autenticación mantiene una altura estable para evitar cambios bruscos al cambiar de vista.
+- Editor de perfil rediseñado con fondo, avatar ajustable y previsualización tipo Discord.
+- Avatar, fondo y ajustes visuales guardados en DB.
+
+🛡️ Calidad y confianza
+- Mejoras de estabilidad en perfiles, conversaciones y recuperación de sesión.
+- Mayor privacidad en la consulta de perfiles y datos de comunidad.
+- Persistencia más segura de preferencias y credenciales locales.
+- Funcionamiento offline y actualización de la aplicación más resistentes.
+- Corrección del envío de mensajes y actualización forzada de la versión instalada.
+
+[2.2.8] — 2026-08-19
+
+✨ Novedades
+- Crear personaje en 3 pasos (Identidad → Personalidad → Avanzado) con indicador de progreso y validación por paso.
+- ✨ Generar personaje con IA: describí tu idea en una línea y Gemini 3.7 Flash crea nombre, descripción, personalidad…
+- Versión de la app visible en la esquina inferior derecha.
+- Splash de carga un poco más duradero para que se lea la versión.
+
+🔁 Actualizaciones posteriores (19–22 ago, sin cambiar de número)
+- API Key: lectura más robusta de la clave guardada y avisos más claros (ya no exigen un prefijo concreto, sirven todos los…
+- "Regenerar" y "Editar mensaje": si Gemini falla a mitad, se restaura la conversación anterior en lugar de perder la respuesta.
+- Ajustes del diseño en pantallas de menos de 480 px.
+- Avisos (toasts) que se descartan deslizando y modo visual ligero/completo.
+
+[2.2.5] — 2026-08-19
+
+🔧 Arreglos
+- Arreglado el salto de la página hacia la izquierda al recargar (scrollbar-gutter estable).
+
+[2.2.4] — 2026-08-19
+
+✨ Novedades
+- Instalación PWA de un solo toque en cualquier navegador compatible (Android, Chrome, Edge, Brave y otros Chromium).
+- Iconos PNG nativos (192, 512 y maskable) para que Chromium detecte la app como instalable y muestre el botón en la barra…
+- Guía de instalación paso a paso según el navegador (Brave, Chrome, Edge, Firefox, iOS y otros).
+
+🔧 Arreglos
+- En Brave ya se puede instalar desde el menú ⋮ → “Guardar y compartir” → “Instalar página como app”.
+- Manifest con “id” estable (sair2) para identidad de app en Chromium.
+- El botón “Instalar” ahora usa el prompt nativo del navegador sin pasos extra.
+- El banner de instalación también aparece en escritorio cuando el navegador no ofrece instalación automática.
+- Botones del chat: corregida la posición del botón de bajar al final, del hamburger y del modo inmersivo (se apilaban por…
+
+[2.2.3] — 2026-08-19
+
+🔧 Arreglos
+- Autenticación de Gemini: la API Key ya no se corrompe al leerla (el error de OAuth 2 / credenciales inválidas al chatear).
+- La key se envía con la cabecera x-goog-api-key en lugar de ir en la URL.
+- Fondos de chat: la imagen se muestra de verdad (capa propia, también en móvil).
+- Las imágenes de fondo se comprimen al guardarlas para que no desaparezcan.
+
+[2.2.2] — 2026-08-16
+
+✨ Novedades
+- Ajustes de Rol para configurar la API Key y el modelo del roleplay.
+- Gemini 3.7 Flash fijado para resúmenes y recapitulaciones.
+
+🔧 Arreglos
+- Correcciones en regeneración y edición de mensajes para mantener el orden del chat.
+- Corrección de fondos personalizados del chat.
+
+[2.2.0] — 2026-08-16
+
+✨ Novedades
+- Perfil accesible desde el nombre de usuario con botón de edición al pasar por encima.
+- Edición independiente del nombre de usuario y foto de perfil.
+- Fotos de perfil optimizadas y mostradas de forma circular.
+- Selector de modelos Gemini: 3.5 Flash, 3.5 Flash Lite, 3.6 Flash y 3.7 Flash.
+- Indicadores visibles del modelo y la intensidad activa dentro del chat.
+
+🔧 Arreglos
+- Intensidad del personaje normalizada para aplicarse correctamente en chat, resúmenes y recapitulaciones.
+- Persistencia del modelo seleccionado en el navegador.
+- Versión de la interfaz actualizada a 2.2.0.
+
+[2.1.0] — 2026-07-24
+
+✨ Novedades
+- Selector de Intensidad de Personaje (Suave, Mediana, Máxima) para controlar los filtros de seguridad de IA en cada bot.
+- Los filtros ajustados aplican automáticamente al chat, al resumidor de contexto y a la recapitulación del usuario.
+
+🔧 Arreglos
+- Fondos de Chat: corregido el error de carga y sanitización de imágenes.
+- Regenerar Respuestas: corregido el desorden de mensajes al regenerar manteniendo sincronizada la base de datos y la interfaz.
+- Interfaz: diseño personalizado y legible para el selector de intensidad.
+
+[2.0.5] — 2026-07-13
+
+🔧 Arreglos
+- Chat: el campo de escritura ahora se vacía de forma instantánea al enviar un mensaje (antes tardaba 1-2 segundos).
+- Móvil: corregido el bug que impedía tocar el campo de escritura y el botón de recapitulación en zonas centrales de la…
+- Móvil: corregido el sidebar que bloqueaba silenciosamente los toques en la pantalla cuando estaba cerrado.
+
+[2.0.0] — 2026-07-12
+
+✨ Novedades
+- SAIR ahora se puede instalar como app en tu celular o PC (usalo sin navegador, como una app normal).
+- Botón de instalación en Ajustes ⚙️.
+- Cada personaje tiene ahora su propio color de aura que cambia todo el tema del chat cuando lo abres.
+- Cursor parpadeante mientras la IA escribe, más inmersivo.
+- Soporte offline básico: la app carga aunque no tengas internet.
+
+🔧 Arreglos
+- Rendimiento mejorado: recursos se cargan más rápido.
+- Correcciones menores de interfaz y estabilidad.
+
+[1.9.0] — 2026-07-10
+
+✨ Novedades
+- Recapitulación de rol: botón para generar resúmenes del chat.
+- Navegación: botón flotante para bajar rápido al final del chat.
+
+🔧 Arreglos
+- Seguridad: reforzada en todo el sistema.
+- Chat: corregido el bug de scroll.
+- Ia: corregido el error que cortaba las respuestas antes de tiempo.
+
+[1.8.0] — 2026-07-07
+
+✨ Novedades
+- 🎭 Nombre de rol: eliges cómo te llaman los personajes.
+
+🔧 Arreglos
+- Estabilidad general del chat y de la carga de la app.
+- Primeros ajustes del resumidor de contexto (todavía en pruebas).
+
+[1.7.2] — 2026-07-07
+
+🔧 Arreglos
+- Editar un personaje ya no borra su foto de perfil al guardar.
+- Lavado de cara general de la estética de la página.
+
+[1.5.0] — 2026-07-06
+
+✨ Novedades
+- Importar chats desde un archivo JSON (complementa a Exportar chat).
+- Resumen automático de conversaciones largas: cuando el historial se acerca al límite de la IA, los mensajes antiguos se…
+- Confirmación antes de cerrar sesión.
+
+🔧 Arreglos
+- Avisos más claros al regenerar, editar, exportar e importar.
+
+[1.3.0] — 2026-07-05
+
+✨ Novedades
+- Modelo fijo gemini-3.5-flash para el roleplay (antes se escribía el nombre del modelo a mano y era fácil equivocarse).
+
+🔧 Arreglos
+- Validación de la API Key al guardarla, con aviso si no es válida.
+
+[1.2.0] — 2026-07-02
+
+✨ Novedades
+- Sonido de aviso cuando algo falla.
+
+🔧 Arreglos
+- Código de la app reorganizado y más ligero (unos 10 KB menos).
+- Pantallas de entrada con la marca SAIR1.2.
+
+[1.1.0] — 2026-07-01
+
+✨ Primera versión publicada (ShizuAI Rebirth 1 · SAIR1)
+- Cuentas con correo y contraseña, y perfil de usuario.
+- Crear personajes con avatar, descripción, personalidad, escenario y ejemplos de diálogo, privados o públicos.
+- Chat con IA usando tu propia API Key de Google AI Studio (Gemini).
+- Regenerar respuestas, editar mensajes y exportar chats.
+- Pestañas Mis Personajes, Comunidad y Anuncios (publicados por el Owner).
+- Tema claro y oscuro, y fondo de chat personalizado.

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAIR — Roleplay con IA</title>
+<meta name="description" content="SAIR: Aplicación premium de roleplay conversacional con personajes de IA impulsados por Gemini.">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SAIR">
+<meta property="og:title" content="SAIR — Roleplay con IA">
+<meta property="og:description" content="Crea personajes, chatea con ellos y descubre los de la comunidad. Roleplay con IA usando tu propia API Key de Gemini.">
+<meta property="og:image" content="https://barapagoficial.github.io/SAIR/icon-512.png">
+<meta property="og:url" content="https://barapagoficial.github.io/SAIR/">
+<meta name="twitter:card" content="summary">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SAIR">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#ff4d8f">
+<script>
+/* ── Caja negra de arranque ──
+   Script aparte y lo más simple posible para que funcione aunque el script
+   principal falle. Guarda los errores del arranque y, si a los 12 s no se ve
+   ninguna pantalla, muestra el error y un botón para reparar la app (borra la
+   caché y el service worker, sin cerrar la sesión). */
+(function(){
+  var errores=[];
+  function anotar(msg){try{if(errores.length<8)errores.push(String(msg).slice(0,300))}catch(e){}}
+  window.addEventListener('error',function(e){anotar((e.message||'Error')+(e.filename?' ('+e.filename.split('/').pop()+':'+e.lineno+')':''))});
+  window.addEventListener('unhandledrejection',function(e){var r=e.reason;anotar('Promesa: '+(r&&(r.message||r)||'desconocido'))});
+  window.__SAIR_ERRORES_ARRANQUE=errores;
+  function hayPantalla(){var ids=['auth-screen','dashboard','chat-view'];for(var i=0;i<ids.length;i++){var el=document.getElementById(ids[i]);if(el&&el.classList.contains('visible'))return true}return false}
+  function reparar(){
+    var tareas=[];
+    try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)tareas.push(navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister()}))}))}catch(e){}
+    try{if(window.caches&&caches.keys)tareas.push(caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k)}))}))}catch(e){}
+    Promise.all(tareas).catch(function(){}).then(function(){location.replace(location.pathname+'?r='+Date.now())});
+  }
+  function mostrarPanel(){
+    if(hayPantalla()||document.getElementById('sair-rescate'))return;
+    var p=document.createElement('div');p.id='sair-rescate';p.setAttribute('role','alert');
+    p.style.cssText='position:fixed;inset:0;z-index:100000;background:#050507;color:#f2f2f5;font:15px/1.5 system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center';
+    var t=document.createElement('h2');t.textContent='La app no terminó de cargar';t.style.cssText='font-size:20px;margin:0';
+    var d=document.createElement('p');d.textContent=errores.length?'Error detectado:':'No se detectó ningún error. Puede que la conexión esté muy lenta.';d.style.margin='0';
+    var pre=document.createElement('pre');pre.textContent=errores.join('\n')||'(sin errores)';pre.style.cssText='max-width:100%;max-height:35vh;overflow:auto;white-space:pre-wrap;word-break:break-word;background:#12121a;border:1px solid #2a2a35;border-radius:10px;padding:10px;font:12px/1.4 monospace;color:#ffb3cf;text-align:left;margin:0';
+    function boton(txt,fn,principal){var b=document.createElement('button');b.type='button';b.textContent=txt;b.onclick=fn;b.style.cssText='border:0;border-radius:12px;padding:12px 18px;font:600 15px system-ui,sans-serif;cursor:pointer;min-width:220px;'+(principal?'background:linear-gradient(135deg,#ff4d8f,#a855f7);color:#fff':'background:#1c1c26;color:#f2f2f5');return b}
+    p.appendChild(t);p.appendChild(d);p.appendChild(pre);
+    p.appendChild(boton('🔧 Reparar y recargar',reparar,true));
+    p.appendChild(boton('↻ Solo recargar',function(){location.reload()},false));
+    document.body.appendChild(p);
+  }
+  setTimeout(mostrarPanel,12000);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/estetica.css">
+</head>
+<body data-theme="dark">
+
+<div id="intro-veil" aria-hidden="true">
+<div class="intro-brand">SAIR4</div>
+<div class="intro-line"></div>
+<div class="intro-sub" data-sair-version></div>
+</div>
+
+<div class="app-version" data-sair-version></div>
+
+<audio id="error-sound" src="ERROR.mp4" preload="none"></audio>
+
+<div id="update-banner" class="update-banner" role="status">
+  <span class="aviso-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></span>
+  <span class="aviso-texto"><strong>Nueva versión de SAIR</strong><small>Recarga para ver los cambios.</small></span>
+  <button type="button" class="btn btn-primary btn-small btn-reload" id="btn-reload-page">Recargar</button>
+  <button type="button" class="aviso-cerrar" id="update-banner-close" aria-label="Cerrar el aviso de actualización"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+</div>
+
+<button type="button" class="settings-btn" id="settings-btn" title="Ajustes" aria-label="Ajustes">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="3"/>
+<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+</svg>
+</button>
+
+<div class="modal-overlay" id="settings-modal">
+<div class="modal ajustes-modal" role="dialog" aria-modal="true" aria-labelledby="ajustes-titulo" tabindex="-1">
+<div class="modal-header"><h2 class="modal-title" id="ajustes-titulo">Ajustes</h2><button type="button" class="modal-close" data-close-modal="settings-modal" aria-label="Cerrar ventana">✕</button></div>
+<div class="ajustes-grid">
+<section class="ajustes-card"><header class="ajustes-card-head"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span><div><h3>Apariencia</h3><p>Tema de toda la app</p></div></header><div class="theme-switcher ajustes-seg ajustes-seg-2"><button type="button" class="theme-option" data-theme-value="dark"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-option-label">Oscuro</span></button><button type="button" class="theme-option" data-theme-value="light"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="theme-option-label">Claro</span></button></div></section>
+<section class="ajustes-card"><header class="ajustes-card-head"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span><div><h3>Rendimiento visual</h3><p>Automático usa menos efectos en móviles y todos los detalles en ordenadores.</p></div></header><div class="ajustes-seg ajustes-seg-3"><button type="button" class="display-mode-option" data-display-mode="auto">Automático</button><button type="button" class="display-mode-option" data-display-mode="light">Ligero</button><button type="button" class="display-mode-option" data-display-mode="full">Completo</button></div></section>
+<section class="ajustes-card"><header class="ajustes-card-head"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></svg></span><div><h3>Fondo del chat</h3><p>La imagen se comprime y se guarda solo en este navegador.</p></div></header><div class="ajustes-fila-botones"><button type="button" class="btn btn-ghost btn-small" id="btn-bg-upload"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></svg><span>Subir imagen</span></button><button type="button" class="btn btn-ghost btn-small" id="btn-bg-preview" style="display:none;">Ver actual</button><button type="button" class="btn btn-ghost btn-small" id="btn-bg-none">Sin fondo</button></div><input type="file" id="chat-bg-file" accept="image/*" style="display:none;"></section>
+<section class="ajustes-card" id="voz-section"><header class="ajustes-card-head"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg></span><div><h3>Voz</h3><p>Lectura en voz alta de las respuestas.</p></div></header>
+<div class="voz-controles">
+<label class="ajustes-switch"><span>Leer cada respuesta nueva</span><input type="checkbox" id="voz-auto"><span class="ajustes-switch-ui" aria-hidden="true"></span></label>
+<label class="voz-mini" for="voz-voz">Voz</label>
+<select id="voz-voz" class="form-input"></select>
+<div class="voz-mini">Velocidad <span id="voz-velocidad-valor">1.0×</span></div>
+<input type="range" id="voz-velocidad" class="voz-rango" min="0.6" max="1.6" step="0.1" value="1" hidden>
+<div class="ajustes-seg ajustes-seg-5" id="voz-velocidades" role="group" aria-label="Velocidad de la voz"><button type="button" data-vel="0.8">0.8×</button><button type="button" data-vel="1">1×</button><button type="button" data-vel="1.2">1.2×</button><button type="button" data-vel="1.4">1.4×</button><button type="button" data-vel="1.6">1.6×</button></div>
+<button type="button" class="btn btn-ghost btn-small" id="voz-probar">▶ Probar voz</button>
+</div>
+<p class="voz-nota" id="voz-nota">También puedes pulsar «Leer» en cualquier respuesta, o el micrófono del chat para dictar.</p>
+</section>
+<div class="ajustes-nota"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4.5 0 8 1.5 8 1.5S21 15 12 21C3 15 4 4.5 4 4.5S7.5 3 12 3z"/><path d="M9 10h.01M15 10h.01"/><path d="M9.5 15a3.5 3.5 0 0 0 5 0"/></svg><span>La API Key y los modelos de Gemini se configuran dentro de cada chat, en <strong>Ajustes de Rol</strong>.</span></div>
+<div class="ajustes-lista">
+<div id="pwa-install-section"><button type="button" class="ajustes-item" id="btn-install-pwa"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span><span class="ajustes-item-texto"><strong>Instalar SAIR</strong><small>Úsala como una app, sin navegador</small></span><svg class="ico ajustes-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+<button type="button" class="ajustes-item" id="btn-ver-politicas"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="ajustes-item-texto"><strong>Política de privacidad</strong><small>Qué datos se usan y cómo</small></span><svg class="ico ajustes-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+</div>
+<div class="ajustes-version">SAIR <span data-sair-version></span></div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="pwa-install-modal">
+<div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:440px">
+<div class="modal-header"><h2 class="modal-title">📲 Instalar SAIR</h2><button type="button" class="modal-close" data-close-modal="pwa-install-modal" aria-label="Cerrar ventana">✕</button></div>
+<div id="pwa-install-body"></div>
+</div>
+</div>
+
+<div id="pwa-install-banner" class="hidden" role="dialog" aria-label="Instalar SAIR">
+<span class="aviso-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span>
+<div class="pwa-banner-text aviso-texto"><strong>Instala SAIR</strong><span>Acceso directo, sin navegador</span></div>
+<button type="button" class="btn btn-primary btn-small" id="pwa-banner-install">Instalar</button>
+<button type="button" class="pwa-banner-close aviso-cerrar" id="pwa-banner-close" title="Cerrar" aria-label="Cerrar el aviso de instalación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+</div>
+
+<div class="modal-overlay" id="profile-modal">
+<div class="modal perfil-modal" role="dialog" aria-modal="true" tabindex="-1">
+<div class="modal-header"><h2 class="modal-title">✏️ Editar perfil</h2><button type="button" class="modal-close" data-close-modal="profile-modal" aria-label="Cerrar ventana">✕</button></div>
+<form id="form-profile">
+<div class="profile-cover-editor">
+<div class="profile-cover-preview" id="profile-cover-preview"><div class="profile-avatar-preview" id="profile-avatar-preview">?</div><span class="profile-cover-label" id="profile-cover-label">Así te verán los demás</span></div>
+<div class="profile-ajuste-aviso" id="profile-ajuste-aviso" hidden><span id="profile-ajuste-texto">✋ Arrastra para encuadrar</span><button type="button" class="btn btn-primary btn-small" id="profile-ajuste-listo">Listo</button></div>
+<div class="profile-media-list">
+<div class="profile-media-row" data-tipo="avatar"><div class="profile-media-info"><strong>Foto de perfil</strong><small>Se ve en un círculo</small></div><div class="profile-media-actions"><button type="button" class="btn btn-ghost btn-small" id="profile-avatar-change"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Cambiar</span></button><button type="button" class="btn btn-ghost btn-small profile-adjust-btn" id="profile-avatar-adjust" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg><span>Encuadrar</span></button><button type="button" class="btn btn-ghost btn-small btn-icon profile-remove" id="profile-avatar-remove" title="Quitar" aria-label="Quitar foto de perfil"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></div></div>
+<div class="profile-media-row" data-tipo="fondo"><div class="profile-media-info"><strong>Fondo</strong><small>La portada de tu perfil</small></div><div class="profile-media-actions"><button type="button" class="btn btn-ghost btn-small" id="profile-background-change"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Cambiar</span></button><button type="button" class="btn btn-ghost btn-small profile-adjust-btn" id="profile-background-adjust" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg><span>Encuadrar</span></button><button type="button" class="btn btn-ghost btn-small btn-icon profile-remove" id="profile-background-remove" title="Quitar" aria-label="Quitar fondo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></div></div>
+</div>
+<input type="file" id="profile-avatar-file" accept="image/*"><input type="file" id="profile-background-file" accept="image/*">
+<div class="profile-avatar-note">JPG, PNG o WEBP · máximo 5 MB.</div>
+</div>
+<div class="form-group"><label class="form-label" for="profile-username">Nombre de usuario</label><input type="text" id="profile-username" class="form-input" maxlength="20" pattern="^[a-zA-Z0-9_]{3,20}$" autocomplete="off" spellcheck="false" required><div class="username-hint" id="profile-username-hint">3-20 caracteres. Solo letras, números y guion bajo (_).</div></div>
+<div class="form-group"><label class="form-label" for="profile-description">Descripción <span class="hint">opcional</span></label><textarea id="profile-description" class="form-textarea" maxlength="280" rows="3" placeholder="Cuéntales un poco sobre ti..."></textarea><div class="ai-idea-count" id="profile-description-count">0 / 280</div></div>
+<div style="display:flex;justify-content:flex-end;gap:.6rem"><button type="button" class="btn btn-ghost" data-close-modal="profile-modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar cambios</button></div>
+</form>
+</div>
+</div>
+
+<div class="modal-overlay" id="logout-modal">
+<div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:420px;text-align:center;">
+<div style="margin-bottom:1.5rem;">
+<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05));display:grid;place-items:center;margin:0 auto 1rem;">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+<polyline points="16 17 21 12 16 7"></polyline>
+<line x1="21" y1="12" x2="9" y2="12"></line>
+</svg>
+</div>
+<h2 class="modal-title" style="margin-bottom:.5rem;">¿Cerrar sesión?</h2>
+<p style="color:var(--text-3);font-size:.9rem;">Vas a salir de tu cuenta. ¿Estás seguro de que deseas continuar?</p>
+</div>
+<div style="display:flex;gap:.75rem;justify-content:center;">
+<button type="button" class="btn btn-ghost" id="cancel-logout" style="flex:1;">Cancelar</button>
+<button type="button" class="btn btn-danger" id="confirm-logout" style="flex:1;">Sí, cerrar sesión</button>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="role-modal">
+<div class="modal rol-modal" role="dialog" aria-modal="true" aria-labelledby="rol-titulo" tabindex="-1">
+<div class="modal-header"><h2 class="modal-title" id="rol-titulo">Ajustes de Rol</h2><button type="button" class="modal-close" data-close-modal="role-modal" aria-label="Cerrar ventana">✕</button></div>
+<form id="form-role">
+<section class="ajustes-card rol-card">
+<header class="ajustes-card-head"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><div><h3>Tu nombre en el rol</h3><p>Es como te llamará el personaje cuando escriba <code>{{user}}</code> en sus respuestas.</p></div></header>
+<div class="rol-preview" aria-live="polite"><div class="rol-preview-avatar" id="rol-preview-avatar">?</div><div class="rol-preview-burbuja"><span class="rol-preview-char" id="rol-preview-char">Personaje</span><p><em>*levanta la vista y sonríe*</em> Hola, <strong id="rol-preview-nombre">tú</strong>. Te estaba esperando.</p></div></div>
+<div class="form-group rol-input-grupo">
+<label class="form-label" for="role-name">Nombre de rol</label>
+<div class="rol-input-wrap"><span class="rol-input-arroba">@</span><input type="text" id="role-name" class="form-input" placeholder="Ej: Shizu_fan_29" maxlength="30" pattern="^[a-zA-Z0-9_]{3,30}$" autocomplete="off" spellcheck="false" required><span class="rol-contador" id="rol-contador">0/30</span></div>
+<div class="username-hint" id="role-hint">3-30 caracteres. Solo letras, números y guion bajo (_).</div>
+</div>
+</section>
+<section class="ajustes-card rol-card cr-motor-card" id="cr-motor-card">
+<header class="ajustes-card-head"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span><div><h3>¿Quién responde por tu personaje?</h3><p>Tu propia API Key de Gemini (gratis) o tus Créditos de Rol, sin configurar nada.</p></div></header>
+<div class="cr-opciones" role="radiogroup" aria-label="Motor de IA">
+<label class="cr-opcion"><input type="radio" name="motor-ia" value="gemini"><span class="cr-opcion-marca" aria-hidden="true"></span><span class="cr-opcion-cuerpo"><strong>Mi API Key de Gemini</strong><small>La configuras abajo, en «Motor de Gemini»</small></span><span class="cr-opcion-badge">Gratis</span></label>
+<label class="cr-opcion"><input type="radio" name="motor-ia" value="flash"><span class="cr-opcion-marca" aria-hidden="true"></span><span class="cr-opcion-cuerpo"><strong>Créditos de Rol · Flash</strong><small id="cr-opcion-flash-saldo">Cargando saldo…</small></span><span class="cr-opcion-badge cr">DeepSeek</span></label>
+<label class="cr-opcion"><input type="radio" name="motor-ia" value="pro"><span class="cr-opcion-marca" aria-hidden="true"></span><span class="cr-opcion-cuerpo"><strong>Créditos de Rol · Pro</strong><small id="cr-opcion-pro-saldo">Próximamente</small></span><span class="cr-opcion-badge pro">Pro</span></label>
+</div>
+<button type="button" class="btn btn-ghost btn-small cr-ir-tienda" id="cr-ir-tienda"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Ver la tienda de Créditos de Rol</button>
+</section>
+<details class="ajustes-card rol-motor" id="rol-motor">
+<summary class="ajustes-card-head rol-motor-summary"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg></span><div><h3>Motor de Gemini</h3><p id="rol-motor-resumen">API Key y modelos de este chat</p></div><span class="rol-motor-chev"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+<div class="rol-motor-cuerpo">
+<label class="form-label" for="gemini-api-key">API Key de Gemini</label>
+<div class="api-key-wrapper"><input type="password" id="gemini-api-key" class="api-key-input" placeholder="Pega tu clave de Google AI Studio" autocomplete="off" spellcheck="false"><button type="button" class="api-key-toggle" id="toggle-api-key" title="Mostrar u ocultar la clave" aria-label="Mostrar u ocultar la API Key"><svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+<div class="rol-modelos">
+<div class="form-group"><label class="form-label" for="gemini-model">Modelo para roleplay</label><select id="gemini-model" class="form-input"><option value="gemini-3.5-flash">Gemini 3.5 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.7-flash">Gemini 3.7 Flash</option><option value="gemini-3.8-flash">Gemini 3.8 Flash</option></select><p class="rol-ayuda">Las respuestas del personaje.</p></div>
+<div class="form-group"><label class="form-label" for="gemini-summary-model">Modelo para herramientas</label><select id="gemini-summary-model" class="form-input"><option value="gemini-3.5-flash">Gemini 3.5 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.7-flash">Gemini 3.7 Flash</option><option value="gemini-3.8-flash">Gemini 3.8 Flash</option></select><p class="rol-ayuda">Recap, Historiador, resúmenes y generar con IA.</p></div>
+</div>
+<div id="api-key-status" class="api-key-status empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="api-key-status-text">No hay API Key configurada</span></div>
+<div class="api-key-actions"><button type="button" class="btn-small primary" id="save-api-key">Guardar motor</button><button type="button" class="btn-small danger" id="clear-api-key">Eliminar key</button></div>
+<div class="api-key-info">🔒 La API Key se guarda solo en tu navegador. Consíguela gratis en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.</div>
+</div>
+</details>
+<div class="rol-botones">
+<button type="button" class="btn btn-ghost" data-close-modal="role-modal">Cancelar</button>
+<button type="submit" class="btn btn-primary" id="btn-save-role">Guardar</button>
+</div>
+</form>
+</div>
+</div>
+
+<div class="modal-overlay" id="character-modal">
+<div class="modal" role="dialog" aria-modal="true" tabindex="-1">
+<div class="modal-header"><h2 class="modal-title" id="character-modal-title">✨ Crear Personaje</h2><button type="button" class="modal-close" data-close-modal="character-modal" aria-label="Cerrar ventana">✕</button></div>
+<form id="form-personaje">
+<input type="hidden" id="char-id" name="id">
+<div class="ai-assistant-bar">
+<button type="button" class="btn-ai" id="btn-ai-crear"><span>✨</span> Generar personaje con IA</button>
+<div class="ai-assistant hidden" id="ai-assistant">
+<label for="ai-idea">Describe tu personaje con todo el detalle que quieras — la IA respeta lo que escribas y crea el resto:</label>
+<textarea id="ai-idea" class="form-textarea ai-idea-textarea" maxlength="6000" rows="10" placeholder="Ej: una chica robot que colecciona estrellas y esconde un secreto...
+
+Puedes detallar apariencia, personalidad, forma de hablar, historia, relaciones, el escenario donde empieza el rol, gustos, miedos..."></textarea>
+<div class="ai-idea-count" id="ai-idea-count">0 / 6000</div>
+<div class="ai-actions">
+<button type="button" class="btn btn-primary btn-small" id="btn-ai-generar">⚡ Generar</button>
+<button type="button" class="btn btn-ghost btn-small" id="btn-ai-cancel">Cancelar</button>
+</div>
+<div class="ai-status" id="ai-status"></div>
+</div>
+</div>
+<div class="stepper">
+<div class="stepper-step active" data-step="1"><span class="stepper-num">1</span><span>Identidad</span></div>
+<div class="stepper-line"></div>
+<div class="stepper-step" data-step="2"><span class="stepper-num">2</span><span>Personalidad</span></div>
+<div class="stepper-line"></div>
+<div class="stepper-step" data-step="3"><span class="stepper-num">3</span><span>Avanzado</span></div>
+</div>
+<div class="char-step" data-step="1">
+<div class="avatar-editor">
+<label class="section-label" style="text-align:center;display:block">Avatar del personaje</label>
+<div class="avatar-preview-container" id="avatar-preview-container" tabindex="0" role="img" aria-label="Avatar del personaje: arrastra para mover, pellizca o usa la rueda para hacer zoom">
+<div class="avatar-placeholder" id="avatar-placeholder"><div class="avatar-placeholder-icon"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></svg></div><div>Toca para subir una imagen</div></div>
+<img id="avatar-preview" class="avatar-preview" style="display:none" alt="" draggable="false">
+<div class="avatar-frame-guide" aria-hidden="true"></div>
+<div class="avatar-lock-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+</div>
+<input type="file" id="avatar-file" accept="image/*" style="display:none">
+<div class="avatar-controls" id="avatar-controls">
+<p class="avatar-hint" id="avatar-hint">✋ Arrastra la foto para moverla · 🤏 pellizca o usa la rueda para el zoom · lo oscuro puede quedar recortado</p>
+<div class="avatar-zoom-row"><button type="button" class="avatar-zoom-btn" id="avatar-zoom-out" aria-label="Alejar">−</button><span class="avatar-zoom-value" id="avatar-zoom-value">100%</span><button type="button" class="avatar-zoom-btn" id="avatar-zoom-in" aria-label="Acercar">+</button><button type="button" class="btn btn-ghost btn-small avatar-reset-btn" id="avatar-reset">Centrar</button><button type="button" class="btn btn-ghost btn-small avatar-lock-btn" id="avatar-lock" aria-pressed="false">🔓 Bloquear</button></div>
+<div class="avatar-actions-row"><button type="button" class="btn btn-ghost btn-small" id="avatar-change">Cambiar</button><button type="button" class="btn btn-danger btn-small" id="avatar-remove">Quitar</button></div>
+</div>
+</div>
+<div class="form-group"><label class="form-label" for="char-nombre">Nombre del personaje</label><input type="text" id="char-nombre" name="nombre" class="form-input" placeholder="Ej: Shizu" required maxlength="60"></div>
+<div class="form-group"><label class="form-label" for="char-desc">Descripción corta <span class="hint">(para la tarjeta)</span></label><input type="text" id="char-desc" name="descripcion_corta" class="form-input" placeholder="Ej: Una chica tímida que ama los libros" maxlength="200"></div>
+<div class="form-group" id="char-etiquetas-grupo"><label class="form-label" id="char-etiquetas-label">Etiquetas <span class="hint">(hasta 5, ayudan a encontrarlo en la Comunidad)</span></label><div class="etiquetas-editor" id="char-etiquetas" role="group" aria-labelledby="char-etiquetas-label"></div></div>
+<div class="form-group">
+<label class="form-label">Color de aura del personaje <span class="hint">(efecto de brillo y tema)</span></label>
+<div class="aura-color-picker">
+<div class="aura-color-option" data-color="#ff4d8f" style="background:#ff4d8f;" title="Rosa Neón"></div>
+<div class="aura-color-option" data-color="#4d79ff" style="background:#4d79ff;" title="Azul Cyber"></div>
+<div class="aura-color-option" data-color="#a855f7" style="background:#a855f7;" title="Morado Místico"></div>
+<div class="aura-color-option" data-color="#10b981" style="background:#10b981;" title="Verde Esmeralda"></div>
+<div class="aura-color-option" data-color="#f97316" style="background:#f97316;" title="Naranja Ígneo"></div>
+<div class="aura-color-option" data-color="#eab308" style="background:#eab308;" title="Amarillo Eléctrico"></div>
+</div>
+<input type="hidden" id="char-color" name="theme_color" value="#ff4d8f">
+</div>
+</div>
+<div class="char-step hidden" data-step="2">
+<div class="form-group"><label class="form-label" for="char-personalidad">Personalidad <span class="hint">(rasgos, forma de hablar)</span></label><textarea id="char-personalidad" name="personalidad" class="form-textarea" placeholder="Ej: Tímida, inteligente, sarcástica cuando se siente cómoda..." required></textarea></div>
+<div class="form-group"><label class="form-label" for="char-escenario">Escenario / Contexto</label><textarea id="char-escenario" name="escenario" class="form-textarea" placeholder="Ej: Están en la biblioteca de la escuela, es de tarde..."></textarea></div>
+<div class="form-group"><label class="form-label" for="char-ejemplos">Ejemplos de diálogo <span class="hint">(usa *acciones*)</span></label><textarea id="char-ejemplos" name="ejemplos" class="form-textarea mono" placeholder="{{user}}: Hola, ¿qué lees?&#10;{{char}}: *aprieta el libro contra su pecho* A-ah... nada importante..."></textarea></div>
+</div>
+<div class="char-step hidden" data-step="3">
+<div class="form-group">
+<label class="form-label" for="char-saludo">Saludo inicial <span class="hint">(mensaje del bot al iniciar un nuevo chat)</span></label>
+<textarea id="char-saludo" name="saludo" class="form-textarea" placeholder="Ej: *Sonríe tímidamente* Hola, soy Shizu, encantada de conocerte..." maxlength="2000"></textarea>
+</div>
+<div class="form-group">
+<label class="form-label" for="char-max-tokens">Longitud de respuesta <span class="hint">(tokens, 256-16384)</span></label>
+<input type="number" id="char-max-tokens" name="max_tokens" class="form-input" value="4096" min="256" max="16384" step="256">
+</div>
+<div class="form-group">
+<label class="form-label">Intensidad del personaje <span class="hint">(Filtro de seguridad de IA)</span></label>
+<div class="intensity-picker" id="intensity-picker">
+<div class="intensity-card" data-value="suave">
+<div class="intensity-badge">🟢 Suave</div>
+<div class="intensity-desc">Filtro estándar de AI Studio</div>
+</div>
+<div class="intensity-card" data-value="mediana">
+<div class="intensity-badge">🟡 Mediana</div>
+<div class="intensity-desc">Filtros reducidos al 50%</div>
+</div>
+<div class="intensity-card active" data-value="maxima">
+<div class="intensity-badge">🔥 Máxima</div>
+<div class="intensity-desc">Mínimo permitido (Sin restricciones)</div>
+</div>
+</div>
+<input type="hidden" id="char-intensidad" name="intensidad" value="maxima">
+<p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">Aplica para las respuestas del personaje, el resumidor automático y la recapitulación.</p>
+</div>
+<div class="switch-group"><div class="switch-info"><div class="switch-title">🌍 Personaje público</div><div class="switch-desc">Aparecerá en la sección "Comunidad" para que otros usuarios lo descubran</div></div><label class="switch"><input type="checkbox" id="char-publico" name="publico"><span class="switch-slider"></span></label></div>
+</div>
+<div class="stepper-nav">
+<button type="button" class="btn btn-ghost" id="btn-step-back">Cancelar</button>
+<button type="button" class="btn btn-primary" id="btn-step-next">Siguiente →</button>
+<button type="submit" class="btn btn-primary hidden" id="btn-crear-personaje">Crear personaje</button>
+</div>
+</form>
+</div>
+</div>
+
+<div class="modal-overlay" id="recap-modal">
+<div class="modal recap-modal" role="dialog" aria-modal="true" tabindex="-1">
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="recapGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff4d8f"/><stop offset="50%" stop-color="#a855f7"/><stop offset="100%" stop-color="#4d79ff"/></linearGradient></defs></svg>
+<button type="button" class="modal-close" data-close-modal="recap-modal" aria-label="Cerrar ventana" style="position:absolute;top:1rem;right:1rem;z-index:10">✕</button>
+<div id="recap-content"></div>
+</div>
+</div>
+<div class="modal-overlay" id="historiador-modal">
+<div class="modal historiador-modal" role="dialog" aria-modal="true" tabindex="-1">
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="historiadorGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f59e0b"/><stop offset="55%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs></svg>
+<button type="button" class="modal-close" data-close-modal="historiador-modal" aria-label="Cerrar ventana" style="position:absolute;top:1rem;right:1rem;z-index:10">✕</button>
+<div id="historiador-content"></div>
+</div>
+</div>
+<div class="modal-overlay" id="summary-modal" style="z-index:3000;backdrop-filter:blur(12px);">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:500px;text-align:center;overflow:hidden;position:relative;">
+    <div id="summary-content">
+          </div>
+  </div>
+</div>
+<div id="auth-screen">
+<div class="auth-container">
+<section class="auth-welcome" aria-labelledby="auth-welcome-title">
+<div class="auth-welcome-mark" aria-hidden="true"><span>S</span></div>
+<h1 class="auth-welcome-title" id="auth-welcome-title">SAIR4</h1>
+<p class="auth-welcome-copy">Un espacio de roleplay con IA para crear historias, personajes y mundos a tu manera. Tú pones la imaginación y tu propia API Key de Google AI Studio se encarga de darles vida.</p>
+<span class="auth-welcome-note">Tu API Key permanece bajo tu control</span>
+<button class="btn btn-primary auth-start-btn" id="auth-start-btn" type="button">Empieza ahora</button>
+</section>
+<section class="auth-panel" aria-label="Acceso a SAIR">
+<div class="auth-header"><h2 class="auth-title">Bienvenido a SAIR</h2><p class="auth-subtitle">Inicia sesión o crea una cuenta para continuar</p></div>
+<div class="auth-tabs"><button type="button" class="auth-tab active" data-tab="login">Iniciar Sesión</button><button type="button" class="auth-tab" data-tab="register">Registrarse</button></div>
+<div class="auth-forms-shell">
+<form id="login-form" class="auth-form active">
+<div class="form-group"><label class="form-label" for="login-email">Correo electrónico</label><input type="email" id="login-email" class="form-input" placeholder="tu@email.com" required></div>
+<div class="form-group"><label class="form-label" for="login-password">Contraseña</label><input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password" required></div>
+<button type="submit" class="btn btn-primary" style="width:100%">Iniciar Sesión</button>
+<div id="login-message" class="form-message"></div>
+</form>
+<form id="register-form" class="auth-form">
+<div class="form-group"><label class="form-label" for="register-email">Correo electrónico</label><input type="email" id="register-email" class="form-input" placeholder="tu@email.com" required></div>
+<div class="form-group"><label class="form-label" for="register-password">Contraseña de la cuenta</label><input type="password" id="register-password" class="form-input" placeholder="Mínimo 6 caracteres" minlength="6" autocomplete="new-password" required></div>
+<div class="form-group"><label class="form-label" for="register-confirm">Confirmar contraseña</label><input type="password" id="register-confirm" class="form-input" placeholder="Repite tu contraseña" minlength="6" autocomplete="new-password" required></div>
+<button type="submit" class="btn btn-primary" style="width:100%">Crear Cuenta</button>
+<div id="register-message" class="form-message"></div>
+</form>
+</div>
+</section>
+</div>
+</div>
+
+<div id="dashboard">
+<div class="dashboard-header">
+<div class="dashboard-welcome"><h1 id="dashboard-title">Tus personajes</h1><p id="dashboard-subtitle">Crea, edita y chatea con tus personajes de IA</p></div>
+<div class="dashboard-actions">
+<div class="user-badge" id="user-badge" title="Editar tu perfil" role="button" tabindex="0" aria-label="Editar tu perfil"><div class="user-avatar-mini" id="user-badge-avatar">?</div><span id="user-badge-name">Cargando...</span><span class="role-tag user" id="user-badge-role">user</span><span class="user-badge-edit" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></span></div>
+<button type="button" class="btn btn-primary" id="btn-nuevo-personaje"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Crear personaje</button>
+<button type="button" class="btn btn-ghost" id="logout-btn">Salir</button>
+</div>
+</div>
+<div class="dashboard-tabs">
+<button type="button" class="dashboard-tab active" data-view="my-characters"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1"/><path d="M17 4a4 4 0 0 1 0 8"/><path d="M22 21v-1a6 6 0 0 0-4-5.6"/></svg>Mis personajes</button>
+<button type="button" class="dashboard-tab" data-view="community"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20a15 15 0 0 1 0-20"/></svg>Comunidad</button>
+<button class="dashboard-tab friends-trigger" id="btn-buscar-amigos" type="button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Buscar amigos</button>
+<button type="button" class="dashboard-tab dashboard-tab-cr" data-view="creditos"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Créditos de Rol</button>
+<button type="button" class="dashboard-tab" data-view="announcements" style="margin-left:auto"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 8a5 5 0 0 1 0 8"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>Anuncios</button>
+</div>
+<div id="characters-container"></div>
+</div>
+
+<div class="modal-overlay" id="friends-modal">
+<div class="modal friends-modal" role="dialog" aria-modal="true" tabindex="-1">
+<div class="friends-petals" aria-hidden="true"><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span></div>
+<div class="friends-content">
+<div class="modal-header"><h2 class="modal-title">🔎 Buscar Amigos</h2><button type="button" class="modal-close" data-close-modal="friends-modal" aria-label="Cerrar ventana">✕</button></div>
+<div class="friends-header"><span class="friends-header-icon">🌸</span><h3 class="friends-title">Encuentra tu gente</h3><p class="friends-subtitle">Busca usuarios por su nombre para descubrir quién está en SAIR.</p></div>
+<div class="friends-search"><input id="friends-search-input" class="form-input" type="search" placeholder="Escribe un nombre de usuario..." autocomplete="off" maxlength="50" aria-label="Buscar usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg></div>
+<div class="friends-results" id="friends-results"><div class="friends-empty"><strong>Busca un usuario</strong>Escribe al menos una letra para comenzar.</div></div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="report-modal">
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="report-title" tabindex="-1" style="max-width:460px">
+<div class="modal-header"><h2 class="modal-title" id="report-title">🚩 Reportar personaje</h2><button type="button" class="modal-close" data-close-modal="report-modal" aria-label="Cerrar ventana">✕</button></div>
+<p id="report-personaje" style="color:var(--text-3);font-size:.9rem;margin-bottom:1.2rem;line-height:1.6"></p>
+<form id="form-report">
+<div class="form-group"><label class="form-label" for="report-motivo">Motivo</label>
+<select id="report-motivo" class="form-input" required><option value="contenido_sexual_menores">Contenido sexual con menores</option><option value="odio_acoso">Odio o acoso</option><option value="violencia_extrema">Violencia extrema</option><option value="spam">Spam o publicidad</option><option value="suplantacion">Suplanta a una persona real</option><option value="otro" selected>Otro motivo</option></select></div>
+<div class="form-group"><label class="form-label" for="report-detalle">Detalles (opcional)</label>
+<textarea id="report-detalle" class="form-input" maxlength="500" rows="3" placeholder="Cuéntanos qué has visto"></textarea></div>
+<button type="submit" class="btn btn-primary" style="width:100%">Enviar reporte</button>
+</form>
+</div>
+</div>
+
+<div class="modal-overlay" id="reportes-modal">
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportes-title" tabindex="-1" style="max-width:560px">
+<div class="modal-header"><h2 class="modal-title" id="reportes-title">🚩 Reportes de la Comunidad</h2><button type="button" class="modal-close" data-close-modal="reportes-modal" aria-label="Cerrar ventana">✕</button></div>
+<div id="reportes-lista"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="public-profile-modal">
+<div class="modal public-profile-modal" role="dialog" aria-modal="true" tabindex="-1">
+<div class="public-profile-cover" id="public-profile-cover"><div class="public-profile-avatar" id="public-profile-avatar">?</div></div>
+<div class="public-profile-body"><div class="modal-header" style="padding:0 0 .35rem;border:0"><h2 class="public-profile-name" id="public-profile-name">Usuario</h2><button type="button" class="modal-close" data-close-modal="public-profile-modal" aria-label="Cerrar ventana">✕</button></div><span class="public-profile-role" id="public-profile-role">USER</span><p class="public-profile-description" id="public-profile-description"></p></div>
+</div>
+</div>
+
+<div class="sr-only" id="aria-live-chat" role="status" aria-live="polite"></div>
+<div id="chat-view">
+<div class="chat-layout">
+<aside class="chat-sidebar" id="chat-sidebar">
+<div class="chat-sidebar-header">
+<button type="button" class="chat-back-btn" id="chat-back-btn" title="Volver" aria-label="Volver a mis personajes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+<div class="chat-char-avatar" id="chat-char-avatar"></div>
+<div class="chat-char-info"><div class="chat-char-name" id="chat-char-name">Personaje</div><div class="chat-char-sub" id="chat-char-sub"><span id="chat-count-label">Chats</span><span id="chat-intensity-indicator" class="chat-status-badge">Intensidad: —</span><span id="chat-model-indicator" class="chat-status-badge">Modelo: —</span><span id="chat-uso-indicator" class="chat-status-badge chat-uso-badge" role="button" tabindex="0">🔢 Uso</span></div></div>
+</div>
+<button type="button" class="chat-new-btn" id="chat-new-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo chat</button>
+<div class="chat-tools">
+<button type="button" class="chat-new-btn chat-tool-btn" id="chat-export-btn" title="Exportar chat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar</button>
+<button type="button" class="chat-new-btn chat-tool-btn" id="chat-import-btn" title="Importar chat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Importar</button>
+<input type="file" id="chat-import-file" accept=".json" style="display:none;">
+<button type="button" class="chat-new-btn chat-tool-btn" id="chat-notas-btn" title="Notas para Rol"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg>Notas<span class="notas-rol-dot" aria-hidden="true"></span></button>
+<button type="button" class="chat-new-btn chat-tool-btn" id="chat-diario-btn" title="Diario de Personajes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Diario<span class="diario-dot" aria-hidden="true"></span></button><button type="button" class="chat-new-btn chat-tool-btn" id="chat-lorebook-btn" title="Lorebook: memoria del mundo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Lorebook</button>
+</div>
+<div class="chat-list-search" id="chat-list-search" hidden><input type="search" id="chat-search-input" class="form-input" placeholder="Buscar en tus chats..." aria-label="Buscar en tus chats" autocomplete="off" maxlength="60"></div>
+<div class="chat-list" id="chat-list"></div>
+</aside>
+<main class="chat-main">
+<img class="chat-bg-img" id="chat-bg-img" alt="" aria-hidden="true">
+<div class="chat-mobile-title" aria-hidden="true"><div class="chat-mobile-avatar" id="chat-mobile-avatar"></div><span class="chat-mobile-name" id="chat-mobile-name"></span></div>
+<button type="button" class="btn-hamburger" id="btn-hamburger" title="Mostrar u ocultar la lista de chats" aria-label="Mostrar u ocultar la lista de chats"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+<button type="button" class="btn-immersive" id="btn-immersive" title="Modo inmersivo" aria-label="Activar modo inmersivo"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+<div class="chat-messages" id="chat-messages"><div class="chat-empty" id="chat-empty"><div class="chat-empty-icon">💬</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Comienza una conversación</h3><p>Selecciona un chat o crea uno nuevo</p></div></div>
+<div class="chat-input-area"><button type="button" id="scroll-to-bottom-btn" class="scroll-to-bottom" title="Ir al final" aria-label="Ir al final de la conversación"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg><span class="scroll-nuevo" id="scroll-nuevo"></span></button><div class="contexto-zona"><button type="button" class="cr-saldo-chip" id="cr-saldo-chip" hidden aria-label="Tus Créditos de Rol"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><span id="cr-saldo-chip-texto">… CR</span></button><button type="button" class="contexto-medidor" id="contexto-medidor" hidden aria-haspopup="dialog" aria-expanded="false" aria-controls="contexto-popover"><span class="contexto-medidor-barra" aria-hidden="true"><span class="contexto-medidor-relleno" id="contexto-medidor-relleno"></span></span><span class="contexto-medidor-texto" id="contexto-medidor-texto">—</span></button><div class="contexto-popover" id="contexto-popover" role="dialog" aria-label="Memoria del chat" hidden><div class="contexto-popover-titulo">🧠 Memoria del chat</div><div class="contexto-popover-cifra" id="contexto-popover-cifra"></div><div class="contexto-popover-barra"><span id="contexto-popover-relleno"></span></div><p class="contexto-popover-texto" id="contexto-popover-texto"></p><div class="contexto-popover-acciones"><button type="button" class="btn btn-primary btn-small" id="contexto-resumir">Resumir ahora</button><button type="button" class="btn btn-ghost btn-small" id="contexto-cerrar">Cerrar</button></div></div></div><div class="chat-input-wrapper"><button class="chat-more-btn" id="chat-more-btn" type="button" title="Más opciones" aria-label="Más opciones" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg></button><textarea id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." rows="1"></textarea><div class="chat-extra-actions"><button type="button" class="chat-historiador-btn" id="chat-historiador-btn" title="Historiador: escribe el capítulo de la historia a partir de toda la conversación" aria-label="Historiador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="chat-historiador-label">Historiador</span></button><button type="button" class="chat-recap-btn pulse" id="chat-recap-btn" title="Recapitulación de la historia" aria-label="Recapitulación de la historia"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></button><button type="button" class="chat-role-btn" id="chat-role-btn" title="Editar nombre de rol" aria-label="Editar tu nombre de rol"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button></div><button class="chat-mic-btn" id="chat-mic-btn" type="button" title="Dictar por voz" aria-label="Dictar por voz" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></button><button class="chat-send-btn" id="chat-send-btn" type="button" aria-label="Enviar mensaje" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button><button class="chat-stop-btn" id="chat-stop-btn" type="button" title="Detener la respuesta" aria-label="Detener la respuesta" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg></button></div><div class="chat-extra-popover" id="chat-extra-popover" aria-hidden="true"><button type="button" class="chat-extra-popover-item" data-target="chat-historiador-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-amber"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span><span class="chat-extra-popover-text"><strong>Historiador</strong><small>Escribe el capítulo de la historia</small></span></button><button type="button" class="chat-extra-popover-item" data-target="chat-recap-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-purple"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="4 3"></path></svg></span><span class="chat-extra-popover-text"><strong>Recapitulación</strong><small>Resumen de la historia</small></span></button><button type="button" class="chat-extra-popover-item" data-target="chat-role-btn"><span class="chat-extra-popover-ico chat-extra-popover-ico-blue"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="chat-extra-popover-text"><strong>Editar nombre de rol</strong><small>Cambia cómo se llama tu rol</small></span></button></div></div>
+</main>
+</div>
+</div>
+
+<div class="modal-overlay" id="cr-compra-modal">
+<div class="modal cr-compra-modal" role="dialog" aria-modal="true" aria-labelledby="cr-compra-titulo" tabindex="-1">
+<div class="modal-header"><h2 class="modal-title" id="cr-compra-titulo">Confirmar compra</h2><button type="button" class="modal-close" data-close-modal="cr-compra-modal" aria-label="Cerrar ventana">✕</button></div>
+<div class="cr-compra-resumen" id="cr-compra-resumen"></div>
+<ul class="cr-compra-notas">
+<li>Tu cupo queda apartado 15 minutos mientras pagas.</li>
+<li>Pagas en Wompi (Bancolombia) con tarjeta, PSE, Nequi y más. SAIR nunca ve tus datos de pago.</li>
+<li>Al terminar vuelves solo a SAIR y tus créditos se activan al instante.</li>
+</ul>
+<div class="cr-compra-botones">
+<button type="button" class="btn btn-ghost" data-close-modal="cr-compra-modal">Cancelar</button>
+<button type="button" class="btn btn-primary" id="cr-compra-ir">Ir a pagar con Wompi</button>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="lorebook-modal">
+<div class="modal lorebook-modal" role="dialog" aria-modal="true" aria-labelledby="lorebook-title" tabindex="-1" style="max-width:620px">
+<div class="modal-header"><h2 class="modal-title" id="lorebook-title">📚 Lorebook · <span id="lorebook-personaje"></span></h2><button type="button" class="modal-close" data-close-modal="lorebook-modal" aria-label="Cerrar ventana">✕</button></div>
+<p class="lorebook-hint">Fichas sobre el mundo de este personaje: lugares, personajes secundarios, reglas, objetos… Cada ficha se le recuerda a la IA <strong>solo cuando alguna de sus palabras clave aparece</strong> en los últimos mensajes, así no gasta tokens en lo que no viene a cuento. Son tuyas: nadie más las ve.</p>
+<div class="lorebook-barra"><span id="lorebook-estado" class="lorebook-estado"></span><span id="lorebook-contador" class="lorebook-estado"></span></div>
+<button type="button" class="btn btn-primary btn-small" id="lorebook-nueva">➕ Nueva ficha</button>
+<form id="lorebook-form" class="lorebook-form" hidden>
+<h3 id="lorebook-form-titulo">Nueva ficha</h3>
+<div class="form-group"><label class="form-label" for="lorebook-nombre">Nombre</label><input type="text" id="lorebook-nombre" class="form-input" maxlength="80" required placeholder="Ej: La Academia Hoshino"></div>
+<div class="form-group"><label class="form-label" for="lorebook-claves">Palabras clave <span class="hint">(separadas por comas)</span></label><input type="text" id="lorebook-claves" class="form-input" maxlength="400" placeholder="Ej: academia, Hoshino, el internado"></div>
+<div class="form-group"><label class="form-label" for="lorebook-texto">Qué debe saber la IA</label><textarea id="lorebook-texto" class="form-textarea" maxlength="1500" rows="4" required placeholder="Ej: Internado de élite en las montañas. Los alumnos no pueden salir después de las 21:00…"></textarea></div>
+<label class="voz-check"><input type="checkbox" id="lorebook-siempre"> Siempre activa (se envía en todas las respuestas)</label>
+<div class="lorebook-form-acciones"><button type="button" class="btn btn-ghost" id="lorebook-cancelar">Cancelar</button><button type="submit" class="btn btn-primary">💾 Guardar ficha</button></div>
+</form>
+<div id="lorebook-lista" class="lorebook-lista"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="uso-modal">
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="uso-title" tabindex="-1" style="max-width:440px">
+<div class="modal-header"><h2 class="modal-title" id="uso-title">🔢 Uso de tu API Key</h2><button type="button" class="modal-close" data-close-modal="uso-modal" aria-label="Cerrar ventana">✕</button></div>
+<div id="uso-detalle"></div>
+<button type="button" class="btn btn-ghost btn-small" id="uso-reiniciar">Poner a cero</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="notas-rol-modal">
+<div class="modal notas-rol-modal" role="dialog" aria-modal="true" tabindex="-1">
+<div class="modal-header"><h2 class="modal-title">📝 Notas para Rol</h2><button type="button" class="modal-close" data-close-modal="notas-rol-modal" aria-label="Cerrar ventana">✕</button></div>
+<p class="notas-rol-hint">Escribe aquí lo que la IA debe recordar <strong>siempre</strong> en este chat: relaciones entre personajes, gustos, secretos, apariencia, contexto de la historia… Se envían como contexto adicional en cada respuesta y <strong>solo</strong> en este chat.</p>
+<textarea id="notas-rol-input" class="form-textarea notas-rol-input" maxlength="8000" placeholder="• Este personaje está enamorado de...&#10;• A este personaje le gusta coquetear con...&#10;• Este personaje odia que le griten y adora el café solo."></textarea>
+<div class="notas-rol-footer"><span class="notas-rol-counter" id="notas-rol-counter">0/8000</span><span class="notas-rol-status" id="notas-rol-status"></span></div>
+<span class="notas-rol-example">💡 Consejo: escribe una línea por dato. Las notas tienen prioridad sobre cualquier improvisación anterior de la IA.</span>
+<div class="notas-rol-actions">
+<button type="button" class="btn btn-ghost" id="notas-rol-clear">🧹 Vaciar</button>
+<button type="button" class="btn btn-ghost" data-close-modal="notas-rol-modal">Cancelar</button>
+<button type="button" class="btn btn-primary" id="notas-rol-save">💾 Guardar notas</button>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="diario-modal">
+<div class="modal diario-modal" role="dialog" aria-modal="true" tabindex="-1">
+<div class="modal-header"><h2 class="modal-title">📖 Diario de Personajes</h2><button type="button" class="modal-close" data-close-modal="diario-modal" aria-label="Cerrar ventana">✕</button></div>
+<div id="diario-content"></div>
+</div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal-overlay" id="politicas-modal" style="z-index:10000;">
+  <div class="modal politicas-modal" role="dialog" aria-modal="true" aria-labelledby="politicas-titulo" tabindex="-1">
+    <header class="politicas-head">
+      <span class="politicas-escudo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+      <div><h2 id="politicas-titulo">Política de Privacidad</h2><p>Última actualización: 11/07/26</p></div>
+    </header>
+    <div class="politicas-resumen"><strong>En corto:</strong> tu API Key no sale de tu navegador hacia nuestros servidores, el sitio muestra anuncios de Google AdSense y las estadísticas son anónimas.</div>
+    <div class="politicas-cuerpo">
+<section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><h3>1. Recopilación de Información y API Keys</h3><p>Para utilizar el chat de Inteligencia Artificial en el Sitio, el usuario debe introducir su propia API Key de Google AI Studio (Gemini). <br><strong>Seguridad:</strong> Su API Key se procesa localmente en su propio navegador o se envía de forma directa y encriptada al proveedor del modelo de lenguaje (Google). <br><strong>No Almacenamiento:</strong> Nosotros no almacenamos, no guardamos ni recopilamos sus API Keys en ninguna base de datos externa ni en servidores propios.</p></div></section>
+<section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="14" r="1"/><circle cx="15" cy="9" r=".6"/></svg></span><div><h3>2. Cookies y Anuncios de Terceros (Google AdSense)</h3><p>Este Sitio utiliza servicios de publicidad de terceros para mostrar anuncios y mantenerse financiado. Específicamente, utilizamos Google AdSense. <br>Google, como proveedor asociado, utiliza cookies para publicar anuncios en este Sitio. <br>El uso de la cookie de publicidad permite a Google y a sus socios mostrar anuncios basados en las visitas que los usuarios realizan en este Sitio y en otros sitios de Internet. <br>Los usuarios pueden inhabilitar el uso de la publicidad personalizada visitando la <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer">Configuración de anuncios de Google</a>.</p></div></section>
+<section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></span><div><h3>3. Herramientas de Análisis</h3><p>Este Sitio puede utilizar herramientas básicas de análisis de tráfico para conocer el número de visitas e interacciones, con el único fin de mejorar la experiencia del usuario y el rendimiento de la aplicación. Estos datos son completamente anónimos.</p></div></section>
+<section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></span><div><h3>4. Enlaces a Terceros</h3><p>Nuestro Sitio contiene enlaces a plataformas externas (como Google AI Studio para la obtención de la API Key). No nos hacemos responsables de las políticas de privacidad ni de las prácticas de dichos sitios web externos.</p></div></section>
+<section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><div><h3>5. Aceptación de los Términos</h3><p>Al utilizar este Sitio, usted acepta los términos descritos en esta Política de Privacidad. Si no está de acuerdo con ellos, por favor, absténgase de utilizar el servicio.</p></div></section>
+<section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/></svg></span><div><h3>6. Contacto</h3><p>Si tiene alguna duda o pregunta sobre esta Política de Privacidad, puede contactarnos en: <a href="mailto:barapagoficial@gmail.com">barapagoficial@gmail.com</a>.</p></div></section>
+    </div>
+    <footer class="politicas-pie">
+      <p>Al hacer clic en "Acepto" aceptas las políticas descritas.</p>
+      <div class="politicas-botones">
+        <button type="button" class="btn btn-ghost" id="btn-rechazar-politicas">Rechazar</button>
+        <button type="button" class="btn btn-primary" id="btn-aceptar-politicas">Acepto y continúo</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<script src="version.js"></script>
+<script>document.querySelectorAll('[data-sair-version]').forEach(function(el){el.textContent=(window.SAIR_VERSION&&window.SAIR_VERSION.texto)||''})</script>
+<script src="supabase.js"></script>
+<script src="js/nucleo.js"></script>
+<script src="js/creditos.js"></script>
+<script src="js/personajes.js"></script>
+<script src="js/comunidad.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/extras.js"></script>
+<script src="js/arranque.js"></script>
+<script src="js/herramientas.js"></script>
+<script src="js/diario.js"></script>
+</body>
+</html>
