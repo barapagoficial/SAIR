@@ -105,6 +105,7 @@
 <div class="ajustes-nota"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4.5 0 8 1.5 8 1.5S21 15 12 21C3 15 4 4.5 4 4.5S7.5 3 12 3z"/><path d="M9 10h.01M15 10h.01"/><path d="M9.5 15a3.5 3.5 0 0 0 5 0"/></svg><span>Tu API Key de Gemini, sus modelos y el uso de tus Créditos de Rol se eligen dentro de cada chat, en <strong>Ajustes de Rol</strong>.</span></div>
 <div class="ajustes-lista">
 <div id="pwa-install-section"><button type="button" class="ajustes-item" id="btn-install-pwa"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span><span class="ajustes-item-texto"><strong>Instalar SAIR</strong><small>Úsala como una app, sin navegador</small></span><svg class="ico ajustes-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+<button type="button" class="ajustes-item" id="btn-ver-novedades"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></span><span class="ajustes-item-texto"><strong>Novedades</strong><small>Historial de cambios de SAIR</small></span><svg class="ico ajustes-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
 <button type="button" class="ajustes-item" id="btn-ver-politicas"><span class="ajustes-card-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="ajustes-item-texto"><strong>Política de privacidad</strong><small>Qué datos se usan y cómo</small></span><svg class="ico ajustes-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
 </div>
 <div class="ajustes-version">SAIR <span data-sair-version></span></div>
@@ -199,7 +200,7 @@
 </div>
 <div id="api-key-status" class="api-key-status empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="api-key-status-text">No hay API Key configurada</span></div>
 <div class="api-key-actions"><button type="button" class="btn-small primary" id="save-api-key">Guardar motor</button><button type="button" class="btn-small danger" id="clear-api-key">Eliminar key</button></div>
-<div class="api-key-info">🔒 La API Key se guarda solo en tu navegador. Consíguela gratis en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.</div>
+<details class="api-tutorial" id="api-tutorial"><summary>¿No tienes API Key? Sácala gratis en 3 pasos</summary><ol class="api-tutorial-pasos"><li><strong>Entra a Google AI Studio.</strong> Abre <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/app/apikey</a> e inicia sesión con tu cuenta de Google.</li><li><strong>Crea la clave.</strong> Pulsa «Create API key» (Crear clave de API). Si te lo pide, acepta los términos y elige o crea un proyecto.</li><li><strong>Cópiala y pégala aquí.</strong> Copia la clave completa (suele empezar por «AIza»), pégala en el campo de arriba y pulsa «Guardar motor».</li></ol><p class="api-tutorial-nota">Es gratis y no pide tarjeta. Google pone un límite diario de uso; si se acaba, vuelve a funcionar al día siguiente o puedes usar tus Créditos de Rol.</p></details><label class="rol-edad"><input type="checkbox" id="rol-mayor-18"><span><strong>Tengo 18 años o más</strong><small>Permite contenido para adultos entre personajes adultos en tus chats privados con Gemini. Nunca aplica con Créditos de Rol ni en lo público.</small></span></label><div class="api-key-info">🔒 La API Key se guarda solo en tu navegador. Consíguela gratis en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.</div>
 </div>
 </details>
 <div class="rol-botones">
@@ -211,17 +212,40 @@
 </div>
 
 <div class="modal-overlay" id="character-modal">
-<div class="modal" role="dialog" aria-modal="true" tabindex="-1">
+<div class="modal char-modal" role="dialog" aria-modal="true" aria-labelledby="character-modal-title" tabindex="-1">
 <div class="modal-header"><h2 class="modal-title" id="character-modal-title">✨ Crear Personaje</h2><button type="button" class="modal-close" data-close-modal="character-modal" aria-label="Cerrar ventana">✕</button></div>
-<form id="form-personaje">
+<div class="char-layout">
+<aside class="char-vista" id="char-vista" aria-label="Vista previa del personaje">
+<span class="char-vista-etiqueta">Vista previa</span>
+<div class="char-vista-tarjeta">
+<div class="char-vista-banner" id="cv-banner" aria-hidden="true"></div>
+<div class="char-vista-avatar" id="cv-avatar" aria-hidden="true">?</div>
+<div class="char-vista-cuerpo">
+<div class="char-vista-nombre" id="cv-nombre">Tu personaje</div>
+<div class="char-vista-desc" id="cv-desc">Aquí aparecerá la descripción corta.</div>
+<div class="char-vista-tags" id="cv-tags"></div>
+<span class="char-vista-badge" id="cv-badge">Privado</span>
+</div>
+</div>
+<div class="char-vista-lista" aria-label="Lo esencial">
+<span class="char-vista-etiqueta">Lo esencial</span>
+<ul id="cv-lista">
+<li data-item="foto">Foto</li>
+<li data-item="nombre">Nombre</li>
+<li data-item="desc">Descripción corta</li>
+<li data-item="personalidad">Personalidad</li>
+<li data-item="saludo">Saludo inicial</li>
+</ul>
+<div class="char-vista-barra" aria-hidden="true"><span id="cv-progreso"></span></div>
+</div>
+</aside>
+<form id="form-personaje" class="char-form" novalidate>
 <input type="hidden" id="char-id" name="id">
 <div class="ai-assistant-bar">
 <button type="button" class="btn-ai" id="btn-ai-crear"><span>✨</span> Generar personaje con IA</button>
 <div class="ai-assistant hidden" id="ai-assistant">
-<label for="ai-idea">Describe tu personaje con todo el detalle que quieras — la IA respeta lo que escribas y crea el resto:</label>
-<textarea id="ai-idea" class="form-textarea ai-idea-textarea" maxlength="6000" rows="10" placeholder="Ej: una chica robot que colecciona estrellas y esconde un secreto...
-
-Puedes detallar apariencia, personalidad, forma de hablar, historia, relaciones, el escenario donde empieza el rol, gustos, miedos..."></textarea>
+<label for="ai-idea">Describe tu personaje con todo el detalle que quieras. La IA respeta lo que escribas y crea el resto:</label>
+<textarea id="ai-idea" class="form-textarea ai-idea-textarea" maxlength="6000" rows="8" placeholder="Ej: una chica robot que colecciona estrellas y esconde un secreto...&#10;&#10;Puedes detallar apariencia, personalidad, forma de hablar, historia, relaciones, el escenario donde empieza el rol, gustos, miedos..."></textarea>
 <div class="ai-idea-count" id="ai-idea-count">0 / 6000</div>
 <div class="ai-actions">
 <button type="button" class="btn btn-primary btn-small" id="btn-ai-generar">⚡ Generar</button>
@@ -230,74 +254,70 @@ Puedes detallar apariencia, personalidad, forma de hablar, historia, relaciones,
 <div class="ai-status" id="ai-status"></div>
 </div>
 </div>
-<div class="stepper">
-<div class="stepper-step active" data-step="1"><span class="stepper-num">1</span><span>Identidad</span></div>
+<div class="stepper" role="tablist" aria-label="Pasos para crear el personaje">
+<button type="button" class="stepper-step active" data-step="1" role="tab"><span class="stepper-num">1</span><span>Identidad</span></button>
 <div class="stepper-line"></div>
-<div class="stepper-step" data-step="2"><span class="stepper-num">2</span><span>Personalidad</span></div>
+<button type="button" class="stepper-step" data-step="2" role="tab"><span class="stepper-num">2</span><span>Personalidad</span></button>
 <div class="stepper-line"></div>
-<div class="stepper-step" data-step="3"><span class="stepper-num">3</span><span>Avanzado</span></div>
+<button type="button" class="stepper-step" data-step="3" role="tab"><span class="stepper-num">3</span><span>Detalles</span></button>
 </div>
 <div class="char-step" data-step="1">
+<div class="char-identidad">
 <div class="avatar-editor">
-<label class="section-label" style="text-align:center;display:block">Avatar del personaje</label>
-<div class="avatar-preview-container" id="avatar-preview-container" tabindex="0" role="img" aria-label="Foto del personaje: elegir de la biblioteca">
-<div class="avatar-placeholder" id="avatar-placeholder"><div class="avatar-placeholder-icon"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></svg></div><div>Toca para elegir una imagen</div></div>
+<div class="avatar-preview-container" id="avatar-preview-container" tabindex="0" role="button" aria-label="Foto del personaje: elegir de la biblioteca">
+<div class="avatar-placeholder" id="avatar-placeholder"><div class="avatar-placeholder-icon"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></svg></div><div>Elegir foto</div></div>
 <img id="avatar-preview" class="avatar-preview" style="display:none" alt="" draggable="false">
 </div>
 <div class="avatar-controls" id="avatar-controls">
 <div class="avatar-actions-row"><button type="button" class="btn btn-ghost btn-small" id="avatar-change">Cambiar</button><button type="button" class="btn btn-danger btn-small" id="avatar-remove">Quitar</button></div>
 </div>
 </div>
-<div class="form-group"><label class="form-label" for="char-nombre">Nombre del personaje</label><input type="text" id="char-nombre" name="nombre" class="form-input" placeholder="Ej: Shizu" required maxlength="60"></div>
-<div class="form-group"><label class="form-label" for="char-desc">Descripción corta <span class="hint">(para la tarjeta)</span></label><input type="text" id="char-desc" name="descripcion_corta" class="form-input" placeholder="Ej: Una chica tímida que ama los libros" maxlength="200"></div>
-<div class="form-group" id="char-etiquetas-grupo"><label class="form-label" id="char-etiquetas-label">Etiquetas <span class="hint">(hasta 5, ayudan a encontrarlo en la Comunidad)</span></label><div class="etiquetas-editor" id="char-etiquetas" role="group" aria-labelledby="char-etiquetas-label"></div></div>
-<div class="form-group">
-<label class="form-label">Color de aura del personaje <span class="hint">(efecto de brillo y tema)</span></label>
-<div class="aura-color-picker">
-<div class="aura-color-option" data-color="#ff4d8f" style="background:#ff4d8f;" title="Rosa Neón"></div>
-<div class="aura-color-option" data-color="#4d79ff" style="background:#4d79ff;" title="Azul Cyber"></div>
-<div class="aura-color-option" data-color="#a855f7" style="background:#a855f7;" title="Morado Místico"></div>
-<div class="aura-color-option" data-color="#10b981" style="background:#10b981;" title="Verde Esmeralda"></div>
-<div class="aura-color-option" data-color="#f97316" style="background:#f97316;" title="Naranja Ígneo"></div>
-<div class="aura-color-option" data-color="#eab308" style="background:#eab308;" title="Amarillo Eléctrico"></div>
+<div class="char-identidad-campos">
+<div class="form-group"><label class="form-label" for="char-nombre">Nombre del personaje</label><input type="text" id="char-nombre" name="nombre" class="form-input" placeholder="Ej: Shizu" required maxlength="60" autocomplete="off"></div>
+<div class="form-group"><label class="form-label" for="char-desc">Descripción corta <span class="hint">para la tarjeta</span></label><input type="text" id="char-desc" name="descripcion_corta" class="form-input" placeholder="Ej: Una chica tímida que ama los libros" maxlength="200" autocomplete="off"><div class="char-contador" data-para="char-desc"></div></div>
 </div>
+</div>
+<div class="form-group" id="char-etiquetas-grupo"><label class="form-label" id="char-etiquetas-label">Etiquetas <span class="hint">hasta 5, ayudan a encontrarlo en la Comunidad</span></label><div class="etiquetas-editor" id="char-etiquetas" role="group" aria-labelledby="char-etiquetas-label"></div></div>
+<div class="form-group">
+<label class="form-label">Color de aura <span class="hint">brillo y tema del chat</span></label>
+<div class="aura-color-picker"><button type="button" class="aura-color-option" data-color="#ff4d8f" style="background:#ff4d8f;" title="Rosa Neón" aria-label="Rosa Neón"></button><button type="button" class="aura-color-option" data-color="#4d79ff" style="background:#4d79ff;" title="Azul Cyber" aria-label="Azul Cyber"></button><button type="button" class="aura-color-option" data-color="#a855f7" style="background:#a855f7;" title="Morado Místico" aria-label="Morado Místico"></button><button type="button" class="aura-color-option" data-color="#10b981" style="background:#10b981;" title="Verde Esmeralda" aria-label="Verde Esmeralda"></button><button type="button" class="aura-color-option" data-color="#f97316" style="background:#f97316;" title="Naranja Ígneo" aria-label="Naranja Ígneo"></button><button type="button" class="aura-color-option" data-color="#eab308" style="background:#eab308;" title="Amarillo Eléctrico" aria-label="Amarillo Eléctrico"></button></div>
 <input type="hidden" id="char-color" name="theme_color" value="#ff4d8f">
 </div>
 </div>
 <div class="char-step hidden" data-step="2">
-<div class="form-group"><label class="form-label" for="char-personalidad">Personalidad <span class="hint">(rasgos, forma de hablar)</span></label><textarea id="char-personalidad" name="personalidad" class="form-textarea" placeholder="Ej: Tímida, inteligente, sarcástica cuando se siente cómoda..." required></textarea></div>
-<div class="form-group"><label class="form-label" for="char-escenario">Escenario / Contexto</label><textarea id="char-escenario" name="escenario" class="form-textarea" placeholder="Ej: Están en la biblioteca de la escuela, es de tarde..."></textarea></div>
-<div class="form-group"><label class="form-label" for="char-ejemplos">Ejemplos de diálogo <span class="hint">(usa *acciones*)</span></label><textarea id="char-ejemplos" name="ejemplos" class="form-textarea mono" placeholder="{{user}}: Hola, ¿qué lees?&#10;{{char}}: *aprieta el libro contra su pecho* A-ah... nada importante..."></textarea></div>
+<p class="char-paso-intro">Esto es lo que la IA lee para interpretar a tu personaje. Mientras más claro, mejor rolea.</p>
+<div class="form-group"><label class="form-label" for="char-personalidad">Personalidad <span class="hint">rasgos, forma de hablar, apariencia, historia</span></label><textarea id="char-personalidad" name="personalidad" class="form-textarea" rows="7" maxlength="3000" placeholder="Ej: Tímida, inteligente y sarcástica cuando se siente cómoda. Habla bajito y tartamudea si se pone nerviosa..." required></textarea><div class="char-contador" data-para="char-personalidad"></div></div>
+<div class="form-group"><label class="form-label" for="char-escenario">Escenario <span class="hint">dónde y cómo empieza la historia</span></label><textarea id="char-escenario" name="escenario" class="form-textarea" rows="4" maxlength="2000" placeholder="Ej: Es de tarde en la biblioteca de la escuela. Llueve y casi no queda nadie..."></textarea><div class="char-contador" data-para="char-escenario"></div></div>
+<div class="form-group"><label class="form-label" for="char-ejemplos">Ejemplos de diálogo <span class="hint">opcional, enseñan su forma de hablar</span></label>
+<div class="char-insertar-fila" role="group" aria-label="Insertar en los ejemplos"><button type="button" class="char-insertar" data-insertar="{{user}}: ">{{user}}</button><button type="button" class="char-insertar" data-insertar="{{char}}: ">{{char}}</button><button type="button" class="char-insertar" data-insertar="*acción* ">*acción*</button></div>
+<textarea id="char-ejemplos" name="ejemplos" class="form-textarea mono" rows="5" maxlength="4000" placeholder="{{user}}: Hola, ¿qué lees?&#10;{{char}}: *aprieta el libro contra su pecho* A-ah... nada importante..."></textarea><div class="char-contador" data-para="char-ejemplos"></div></div>
 </div>
 <div class="char-step hidden" data-step="3">
 <div class="form-group">
-<label class="form-label" for="char-saludo">Saludo inicial <span class="hint">(mensaje del bot al iniciar un nuevo chat)</span></label>
-<textarea id="char-saludo" name="saludo" class="form-textarea" placeholder="Ej: *Sonríe tímidamente* Hola, soy Shizu, encantada de conocerte..." maxlength="2000"></textarea>
+<label class="form-label" for="char-saludo">Saludo inicial <span class="hint">el primer mensaje de cada chat nuevo</span></label>
+<textarea id="char-saludo" name="saludo" class="form-textarea" rows="4" placeholder="Ej: *Sonríe tímidamente* Hola, soy Shizu... ¿también vienes a esconderte de la lluvia?" maxlength="2000"></textarea><div class="char-contador" data-para="char-saludo"></div>
 </div>
 <div class="form-group">
-<label class="form-label" for="char-max-tokens">Longitud de respuesta <span class="hint">(tokens, 256-16384)</span></label>
-<input type="number" id="char-max-tokens" name="max_tokens" class="form-input" value="4096" min="256" max="16384" step="256">
+<label class="form-label" id="char-largo-label">Largo de las respuestas</label>
+<div class="char-largos" role="group" aria-labelledby="char-largo-label">
+<button type="button" class="char-largo" data-tokens="1024"><strong>Corta</strong><span>1-2 párrafos</span></button>
+<button type="button" class="char-largo" data-tokens="2048"><strong>Media</strong><span>2-4 párrafos</span></button>
+<button type="button" class="char-largo" data-tokens="4096"><strong>Larga</strong><span>escenas completas</span></button>
+<button type="button" class="char-largo" data-tokens="8192"><strong>Muy larga</strong><span>capítulos</span></button>
+</div>
+<div class="char-largo-manual"><label for="char-max-tokens">Tope exacto en tokens</label><input type="number" id="char-max-tokens" name="max_tokens" class="form-input" value="4096" min="256" max="16384" step="256"></div>
 </div>
 <div class="form-group">
-<label class="form-label">Intensidad del personaje <span class="hint">(Filtro de seguridad de IA)</span></label>
+<label class="form-label">Intensidad <span class="hint">filtros de seguridad de Gemini</span></label>
 <div class="intensity-picker" id="intensity-picker">
-<div class="intensity-card" data-value="suave">
-<div class="intensity-badge">🟢 Suave</div>
-<div class="intensity-desc">Filtro estándar de AI Studio</div>
+<div class="intensity-card active" data-value="suave" role="button" tabindex="0"><div class="intensity-badge">🟢 Suave</div><div class="intensity-desc">Filtros estándar</div></div>
+<div class="intensity-card" data-value="mediana" role="button" tabindex="0"><div class="intensity-badge">🟡 Mediana</div><div class="intensity-desc">Filtros reducidos</div></div>
+<div class="intensity-card" data-value="maxima" role="button" tabindex="0"><div class="intensity-badge">🔥 Máxima</div><div class="intensity-desc">Filtros mínimos</div></div>
 </div>
-<div class="intensity-card" data-value="mediana">
-<div class="intensity-badge">🟡 Mediana</div>
-<div class="intensity-desc">Filtros reducidos al 50%</div>
+<input type="hidden" id="char-intensidad" name="intensidad" value="suave">
+<p class="char-nota">Solo aplica cuando usas tu API Key de Gemini. Las Normas de la comunidad se aplican siempre, en cualquier modo.</p>
 </div>
-<div class="intensity-card active" data-value="maxima">
-<div class="intensity-badge">🔥 Máxima</div>
-<div class="intensity-desc">Mínimo permitido (Sin restricciones)</div>
-</div>
-</div>
-<input type="hidden" id="char-intensidad" name="intensidad" value="maxima">
-<p style="font-size:.72rem;color:var(--text-4);margin-top:.4rem;">Aplica para las respuestas del personaje, el resumidor automático y la recapitulación.</p>
-</div>
-<div class="switch-group"><div class="switch-info"><div class="switch-title">🌍 Personaje público</div><div class="switch-desc">Aparecerá en la sección "Comunidad" para que otros usuarios lo descubran</div></div><label class="switch"><input type="checkbox" id="char-publico" name="publico"><span class="switch-slider"></span></label></div>
+<div class="switch-group"><div class="switch-info"><div class="switch-title">🌍 Personaje público</div><div class="switch-desc">Aparecerá en la Comunidad para que otros lo descubran. Lo público nunca puede tener contenido sexual explícito.</div></div><label class="switch"><input type="checkbox" id="char-publico" name="publico" aria-label="Personaje público"><span class="switch-slider"></span></label></div>
 </div>
 <div class="stepper-nav">
 <button type="button" class="btn btn-ghost" id="btn-step-back">Cancelar</button>
@@ -305,6 +325,7 @@ Puedes detallar apariencia, personalidad, forma de hablar, historia, relaciones,
 <button type="submit" class="btn btn-primary hidden" id="btn-crear-personaje">Crear personaje</button>
 </div>
 </form>
+</div>
 </div>
 </div>
 
@@ -359,7 +380,7 @@ Puedes detallar apariencia, personalidad, forma de hablar, historia, relaciones,
 <div class="form-group"><label class="form-label" for="register-email">Correo electrónico</label><input type="email" id="register-email" class="form-input" placeholder="tu@email.com" autocomplete="email" required></div>
 <div class="form-group"><label class="form-label" for="register-password">Contraseña de la cuenta</label><input type="password" id="register-password" class="form-input" placeholder="Letras y números, mínimo 6" minlength="6" autocomplete="new-password" required></div>
 <div class="form-group"><label class="form-label" for="register-confirm">Confirmar contraseña</label><input type="password" id="register-confirm" class="form-input" placeholder="Repite tu contraseña" minlength="6" autocomplete="new-password" required></div>
-<button type="submit" class="btn btn-primary" style="width:100%">Crear Cuenta</button>
+<label class="auth-check"><input type="checkbox" id="register-edad13" required><span>Tengo 13 años o más.</span></label><label class="auth-check"><input type="checkbox" id="register-edad18"><span>Tengo 18 años o más. <small>Opcional: permite contenido para adultos en tus chats privados con Gemini. Puedes cambiarlo luego en Ajustes de Rol.</small></span></label><button type="submit" class="btn btn-primary" style="width:100%">Crear Cuenta</button>
 <div id="register-message" class="form-message"></div>
 </form>
 </div>
@@ -379,23 +400,11 @@ Puedes detallar apariencia, personalidad, forma de hablar, historia, relaciones,
 <div class="dashboard-tabs">
 <button type="button" class="dashboard-tab active" data-view="my-characters"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1"/><path d="M17 4a4 4 0 0 1 0 8"/><path d="M22 21v-1a6 6 0 0 0-4-5.6"/></svg>Mis personajes</button>
 <button type="button" class="dashboard-tab" data-view="community"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20a15 15 0 0 1 0-20"/></svg>Comunidad</button>
-<button class="dashboard-tab friends-trigger" id="btn-buscar-amigos" type="button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Buscar amigos</button>
+<button type="button" class="dashboard-tab" data-view="personas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Personas</button>
 <button type="button" class="dashboard-tab dashboard-tab-cr" data-view="creditos"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Créditos de Rol</button>
 <button type="button" class="dashboard-tab" data-view="announcements" style="margin-left:auto"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 8a5 5 0 0 1 0 8"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>Anuncios</button>
 </div>
 <div id="characters-container"></div>
-</div>
-
-<div class="modal-overlay" id="friends-modal">
-<div class="modal friends-modal" role="dialog" aria-modal="true" tabindex="-1">
-<div class="friends-petals" aria-hidden="true"><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span><span>✿</span><span>✦</span><span>❀</span></div>
-<div class="friends-content">
-<div class="modal-header"><h2 class="modal-title">🔎 Buscar Amigos</h2><button type="button" class="modal-close" data-close-modal="friends-modal" aria-label="Cerrar ventana">✕</button></div>
-<div class="friends-header"><span class="friends-header-icon">🌸</span><h3 class="friends-title">Encuentra tu gente</h3><p class="friends-subtitle">Busca usuarios por su nombre para descubrir quién está en SAIR.</p></div>
-<div class="friends-search"><input id="friends-search-input" class="form-input" type="search" placeholder="Escribe un nombre de usuario..." autocomplete="off" maxlength="50" aria-label="Buscar usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg></div>
-<div class="friends-results" id="friends-results"><div class="friends-empty"><strong>Busca un usuario</strong>Escribe al menos una letra para comenzar.</div></div>
-</div>
-</div>
 </div>
 
 <div class="modal-overlay" id="report-modal">
@@ -574,7 +583,7 @@ Puedes detallar apariencia, personalidad, forma de hablar, historia, relaciones,
     </div>
     <div class="politicas-cuerpo" id="politicas-terminos" role="tabpanel" aria-labelledby="politicas-tab-terminos" hidden>
 <div class="politicas-resumen"><strong>En corto:</strong> los Créditos de Rol se usan solo dentro de SAIR y vencen según su paquete. Si no los has usado, puedes retractarte dentro de los 5 días hábiles, y si un cobro falla, te lo arreglamos.</div>
-<section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/></svg></span><div><h3>1. Uso de SAIR</h3><p>SAIR es una app de roleplay con personajes de IA. Todo lo que generan los personajes es <strong>ficción creada por una IA</strong>: puede equivocarse, inventar cosas o no ser apropiado, y no reemplaza consejos profesionales.</p><p>Eres responsable de lo que escribes y de los personajes que publicas.</p></div></section>
+<section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/></svg></span><div><h3>1. Uso de SAIR</h3><p>SAIR es una app de roleplay con personajes de IA. Todo lo que generan los personajes es <strong>ficción creada por una IA</strong>: puede equivocarse, inventar cosas o no ser apropiado, y no reemplaza consejos profesionales.</p><p>Para usar SAIR debes tener al menos 13 años. El contenido para adultos solo se permite si confirmas que tienes 18 años o más, y solo en tus chats privados con tu API Key de Gemini.</p><p>Eres responsable de lo que escribes y de los personajes que publicas.</p></div></section>
 <section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></span><div><h3>2. Contenido prohibido</h3><p>No se permite usar SAIR para contenido sexual con menores o que los sexualice, acosar o suplantar a personas reales, difundir datos personales de otros, promover delitos o violencia real, ni intentar saltarse los límites del sistema.</p><p>En el modo de Créditos de Rol tampoco se permite contenido sexual explícito, y los personajes públicos nunca pueden serlo. Si la IA detecta algo de esto, se niega a continuar y lo avisa.</p><p>Un personaje público con varios reportes se oculta de la Comunidad hasta que lo revisemos. Podemos retirar personajes de la Comunidad y suspender cuentas o el modo de Créditos de Rol cuando se incumplan estas reglas.</p></div></section>
 <section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span><div><h3>3. Créditos de Rol (CR)</h3><p>Los CR son créditos prepagados para usar la IA dentro de SAIR. No son dinero, no se transfieren a otras cuentas y no se cambian por dinero, salvo en los casos de reembolso de estas condiciones.</p><p>Cada acción gasta los CR que indica la app antes de usarla. Si una respuesta falla por un error nuestro o del proveedor, esos CR se devuelven automáticamente.</p></div></section>
 <section class="politica-sec"><span class="politica-num"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><h3>4. Vencimiento y cupos</h3><p>Cada compra es un paquete con su propia vigencia, que se muestra antes de pagar (por ejemplo, 45 o 90 días desde la compra). Al usar créditos se gastan primero los del paquete que vence antes. Si compras un paquete nuevo mientras te quedan créditos vigentes del mismo tipo, esos créditos se extienden hasta la fecha del paquete nuevo. Los CR vencidos no se pueden usar ni reembolsar.</p><p>Los paquetes se venden en tandas con cupos limitados, de máximo un cupo por persona en cada tanda. Al empezar a pagar, tu cupo queda apartado unos minutos; si no completas el pago, se libera.</p></div></section>

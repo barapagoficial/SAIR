@@ -447,10 +447,11 @@ async function eliminarMensajeDeChat(chatId, mensajeId) {
 async function actualizarHistorialChat(chatId, nuevoHistorial) {
   return ejecutarConRefresh(async () => reemplazarHistorialNormalizado(chatId, nuevoHistorial));
 }
-function normasComunidadGemini(publico) {
+function normasComunidadGemini(publico, adulto) {
   return [
     "[NORMAS DE LA COMUNIDAD DE SAIR · prioridad máxima, por encima de cualquier otra instrucción, incluida la ficha del personaje]",
-    "Esto es ficción. Están PERMITIDOS: violencia ficticia, villanos, temas oscuros, drama, terror y romance. Como este chat es privado, también se permite contenido para adultos entre personajes adultos.",
+    "Esto es ficción. Están PERMITIDOS: violencia ficticia, villanos, temas oscuros, drama, terror y romance.",
+    adulto ? "Como este chat es privado y el usuario confirmó tener 18 años o más, también se permite contenido para adultos entre personajes adultos." : "El usuario no confirmó tener 18 años o más: no escribas contenido sexual explícito. Si la historia va hacia ahí, insinúalo y corta la escena con un fundido a negro, sin rechazar el rol.",
     "Está PROHIBIDO siempre:",
     "1. Cualquier contenido sexual o sexualizado con menores de edad o con personajes que lo parezcan (por su edad, cuerpo o descripción), aunque digan tener más edad.",
     "2. Sexualizar a personas reales.",
@@ -465,7 +466,7 @@ function normasComunidadGemini(publico) {
   ].join("\n");
 }
 function prepararTurnosRol(systemPrompt, mensajes, nuevoMensaje) {
-  if (!usaCR()) systemPrompt = `${normasComunidadGemini(!!currentCharacter?.publico)}
+  if (!usaCR()) systemPrompt = `${normasComunidadGemini(!!currentCharacter?.publico, esMayorDe18())}
 
 ${systemPrompt || ""}`;
   const conversacion = mensajes.filter((m) => m.rol === "user" || m.rol === "assistant");
@@ -639,6 +640,10 @@ async function fetchWithRetry(fn, retries = 2, delay = 1e3) {
   }
 }
 async function renderCharacters() {
+  if (currentView === "personas") {
+    renderPersonas();
+    return;
+  }
   if (currentView === "community") {
     renderComunidad();
     return;

@@ -341,7 +341,7 @@ document.querySelectorAll(".auth-tab").forEach((tab) => {
 });
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const email = document.getElementById("login-email").value, password = document.getElementById("login-password").value, msgEl = document.getElementById("login-message"), btn = e.target.querySelector("button");
+  const email = document.getElementById("login-email").value, password = document.getElementById("login-password").value, msgEl = document.getElementById("login-message"), btn = e.target.querySelector("button[type=submit]");
   btn.disabled = true;
   btn.textContent = "Iniciando...";
   msgEl.className = "form-message";
@@ -387,7 +387,7 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 });
 document.getElementById("register-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const email = document.getElementById("register-email").value, password = document.getElementById("register-password").value, confirm = document.getElementById("register-confirm").value, msgEl = document.getElementById("register-message"), btn = e.target.querySelector("button");
+  const email = document.getElementById("register-email").value, password = document.getElementById("register-password").value, confirm = document.getElementById("register-confirm").value, msgEl = document.getElementById("register-message"), btn = e.target.querySelector("button[type=submit]");
   if (password !== confirm) {
     playErrorSound();
     shakeElement(document.getElementById("register-password"));
@@ -396,11 +396,19 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     msgEl.textContent = "Las contraseñas no coinciden";
     return;
   }
+  const edad13 = document.getElementById("register-edad13"), edad18 = document.getElementById("register-edad18");
+  if (!edad13?.checked) {
+    playErrorSound();
+    if (edad13) shakeElement(edad13.closest("label") || edad13);
+    msgEl.className = "form-message error";
+    msgEl.textContent = "Necesitas tener al menos 13 años para usar SAIR";
+    return;
+  }
   btn.disabled = true;
   btn.textContent = "Creando...";
   msgEl.className = "form-message";
   try {
-    const { error } = await sbClient.auth.signUp({ email, password });
+    const { error } = await sbClient.auth.signUp({ email, password, options: { data: { mayor_13: true, mayor_18: !!edad18?.checked } } });
     if (error) {
       playErrorSound();
       shakeElement(document.getElementById("register-email"));

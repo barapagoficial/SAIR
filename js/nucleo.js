@@ -1703,7 +1703,7 @@ document.getElementById("save-api-key").addEventListener("click", () => {
   const summaryModel = summaryModelSelector?.value || getSummaryModel();
   if (raw) {
     if (!isGeminiApiKey(raw)) {
-      showToast("API Key inválida. Verificá que pegaste la clave completa.", "error");
+      showToast("API Key inválida. Verifica que pegaste la clave completa.", "error");
       if (input) shakeElement(input);
       return;
     }
@@ -1780,7 +1780,37 @@ function updateApiKeyUI() {
     statusEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>No hay API Key configurada</span>`;
     input.value = "";
   }
+  const tutorial = document.getElementById("api-tutorial");
+  if (tutorial) tutorial.open = !key;
+  const mayor = document.getElementById("rol-mayor-18");
+  if (mayor) mayor.checked = esMayorDe18();
 }
+function esMayorDe18() {
+  return currentUser?.user_metadata?.mayor_18 === true;
+}
+document.getElementById("rol-mayor-18")?.addEventListener("change", async (e) => {
+  const caja = e.target, valor = caja.checked;
+  if (!currentUser || !sbClient) {
+    caja.checked = !valor;
+    return;
+  }
+  if (valor && !await confirmarSAIR("¿Tienes 18 años o más?", "Al confirmarlo, en tus chats privados con tu API Key de Gemini se permitirá contenido para adultos entre personajes adultos. Las Normas de la comunidad se siguen aplicando siempre.", { aceptar: "Sí, tengo 18 o más" })) {
+    caja.checked = false;
+    return;
+  }
+  caja.disabled = true;
+  try {
+    const { data, error } = await sbClient.auth.updateUser({ data: { mayor_18: valor } });
+    if (error) throw error;
+    if (data?.user) currentUser = data.user;
+    showToast(valor ? "✅ Confirmaste que tienes 18 años o más" : "Contenido para adultos desactivado");
+  } catch {
+    caja.checked = !valor;
+    showToast("No se pudo guardar. Inténtalo de nuevo.", "error");
+  } finally {
+    caja.disabled = false;
+  }
+});
 function aplicarFondoChat() {
   const raw = localStorage.getItem(BG_STORAGE_KEY), bg = sanitizeImageUrl(raw), chatMain = document.querySelector(".chat-main"), bgImg = document.getElementById("chat-bg-img"), btnPreview = document.getElementById("btn-bg-preview");
   if (bg && chatMain) {
@@ -1889,6 +1919,7 @@ function mostrarAvatarPersonaje(url) {
   avatarPlaceholder.style.display = safe ? "none" : "block";
   avatarContainer.classList.toggle("has-image", !!safe);
   avatarControls.classList.toggle("visible", !!safe);
+  actualizarVistaPersonaje();
 }
 async function elegirAvatarPersonaje() {
   const ruta = await elegirDeBiblioteca("personaje", avatarData.original);

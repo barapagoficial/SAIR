@@ -288,7 +288,38 @@ async function cargarLotesCR() {
   const s = { flash: 0, pro: 0 };
   for (const l of crLotes) s[l.modelo] = (s[l.modelo] || 0) + (Number(l.creditos_restantes) || 0);
   actualizarSaldoCR(s);
+  avisarVencimientoCR();
   return crLotes;
+}
+function diasParaVencerCR(iso) {
+  const hoy = new Date(), dia = new Date(iso);
+  hoy.setHours(0, 0, 0, 0);
+  dia.setHours(0, 0, 0, 0);
+  return Math.round((dia - hoy) / 864e5);
+}
+function textoVenceCR(iso) {
+  const d = diasParaVencerCR(iso);
+  return d <= 0 ? "hoy" : d === 1 ? "mañana" : `en ${d} días`;
+}
+function avisarVencimientoCR() {
+  if (!currentUser) return;
+  const ahora = Date.now(), grupos = new Map();
+  for (const l of crLotes) {
+    const ms = new Date(l.vence_en).getTime() - ahora, n = Number(l.creditos_restantes) || 0;
+    if (!n || !(ms > 0) || ms > 7 * 864e5) continue;
+    const clave = `sair1_aviso_vence_${l.id}_${ms <= 864e5 ? 1 : 7}_${String(l.vence_en).slice(0, 10)}`;
+    try {
+      if (localStorage.getItem(clave)) continue;
+      localStorage.setItem(clave, "1");
+    } catch {
+    }
+    const k = `${l.modelo}_${diasParaVencerCR(l.vence_en)}`, g = grupos.get(k) || { m: l.modelo, n: 0, vence: l.vence_en };
+    g.n += n;
+    grupos.set(k, g);
+  }
+  if (!grupos.size) return;
+  const partes = [...grupos.values()].map((g) => `${g.n.toLocaleString("es")} CR de ${CR_MODELOS[g.m] || g.m} vencen ${textoVenceCR(g.vence)}`);
+  setTimeout(() => showToast(`⏳ ${partes.join(" · ")}. ¡Úsalos antes de que se pierdan!`, "info"), 2500);
 }
 function proximoVencimientoCR(modelo) {
   const l = crLotes.find((x) => x.modelo === modelo);
@@ -539,10 +570,14 @@ function pintarTiendaCR() {
   const saldo = crSaldo[m] || 0;
   const porFecha = /* @__PURE__ */ new Map();
   for (const l of crLotes.filter((x) => x.modelo === m)) {
-    const f = fechaCortaCR(l.vence_en);
-    porFecha.set(f, (porFecha.get(f) || 0) + (Number(l.creditos_restantes) || 0));
+    const f = fechaCortaCR(l.vence_en), g = porFecha.get(f) || { n: 0, iso: l.vence_en };
+    g.n += Number(l.creditos_restantes) || 0;
+    porFecha.set(f, g);
   }
-  const lotesHtml = porFecha.size ? `<ul class="cr-lotes">${[...porFecha].map(([f, n]) => `<li><strong>${n.toLocaleString("es")} CR</strong> vencen el ${escapeHtml(f)}</li>`).join("")}</ul>` : '<p class="cr-saldo-vacio">Aún no tienes créditos. Cuando abra un drop, compra un paquete y empieza a rolear sin configurar nada.</p>';
+  const lotesHtml = porFecha.size ? `<ul class="cr-lotes">${[...porFecha].map(([f, g]) => {
+    const pronto = diasParaVencerCR(g.iso) <= 7;
+    return `<li${pronto ? ' class="pronto"' : ""}><strong>${g.n.toLocaleString("es")} CR</strong> vencen el ${escapeHtml(f)}${pronto ? ` <span class="cr-lote-pronto">⏳ ${textoVenceCR(g.iso)}</span>` : ""}</li>`;
+  }).join("")}</ul>` : '<p class="cr-saldo-vacio">Aún no tienes créditos. Cuando abra un drop, compra un paquete y empieza a rolear sin configurar nada.</p>';
   const motorBtn = usaCR() ? `<span class="cr-motor-activo">${CR_ICONO}Estás usando tus Créditos de Rol</span>` : `<button type="button" class="btn btn-primary btn-small" id="cr-activar">${CR_ICONO}Usar mis Créditos de Rol</button>`;
   const hayPro = paquetes.some((p) => p.modelo === "pro");
   const comprasHtml = compras.length ? `<section class="cr-seccion"><h3 class="cr-seccion-titulo">Tus compras</h3><ul class="cr-compras">${compras.map((c) => {

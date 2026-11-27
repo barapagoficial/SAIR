@@ -1,5 +1,22 @@
 SAIR — Changelog
 
+[5.3] — 2026-11-27
+
+✨ Novedades
+- 🎨 Creador de personajes rediseñado: vista previa en vivo de la tarjeta, lista de lo esencial con barra de progreso, contadores de caracteres, botones para insertar {{user}}, {{char}} y *acción*, y un selector sencillo del largo de las respuestas.
+- 🔎 Nueva sección «Personas» en lugar del buscador de amigos: ve a los recién llegados, busca por nombre y mira cuántos personajes públicos tiene cada uno.
+- 🔑 Guía de 3 pasos para sacar gratis tu API Key de Gemini, justo donde la pegas.
+- 🎂 Al registrarte confirmas que tienes 13 años o más. El contenido para adultos en tus chats privados con Gemini solo se activa si confirmas que tienes 18 o más (también desde Ajustes de Rol).
+- ⏳ Aviso cuando tus Créditos de Rol están por vencer: 7 días y 1 día antes. En la tienda se marcan los que vencen pronto.
+- 📜 Los Términos ahora indican la edad mínima para usar SAIR.
+- 🧹 Comunidad más limpia: el orden, los géneros y tus favoritos ahora viven en un panel de «Filtros», y los filtros activos se ven arriba para quitarlos con un toque.
+- 📢 Anuncios rediseñados: tarjetas más claras, el más reciente destacado, etiqueta «Nuevo» y la fecha en formato «hace 2 h».
+- ✨ Al entrar después de una actualización verás lo que cambió (una sola vez por versión), y el historial completo está en Ajustes → Novedades.
+
+🔧 Arreglos
+- El aviso «Iniciando...» ya no aparece dentro del campo de la contraseña al iniciar sesión o registrarte.
+- El botón «Cargar más» de la Comunidad ya no aparece cuando no hay más personajes.
+
 [5.2] — 2026-11-27
 
 ✨ Novedades

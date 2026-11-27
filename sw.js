@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
   "./ERROR.mp4",
   "./supabase.js",
   "./version.js",
+  "./Changelog.txt",
   "./css/app.css",
   "./css/estetica.css",
   "./js/nucleo.js",

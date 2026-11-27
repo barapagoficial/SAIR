@@ -1,6 +1,6 @@
 const COMUNIDAD_POR_PAGINA = 24;
 const ORDENES_COMUNIDAD = { recientes: [["creado_en", false]], antiguos: [["creado_en", true]], nombre: [["nombre", true]], populares: [["likes_count", false], ["creado_en", false]] };
-const comunidad = { q: "", orden: "recientes", etiqueta: "", favoritos: false, lista: [], hayMas: false, peticion: 0 };
+const comunidad = { q: "", orden: "recientes", etiqueta: "", favoritos: false, panel: false, lista: [], hayMas: false, peticion: 0 };
 const MOTIVOS_REPORTE = { normas_ia: "La IA avisó que infringe las Normas", contenido_sexual_menores: "Contenido sexual con menores", contenido_sexual: "Contenido sexual explícito", odio_acoso: "Odio o acoso", violencia_extrema: "Violencia extrema", spam: "Spam o publicidad", suplantacion: "Suplanta a una persona real", otro: "Otro motivo" };
 function limpiarBusquedaComunidad(q) {
   return String(q || "").replace(/[%_,()*\\:."'`]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
@@ -26,24 +26,27 @@ async function listarPersonajesComunidad({ q = "", orden = "recientes", etiqueta
     return { filas: filas.slice(0, COMUNIDAD_POR_PAGINA), hayMas: filas.length > COMUNIDAD_POR_PAGINA };
   });
 }
+const NOMBRES_ORDEN_COMUNIDAD = { recientes: "Recientes", populares: "Populares", nombre: "A-Z", antiguos: "Antiguos" };
 function renderComunidad() {
   const container = document.getElementById("characters-container");
   const lupa = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>';
-  const icoOrden = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>';
-  container.innerHTML = `<div class="comunidad-hero"><div class="comunidad-hero-texto"><h2>Descubre personajes</h2><p>Busca por nombre, filtra por género o guarda tus favoritos con el corazón.</p></div></div>
-<div class="comunidad-toolbar">
-<label class="comunidad-busqueda-wrap">${lupa}<input id="comunidad-q" class="form-input comunidad-busqueda" type="search" placeholder="Buscar por nombre o descripción…" maxlength="60" autocomplete="off" aria-label="Buscar personajes de la comunidad"></label>
-<label class="comunidad-orden-wrap">${icoOrden}<select id="comunidad-orden" class="form-input comunidad-orden" aria-label="Ordenar personajes"><option value="recientes">Más recientes</option><option value="populares">Más populares</option><option value="antiguos">Más antiguos</option><option value="nombre">Nombre (A-Z)</option></select></label>
-<button type="button" class="btn btn-ghost btn-small comunidad-fav" id="btn-comunidad-favoritos" aria-pressed="false">${ICONOS.corazon}<span>Mis favoritos</span></button>
-${isOwner() ? `<button type="button" class="btn btn-ghost btn-small" id="btn-ver-reportes">${ICONOS.bandera}<span>Reportes</span></button>` : ""}
+  const icoFiltros = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>';
+  container.innerHTML = `<div class="comunidad-toolbar com-barra">
+<label class="comunidad-busqueda-wrap">${lupa}<input id="comunidad-q" class="form-input comunidad-busqueda" type="search" placeholder="Buscar personajes…" maxlength="60" autocomplete="off" aria-label="Buscar personajes de la comunidad"></label>
+<button type="button" class="btn btn-ghost btn-small com-filtros-btn" id="btn-comunidad-filtros" aria-expanded="false" aria-controls="comunidad-panel">${icoFiltros}<span class="com-filtros-txt">Filtros</span><span class="com-filtros-n" id="comunidad-filtros-n" hidden></span></button>
+${isOwner() ? `<button type="button" class="btn btn-ghost btn-small com-icono" id="btn-ver-reportes" title="Reportes" aria-label="Ver reportes">${ICONOS.bandera}</button>` : ""}
 </div>
-<div class="comunidad-etiquetas" id="comunidad-etiquetas" role="group" aria-label="Filtrar por etiqueta"><button type="button" class="etiqueta-chip" data-tag="" aria-pressed="true">Todas</button>${Object.entries(ETIQUETAS_PERSONAJE).map(([k, v]) => `<button type="button" class="etiqueta-chip" data-tag="${k}" aria-pressed="false">${v}</button>`).join("")}</div>
+<div class="com-panel" id="comunidad-panel" hidden>
+<div class="com-panel-grupo"><span class="com-panel-titulo">Ordenar por</span><div class="com-segmento" id="comunidad-orden" role="group" aria-label="Ordenar personajes">${Object.entries(NOMBRES_ORDEN_COMUNIDAD).map(([k, v]) => `<button type="button" data-orden="${k}" aria-pressed="false">${v}</button>`).join("")}</div></div>
+<div class="com-panel-grupo" id="comunidad-grupo-etiquetas"><span class="com-panel-titulo">Género</span><div class="comunidad-etiquetas" id="comunidad-etiquetas" role="group" aria-label="Filtrar por género"><button type="button" class="etiqueta-chip" data-tag="" aria-pressed="true">Todos</button>${Object.entries(ETIQUETAS_PERSONAJE).map(([k, v]) => `<button type="button" class="etiqueta-chip" data-tag="${k}" aria-pressed="false">${v}</button>`).join("")}</div></div>
+<div class="com-panel-pie"><button type="button" class="btn btn-ghost btn-small comunidad-fav" id="btn-comunidad-favoritos" aria-pressed="false">${ICONOS.corazon}<span>Solo mis favoritos</span></button><button type="button" class="com-limpiar" id="btn-comunidad-limpiar">Quitar filtros</button></div>
+</div>
+<div class="com-activos" id="comunidad-activos"></div>
 <div id="comunidad-resultados" aria-live="polite"></div><div class="comunidad-mas"><button type="button" class="btn btn-ghost" id="btn-comunidad-mas" hidden>Cargar más</button></div>`;
-  const input = document.getElementById("comunidad-q"), orden = document.getElementById("comunidad-orden"), fav = document.getElementById("btn-comunidad-favoritos"), chips = document.getElementById("comunidad-etiquetas");
+  const input = document.getElementById("comunidad-q"), panel = document.getElementById("comunidad-panel"), btnFiltros = document.getElementById("btn-comunidad-filtros");
   input.value = comunidad.q;
-  orden.value = comunidad.orden;
-  fav.setAttribute("aria-pressed", String(comunidad.favoritos));
-  chips.querySelectorAll(".etiqueta-chip").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tag === comunidad.etiqueta)));
+  panel.hidden = !comunidad.panel;
+  btnFiltros.setAttribute("aria-expanded", String(!!comunidad.panel));
   actualizarToolbarComunidad();
   let timer = null;
   input.addEventListener("input", () => {
@@ -55,46 +58,69 @@ ${isOwner() ? `<button type="button" class="btn btn-ghost btn-small" id="btn-ver
       cargarComunidad(true);
     }, 350);
   });
-  orden.addEventListener("change", () => {
-    comunidad.orden = orden.value;
-    cargarComunidad(true);
+  btnFiltros.addEventListener("click", () => {
+    comunidad.panel = panel.hidden;
+    panel.hidden = !comunidad.panel;
+    btnFiltros.setAttribute("aria-expanded", String(comunidad.panel));
   });
-  fav.addEventListener("click", () => {
-    comunidad.favoritos = !comunidad.favoritos;
-    fav.setAttribute("aria-pressed", String(comunidad.favoritos));
+  const cambiar = (cambios) => {
+    Object.assign(comunidad, cambios);
+    pintarFiltrosComunidad();
     cargarComunidad(true);
+  };
+  document.getElementById("comunidad-orden").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-orden]");
+    if (b && b.dataset.orden !== comunidad.orden) cambiar({ orden: b.dataset.orden });
   });
-  chips.addEventListener("click", (e) => {
+  document.getElementById("comunidad-etiquetas").addEventListener("click", (e) => {
     const b = e.target.closest(".etiqueta-chip");
+    if (b && b.dataset.tag !== comunidad.etiqueta) cambiar({ etiqueta: b.dataset.tag });
+  });
+  document.getElementById("btn-comunidad-favoritos").addEventListener("click", () => cambiar({ favoritos: !comunidad.favoritos }));
+  document.getElementById("btn-comunidad-limpiar").addEventListener("click", () => cambiar({ orden: "recientes", etiqueta: "", favoritos: false }));
+  document.getElementById("comunidad-activos").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-quitar]");
     if (!b) return;
-    comunidad.etiqueta = b.dataset.tag;
-    chips.querySelectorAll(".etiqueta-chip").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-    cargarComunidad(true);
+    const q = b.dataset.quitar;
+    cambiar(q === "orden" ? { orden: "recientes" } : q === "etiqueta" ? { etiqueta: "" } : { favoritos: false });
   });
   document.getElementById("btn-comunidad-mas").addEventListener("click", () => cargarComunidad(false));
   document.getElementById("btn-ver-reportes")?.addEventListener("click", abrirReportes);
   cargarComunidad(true);
 }
+function pintarFiltrosComunidad() {
+  document.querySelectorAll("#comunidad-orden [data-orden]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.orden === comunidad.orden)));
+  document.querySelectorAll("#comunidad-etiquetas .etiqueta-chip").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tag === comunidad.etiqueta)));
+  document.getElementById("btn-comunidad-favoritos")?.setAttribute("aria-pressed", String(comunidad.favoritos));
+  const x = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+  const activos = [];
+  if (comunidad.orden !== "recientes") activos.push(["orden", NOMBRES_ORDEN_COMUNIDAD[comunidad.orden]]);
+  if (comunidad.etiqueta) activos.push(["etiqueta", ETIQUETAS_PERSONAJE[comunidad.etiqueta]]);
+  if (comunidad.favoritos) activos.push(["favoritos", "❤️ Favoritos"]);
+  const cont = document.getElementById("comunidad-activos");
+  if (cont) cont.innerHTML = activos.map(([k, v]) => `<button type="button" class="com-activo" data-quitar="${k}" aria-label="Quitar filtro ${escapeHtml(v)}">${escapeHtml(v)}${x}</button>`).join("");
+  const n = document.getElementById("comunidad-filtros-n");
+  if (n) {
+    n.hidden = !activos.length;
+    n.textContent = activos.length;
+  }
+  const limpiar = document.getElementById("btn-comunidad-limpiar");
+  if (limpiar) limpiar.hidden = !activos.length;
+}
 function actualizarToolbarComunidad() {
   const extras = extrasPersonajeEnNube, likes = likesEnNube && extras;
-  const chips = document.getElementById("comunidad-etiquetas");
-  if (chips) chips.hidden = !extras;
+  const grupo = document.getElementById("comunidad-grupo-etiquetas");
+  if (grupo) grupo.hidden = !extras;
   const fav = document.getElementById("btn-comunidad-favoritos");
   if (fav) fav.hidden = !likes;
-  const pop = document.querySelector('#comunidad-orden option[value="populares"]');
-  if (pop) {
-    pop.hidden = !extras;
-    pop.disabled = !extras;
-  }
+  const pop = document.querySelector('#comunidad-orden [data-orden="populares"]');
+  if (pop) pop.hidden = !extras;
   if (!extras) {
     comunidad.etiqueta = "";
-    if (comunidad.orden === "populares") {
-      comunidad.orden = "recientes";
-      const o = document.getElementById("comunidad-orden");
-      if (o) o.value = "recientes";
-    }
+    if (comunidad.orden === "populares") comunidad.orden = "recientes";
   }
   if (!likes) comunidad.favoritos = false;
+  pintarFiltrosComunidad();
 }
 async function cargarComunidad(reiniciar) {
   const res = document.getElementById("comunidad-resultados");
@@ -256,31 +282,43 @@ async function renderAnuncios() {
     LOADING.anuncios = false;
   }
 }
+function tiempoRelativoAnuncio(iso) {
+  const min = Math.floor((Date.now() - new Date(iso).getTime()) / 6e4);
+  if (!(min >= 0)) return formatDate(iso);
+  if (min < 1) return "ahora";
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `hace ${h} h`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return d === 1 ? "ayer" : `hace ${d} días`;
+  return formatDate(iso);
+}
 function renderAnunciosContent(anuncios) {
   const container = document.getElementById("characters-container");
+  const megafono = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 8a5 5 0 0 1 0 8"/></svg>';
+  const papelera = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>';
   let html = "";
   if (isOwner()) {
-    html += `<div class="announcement-form"><div class="announcement-form-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Publicar nuevo anuncio</div><form id="form-anuncio"><div class="form-group"><input type="text" id="anuncio-titulo" class="form-input" placeholder="Título del anuncio" required maxlength="100"></div><div class="form-group"><textarea id="anuncio-contenido" class="form-textarea" placeholder="Escribe el contenido del anuncio..." required maxlength="2000"></textarea></div><div class="announcement-form-actions"><button type="submit" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Publicar anuncio</button></div></form></div>`;
+    html += `<details class="anuncio-nuevo"><summary><span class="anuncio-nuevo-mas" aria-hidden="true">+</span>Publicar un anuncio</summary><form id="form-anuncio"><input type="text" id="anuncio-titulo" class="form-input" placeholder="Título" required maxlength="100"><textarea id="anuncio-contenido" class="form-textarea" placeholder="¿Qué quieres contarle a la comunidad?" required maxlength="2000"></textarea><div class="anuncio-nuevo-acciones"><button type="submit" class="btn btn-primary btn-small">Publicar</button></div></form></details>`;
   }
   if (anuncios.length === 0) {
-    html += `<div class="no-announcements"><div class="empty-state-icon">📢</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">No hay anuncios aún</h3><p style="color:var(--text-3)">Los anuncios del Owner aparecerán aquí</p></div>`;
+    html += `<div class="anuncios-vacio">${megafono}<h3>Todavía no hay anuncios</h3><p>Aquí verás las novedades de SAIR, los drops de Créditos de Rol y los avisos importantes.</p></div>`;
   } else {
-    html += `<div class="announcements-container">`;
-    html += anuncios.map((a) => `<div class="announcement-card" data-id="${a.id}">${isOwner() ? `<button type="button" class="announcement-delete" data-id="${a.id}" title="Eliminar anuncio"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></button>` : ""}<div class="announcement-header"><span class="announcement-badge"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Owner</span><span class="announcement-author" data-user-id="${a.user_id}"><span class="announcement-author-avatar">?</span>por @cargando...</span><span class="announcement-date">${formatDate(a.creado_en)}</span></div><div class="announcement-title">${escapeHtml(a.titulo)}</div><div class="announcement-content">${escapeHtml(a.contenido)}</div></div>`).join("");
-    html += `</div>`;
+    const ahora = Date.now();
+    html += `<div class="anuncios-lista">${anuncios.map((a, i) => {
+      const nuevo = ahora - new Date(a.creado_en).getTime() < 3 * 864e5;
+      return `<article class="anuncio${i === 0 ? " destacado" : ""}" data-id="${a.id}"><header class="anuncio-cabeza"><span class="anuncio-ico">${megafono}</span><span class="anuncio-meta"><span class="anuncio-autor" data-user-id="${a.user_id}">SAIR</span><time datetime="${escapeHtml(a.creado_en)}" title="${escapeHtml(formatDate(a.creado_en))}">${escapeHtml(tiempoRelativoAnuncio(a.creado_en))}</time></span>${nuevo ? '<span class="anuncio-nuevo-pill">Nuevo</span>' : ""}${isOwner() ? `<button type="button" class="anuncio-borrar" data-id="${a.id}" title="Eliminar anuncio" aria-label="Eliminar anuncio">${papelera}</button>` : ""}</header><h3 class="anuncio-titulo">${escapeHtml(a.titulo)}</h3><p class="anuncio-texto">${escapeHtml(a.contenido)}</p></article>`;
+    }).join("")}</div>`;
   }
   container.innerHTML = html;
   const authorUserIds = [...new Set(anuncios.map((a) => a.user_id))];
   obtenerUsernamesBatch(authorUserIds).then((usernamesMap) => {
-    anuncios.forEach((a) => {
-      const authorEl = container.querySelector(`.announcement-card[data-id="${a.id}"] [data-user-id="${a.user_id}"]`);
-      if (authorEl) {
-        const username = usernamesMap[a.user_id] || "anónimo";
-        authorEl.innerHTML = `<span class="announcement-author-avatar">${escapeHtml(username.charAt(0).toUpperCase())}</span>por @${escapeHtml(username)}`;
-      }
+    container.querySelectorAll(".anuncio-autor[data-user-id]").forEach((el) => {
+      const username = usernamesMap[el.dataset.userId];
+      if (username) el.textContent = `@${username}`;
     });
   });
-  container.querySelectorAll(".announcement-delete").forEach((btn) => {
+  container.querySelectorAll(".anuncio-borrar").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
       if (await confirmarSAIR("¿Eliminar este anuncio?", "Dejará de verse para todos.", { aceptar: "Eliminar", peligro: true })) {
@@ -381,6 +419,7 @@ async function abrirEditorPersonaje(id = null) {
       }
     });
   }
+  actualizarVistaPersonaje();
   openModal("character-modal");
 }
 function parsearSystemPrompt(sp) {
@@ -425,7 +464,7 @@ document.getElementById("form-personaje").addEventListener("submit", async (e) =
   if (invalido) {
     const paso = invalido.closest(".char-step");
     if (paso) irAPasoCharacter(parseInt(paso.dataset.step), false);
-    showToast("Completá los campos obligatorios antes de guardar", "error");
+    showToast("Completa los campos obligatorios antes de guardar", "error");
     setTimeout(() => invalido.reportValidity(), 80);
     return;
   }
@@ -513,7 +552,7 @@ function extraerJSONDeTexto(texto) {
   } catch {
   }
   const m = limpiado.match(/\{[\s\S]*\}/);
-  if (!m) throw new Error("La IA no devolvió un JSON válido. Probá de nuevo.");
+  if (!m) throw new Error("La IA no devolvió un JSON válido. Prueba de nuevo.");
   return JSON.parse(m[0]);
 }
 function setAuraColorUI(color) {
@@ -574,7 +613,7 @@ La idea puede ser muy detallada: RESPETA y conserva TODOS los datos que dé el u
     }
     const res = extraerJSONDeTexto(texto);
     const nombre = (res.nombre || "").trim().slice(0, 60);
-    if (!nombre) throw new Error("La IA no generó un nombre válido. Probá de nuevo.");
+    if (!nombre) throw new Error("La IA no generó un nombre válido. Prueba de nuevo.");
     document.getElementById("char-nombre").value = nombre;
     document.getElementById("char-desc").value = (res.descripcion_corta || "").trim().slice(0, 200);
     document.getElementById("char-personalidad").value = (res.personalidad || "").trim().slice(0, 3e3);
@@ -582,7 +621,8 @@ La idea puede ser muy detallada: RESPETA y conserva TODOS los datos que dé el u
     document.getElementById("char-saludo").value = (res.saludo || "").trim().slice(0, 2e3);
     document.getElementById("char-ejemplos").value = (res.ejemplos || "").trim().slice(0, 4e3);
     setAuraColorUI(String(res.color || "").toLowerCase());
-    statusEl.textContent = "✅ Personaje generado. Revisá los campos y ajustá lo que quieras.";
+    actualizarVistaPersonaje();
+    statusEl.textContent = "✅ Personaje generado. Revisa los campos y ajusta lo que quieras.";
     showToast("✅ Personaje generado con IA");
     irAPasoCharacter(1, false);
   } catch (err) {
@@ -610,6 +650,76 @@ function actualizarContadorIdeaIA() {
   if (el && c) c.textContent = `${el.value.length} / ${el.maxLength}`;
 }
 document.getElementById("ai-idea").addEventListener("input", actualizarContadorIdeaIA);
+const CHAR_ESENCIALES = { foto: () => !!avatarData.original, nombre: () => !!valorCampoPersonaje("char-nombre"), desc: () => !!valorCampoPersonaje("char-desc"), personalidad: () => !!valorCampoPersonaje("char-personalidad"), saludo: () => !!valorCampoPersonaje("char-saludo") };
+let vistaPersonajeFrame = 0;
+function valorCampoPersonaje(id) {
+  return (document.getElementById(id)?.value || "").trim();
+}
+function actualizarVistaPersonaje() {
+  cancelAnimationFrame(vistaPersonajeFrame);
+  vistaPersonajeFrame = requestAnimationFrame(pintarVistaPersonaje);
+}
+function pintarVistaPersonaje() {
+  const vista = document.getElementById("char-vista");
+  if (!vista) return;
+  const nombre = valorCampoPersonaje("char-nombre"), desc = valorCampoPersonaje("char-desc"), color = sanitizeThemeColor(document.getElementById("char-color").value || "#ff4d8f"), foto = sanitizeImageUrl(avatarData.original);
+  vista.style.setProperty("--cv-color", color);
+  vista.style.setProperty("--cv-glow", hexToRgba(color, 0.35));
+  document.getElementById("cv-avatar").innerHTML = foto ? `<img src="${escapeHtml(foto)}" alt="">` : escapeHtml((nombre || "?").charAt(0).toUpperCase());
+  document.getElementById("cv-banner").style.backgroundImage = foto ? `url("${foto.replace(/"/g, "%22")}")` : "";
+  document.getElementById("cv-nombre").textContent = nombre || "Tu personaje";
+  const descEl = document.getElementById("cv-desc");
+  descEl.textContent = desc || "Aquí aparecerá la descripción corta.";
+  descEl.classList.toggle("vacio", !desc);
+  document.getElementById("cv-tags").innerHTML = etiquetasSeleccionadas().slice(0, 3).map((t) => `<span class="character-tag">${ETIQUETAS_PERSONAJE[t] || ""}</span>`).join("");
+  const publico = document.getElementById("char-publico").checked, badge = document.getElementById("cv-badge");
+  badge.textContent = publico ? "Público" : "Privado";
+  badge.classList.toggle("publico", publico);
+  const items = document.querySelectorAll("#cv-lista li");
+  let hechos = 0;
+  items.forEach((li) => {
+    const ok = !!CHAR_ESENCIALES[li.dataset.item]?.();
+    li.classList.toggle("hecho", ok);
+    if (ok) hechos++;
+  });
+  document.getElementById("cv-progreso").style.width = `${Math.round(hechos / (items.length || 1) * 100)}%`;
+  document.querySelectorAll("#form-personaje .char-contador").forEach((c) => {
+    const campo = document.getElementById(c.dataset.para);
+    if (!campo) return;
+    const n = campo.value.length, max = campo.maxLength > 0 ? campo.maxLength : 0;
+    c.textContent = max ? `${n} / ${max}` : String(n);
+    c.classList.toggle("cerca", !!max && n > max * 0.9);
+  });
+  const tokens = parseInt(document.getElementById("char-max-tokens").value) || 0;
+  document.querySelectorAll("#form-personaje .char-largo").forEach((b) => {
+    const activo = parseInt(b.dataset.tokens) === tokens;
+    b.classList.toggle("activo", activo);
+    b.setAttribute("aria-pressed", String(activo));
+  });
+}
+function insertarEnEjemplos(texto) {
+  const ta = document.getElementById("char-ejemplos");
+  if (!ta) return;
+  const ini = ta.selectionStart ?? ta.value.length, fin = ta.selectionEnd ?? ta.value.length;
+  const antes = ta.value.slice(0, ini), salto = texto.startsWith("{{") && antes && !antes.endsWith("\n") ? "\n" : "";
+  ta.setRangeText(salto + texto, ini, fin, "end");
+  ta.focus();
+}
+const formularioPersonaje = document.getElementById("form-personaje");
+formularioPersonaje.addEventListener("input", actualizarVistaPersonaje);
+formularioPersonaje.addEventListener("change", actualizarVistaPersonaje);
+formularioPersonaje.addEventListener("click", (e) => {
+  const insertar = e.target.closest(".char-insertar");
+  if (insertar) insertarEnEjemplos(insertar.dataset.insertar);
+  const largo = e.target.closest(".char-largo");
+  if (largo) document.getElementById("char-max-tokens").value = largo.dataset.tokens;
+  actualizarVistaPersonaje();
+});
+document.querySelectorAll("#intensity-picker .intensity-card").forEach((card) => card.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  e.preventDefault();
+  card.click();
+}));
 let friendsSearchTimer = null;
 function mostrarPerfilPublico(user) {
   const cover = document.getElementById("public-profile-cover"), avatar = document.getElementById("public-profile-avatar"), name = document.getElementById("public-profile-name"), role = document.getElementById("public-profile-role"), description = document.getElementById("public-profile-description"), safeAvatar = sanitizeImageUrl(user.avatar_url), safeCover = sanitizeImageUrl(user.fondo_url), initial = (user.username || "U").charAt(0).toUpperCase();
@@ -635,73 +745,81 @@ async function abrirPerfilBuscado(username) {
     if (!error && data) mostrarPerfilPublico({ ...data, rol: "user" });
   }
 }
-document.getElementById("friends-results").addEventListener("click", (e) => {
-  const card = e.target.closest(".friend-card");
-  if (!card) return;
-  const username = card.querySelector(".friend-name")?.textContent?.trim();
-  if (username) abrirPerfilBuscado(username);
-});
 document.getElementById("user-badge").addEventListener("click", () => {
   const description = document.getElementById("profile-description");
   if (description) description.value = userDescription || "";
 });
-function crearFloresBuscador() {
-  document.querySelectorAll("#friends-modal .friends-petals span").forEach((petal, i) => {
-    petal.style.setProperty("--left", `${5 + i * 17 % 92}%`);
-    petal.style.setProperty("--size", `${0.8 + i % 4 * 0.18}rem`);
-    petal.style.setProperty("--color", i % 2 ? "#c4a7ff" : "#ff9fca");
-    petal.style.setProperty("--duration", `${9 + i % 5}s`);
-    petal.style.setProperty("--delay", `${-(i % 8)}s`);
-    petal.style.setProperty("--sway", `${i % 2 ? "-" : "+"}${25 + i % 4 * 12}px`);
-    petal.style.setProperty("--rotation", `${i * 35}deg`);
+const personasEstado = { q: "", peticion: 0 };
+const ICONO_BUSCAR_PERSONAS = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>';
+function renderPersonas() {
+  const container = document.getElementById("characters-container");
+  container.innerHTML = `<div class="personas-vista"><div class="personas-buscador">${ICONO_BUSCAR_PERSONAS}<input id="personas-input" class="form-input" type="search" placeholder="Busca por nombre de usuario" autocomplete="off" spellcheck="false" maxlength="50" aria-label="Buscar personas" value="${escapeHtml(personasEstado.q)}"></div><h2 class="personas-titulo" id="personas-titulo"></h2><div class="personas-grid" id="personas-resultados" aria-live="polite"></div></div>`;
+  const input = document.getElementById("personas-input");
+  input.addEventListener("input", () => {
+    clearTimeout(friendsSearchTimer);
+    friendsSearchTimer = setTimeout(() => {
+      personasEstado.q = input.value.trim();
+      buscarPersonas();
+    }, 280);
   });
+  buscarPersonas();
 }
-function renderFriendResults(users) {
-  const out = document.getElementById("friends-results");
+async function contarPersonajesPublicos(ids) {
+  if (!ids.length) return {};
+  const { data, error } = await sbClient.from("personajes").select("user_id").eq("publico", true).in("user_id", ids).limit(1e3);
+  if (error) return {};
+  const cuenta = {};
+  for (const fila of data || []) cuenta[fila.user_id] = (cuenta[fila.user_id] || 0) + 1;
+  return cuenta;
+}
+async function buscarPersonas() {
+  const out = document.getElementById("personas-resultados"), titulo = document.getElementById("personas-titulo");
+  if (!out || !currentUser) return;
+  const term = personasEstado.q, peticion = ++personasEstado.peticion;
+  titulo.textContent = term ? `Resultados para «${term}»` : "Recién llegados a SAIR";
+  out.innerHTML = Array(6).fill('<div class="persona-card persona-esqueleto" aria-hidden="true"><span class="persona-banner"></span><span class="persona-avatar"></span><span class="skeleton-line short"></span><span class="skeleton-line"></span></div>').join("");
+  try {
+    let filas;
+    if (term) {
+      const { data, error } = await sbClient.rpc("buscar_usuarios", { p_busqueda: term });
+      if (error) throw error;
+      filas = data || [];
+    } else {
+      const { data, error } = await sbClient.from("perfiles").select("user_id,username,descripcion,avatar_url,fondo_url,avatar_pos_x,avatar_pos_y,fondo_pos_x,fondo_pos_y,creado_en").neq("user_id", currentUser.id).not("username", "is", null).order("creado_en", { ascending: false }).limit(30);
+      if (error) throw error;
+      filas = data || [];
+    }
+    const cuenta = await contarPersonajesPublicos(filas.map((u) => u.user_id));
+    if (peticion !== personasEstado.peticion) return;
+    renderPersonasResultados(filas.map((u) => ({ ...u, publicos: cuenta[u.user_id] || 0 })), term);
+  } catch (err) {
+    if (peticion !== personasEstado.peticion) return;
+    console.error("Error buscando personas:", err);
+    out.innerHTML = '<div class="personas-vacio"><strong>No se pudo cargar</strong>Intenta de nuevo en un momento.</div>';
+  }
+}
+function renderPersonasResultados(personas, term) {
+  const out = document.getElementById("personas-resultados");
   if (!out) return;
-  if (!users?.length) {
-    out.innerHTML = '<div class="friends-empty"><strong>No encontramos usuarios</strong>Prueba con otro nombre.</div>';
+  if (!personas.length) {
+    out.innerHTML = term ? '<div class="personas-vacio"><strong>No encontramos a nadie con ese nombre</strong>Revisa cómo se escribe o prueba con una parte del nombre.</div>' : '<div class="personas-vacio"><strong>Todavía no hay nadie más por aquí</strong>Comparte SAIR con tus amigos para rolear juntos.</div>';
     return;
   }
-  out.innerHTML = users.map((u, i) => {
-    const name = escapeHtml(u.username || "Usuario"), initial = escapeHtml((u.username || "U").charAt(0).toUpperCase()), avatar = sanitizeImageUrl(u.avatar_url), cover = sanitizeImageUrl(u.fondo_url), role = escapeHtml(u.rol || "user");
-    return `<article class="friend-card" style="--friend-cover:${cover ? `url("${cover.replace(/"/g, "%22")}")` : "rgba(168,85,247,.18)"};animation-delay:${Math.min(i, 8) * 35}ms"><div class="friend-card-top"><div class="friend-avatar">${avatar ? `<img src="${avatar.replace(/"/g, "&quot;")}" alt="" style="object-position:${Number(u.avatar_pos_x) || 50}% ${Number(u.avatar_pos_y) || 50}%">` : initial}</div><div class="friend-info"><div class="friend-name">${name}</div><div class="friend-id">Miembro de SAIR</div><span class="friend-role">${role}</span></div></div></article>`;
+  const fmt = new Intl.DateTimeFormat("es", { month: "long", year: "numeric" });
+  out.innerHTML = personas.map((u, i) => {
+    const nombre = escapeHtml(u.username || "Usuario"), avatar = sanitizeImageUrl(u.avatar_url), fondo = sanitizeImageUrl(u.fondo_url);
+    const esOwner = u.rol === "owner";
+    const desc = u.descripcion ? escapeHtml(u.descripcion) : "Sin descripción todavía.";
+    const desde = u.creado_en ? fmt.format(new Date(u.creado_en)) : "";
+    const personajes = u.publicos ? `${u.publicos} ${u.publicos === 1 ? "personaje público" : "personajes públicos"}` : "Sin personajes públicos";
+    const avatarHtml = avatar ? `<img src="${escapeHtml(avatar)}" alt="" loading="lazy" style="object-position:${Number(u.avatar_pos_x) || 50}% ${Number(u.avatar_pos_y) || 50}%">` : escapeHtml((u.username || "U").charAt(0).toUpperCase());
+    const banner = fondo ? `background-image:url(&quot;${escapeHtml(fondo).replace(/"/g, "%22")}&quot;);background-position:${Number(u.fondo_pos_x) || 50}% ${Number(u.fondo_pos_y) || 50}%` : "";
+    return `<button type="button" class="persona-card" data-username="${nombre}" style="animation-delay:${Math.min(i, 8) * 35}ms" aria-label="Ver el perfil de ${nombre}"><span class="persona-banner" style="${banner}"></span><span class="persona-avatar">${avatarHtml}</span><span class="persona-nombre">${nombre}${esOwner ? '<span class="persona-owner">Owner</span>' : ""}</span><span class="persona-desc${u.descripcion ? "" : " vacio"}">${desc}</span><span class="persona-meta"><span>🎭 ${personajes}</span>${desde ? `<span>Desde ${escapeHtml(desde)}</span>` : ""}</span></button>`;
   }).join("");
 }
-async function buscarAmigos() {
-  const input = document.getElementById("friends-search-input"), term = input?.value.trim() || "", out = document.getElementById("friends-results");
-  if (term.length < 1) {
-    out.innerHTML = '<div class="friends-empty"><strong>Busca un usuario</strong>Escribe al menos una letra para comenzar.</div>';
-    return;
-  }
-  out.innerHTML = '<div class="friends-empty">Buscando perfiles...</div>';
-  try {
-    const { data, error } = await sbClient.rpc("buscar_usuarios", { p_busqueda: term });
-    if (error) throw error;
-    renderFriendResults(data || []);
-  } catch (err) {
-    console.warn("RPC de búsqueda no disponible, usando perfiles básicos:", err);
-    try {
-      const { data, error } = await sbClient.from("perfiles").select("user_id,username,avatar_url,fondo_url").neq("user_id", currentUser.id).ilike("username", `%${term}%`).limit(30);
-      if (error) throw error;
-      renderFriendResults((data || []).map((user) => ({ ...user, rol: "user" })));
-    } catch (fallbackErr) {
-      console.error("Error buscando usuarios:", fallbackErr);
-      out.innerHTML = '<div class="friends-empty"><strong>No se pudo completar la búsqueda</strong>Intenta de nuevo en un momento.</div>';
-    }
-  }
-}
-document.getElementById("btn-buscar-amigos").addEventListener("click", () => {
-  crearFloresBuscador();
-  openModal("friends-modal");
-  setTimeout(() => document.getElementById("friends-search-input")?.focus(), 180);
-});
-document.getElementById("friends-search-input").addEventListener("input", () => {
-  clearTimeout(friendsSearchTimer);
-  friendsSearchTimer = setTimeout(buscarAmigos, 280);
-});
-document.getElementById("friends-modal").addEventListener("click", (e) => {
-  if (e.target === document.getElementById("friends-modal")) closeModal("friends-modal");
+document.getElementById("characters-container").addEventListener("click", (e) => {
+  const card = e.target.closest(".persona-card[data-username]");
+  if (card) abrirPerfilBuscado(card.dataset.username);
 });
 document.querySelectorAll(".dashboard-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -725,6 +843,11 @@ document.querySelectorAll(".dashboard-tab").forEach((tab) => {
       subtitle.textContent = isOwner() ? "Publica anuncios para toda la comunidad" : "Anuncios oficiales del Owner";
       btnNuevo.style.display = "none";
       renderAnuncios();
+    } else if (currentView === "personas") {
+      title.textContent = "Personas";
+      subtitle.textContent = "Encuentra a otros roleros de SAIR y mira sus perfiles";
+      btnNuevo.style.display = "none";
+      renderPersonas();
     } else if (currentView === "creditos") {
       title.textContent = "Créditos de Rol";
       subtitle.textContent = "Rolea sin API Key: tu personaje responde con DeepSeek";

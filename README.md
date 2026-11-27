@@ -16,4 +16,4 @@
 
 ## Licencia
 
-Consulta [LICENSE.md](LICENSE.md).
+© 2026 BaraPag. Todos los derechos reservados: el código se puede ver, pero no copiar, modificar ni vender. Consulta [LICENSE.md](LICENSE.md).

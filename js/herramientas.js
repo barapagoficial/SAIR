@@ -1,5 +1,5 @@
 const POLITICAS_ACEPTADAS_KEY = "sair1_politicas_aceptadas";
-const POLITICAS_VERSION = "2026-11-27";
+const POLITICAS_VERSION = "2026-11-27b";
 const politicasModal = document.getElementById("politicas-modal");
 function verificarPoliticas() {
   if (!currentUser) return;
@@ -36,6 +36,7 @@ document.getElementById("btn-aceptar-politicas").addEventListener("click", funct
     }
   });
   showToast("✅ Privacidad y Términos aceptados", "success");
+  setTimeout(mostrarNovedadesSiToca, 800);
   console.log("✅ Políticas aceptadas por el usuario");
 });
 document.getElementById("btn-rechazar-politicas")?.addEventListener("click", async function() {
@@ -804,7 +805,7 @@ const normalizadorInterfaz = new MutationObserver((cambios) => {
     for (const nodo of cambio.type === "characterData" ? [cambio.target] : Array.from(cambio.addedNodes)) {
       if (nodo.nodeType !== Node.TEXT_NODE) continue;
       const padre = nodo.parentElement;
-      if (!padre || padre.closest("#chat-messages,.message-bubble,.character-desc,.announcement-content,textarea,input,code")) continue;
+      if (!padre || padre.closest("#chat-messages,.message-bubble,.character-desc,.announcement-content,.anuncio-texto,.anuncio-titulo,textarea,input,code")) continue;
       const texto = normalizarTextoInterfaz(nodo.nodeValue);
       if (texto !== nodo.nodeValue) nodo.nodeValue = texto;
     }
@@ -1196,3 +1197,111 @@ enviarAGeminiStream = async function* (systemPrompt, mensajes, nuevoMensaje, max
     pendiente = INSTRUCCION_CONTINUACION;
   }
 };
+
+const NOVEDADES_VISTA_KEY = "sair1_novedades_vista";
+let changelogSAIR = null;
+async function cargarChangelogSAIR() {
+  if (changelogSAIR) return changelogSAIR;
+  const r = await fetch("./Changelog.txt", { cache: "no-cache" });
+  if (!r.ok) throw new Error("No se pudo cargar el historial de cambios");
+  const versiones = [];
+  let v = null, s = null;
+  for (const bruta of (await r.text()).split(/\r?\n/)) {
+    const linea = bruta.trim();
+    if (!linea) continue;
+    const cab = linea.match(/^\[([^\]]+)\]\s*[—-]?\s*(.*)$/);
+    if (cab) {
+      v = { version: cab[1].replace(/\s*Oficial A$/i, "").trim(), fecha: cab[2].trim(), secciones: [] };
+      versiones.push(v);
+      s = null;
+    } else if (!v) {
+      continue;
+    } else if (linea.startsWith("- ")) {
+      if (!s) {
+        s = { titulo: "", items: [] };
+        v.secciones.push(s);
+      }
+      s.items.push(linea.slice(2));
+    } else {
+      s = { titulo: linea, items: [] };
+      v.secciones.push(s);
+    }
+  }
+  changelogSAIR = versiones;
+  return versiones;
+}
+function fechaNovedad(f) {
+  const m = String(f || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return f || "";
+  try {
+    return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
+  } catch {
+    return f;
+  }
+}
+function htmlVersionNovedad(v, abierta, desplegada) {
+  const cuerpo = v.secciones.map((s) => `${s.titulo ? `<h4 class="nov-seccion">${escapeHtml(s.titulo)}</h4>` : ""}<ul class="nov-items">${s.items.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`).join("");
+  return abierta ? `<div class="nov-version">${cuerpo}</div>` : `<details class="nov-version nov-plegada"${desplegada ? " open" : ""}><summary><strong>SAIR ${escapeHtml(v.version)}</strong><span>${escapeHtml(fechaNovedad(v.fecha))}</span></summary>${cuerpo}</details>`;
+}
+function cerrarNovedades() {
+  const m = document.getElementById("novedades-modal");
+  if (!m) return;
+  m.classList.remove("visible");
+  setTimeout(() => m.remove(), 200);
+}
+async function abrirNovedades(historial = false) {
+  let versiones;
+  try {
+    versiones = await cargarChangelogSAIR();
+  } catch (err) {
+    if (historial) showToast(err.message, "error");
+    return false;
+  }
+  if (!versiones.length) return false;
+  document.getElementById("novedades-modal")?.remove();
+  const actual = window.SAIR_VERSION?.numero || versiones[0].version;
+  const ultima = versiones.find((v) => v.version === actual) || versiones[0];
+  const m = document.createElement("div");
+  m.id = "novedades-modal";
+  m.className = "nov-overlay";
+  m.setAttribute("role", "dialog");
+  m.setAttribute("aria-modal", "true");
+  m.setAttribute("aria-labelledby", "nov-titulo");
+  m.innerHTML = `<div class="nov-modal"><header class="nov-cabeza"><span class="nov-chip">✨ ${historial ? "Historial de cambios" : "Novedades"}</span><button type="button" class="modal-close nov-cerrar" aria-label="Cerrar">✕</button><h2 id="nov-titulo">${historial ? "Todo lo que ha cambiado" : `SAIR ${escapeHtml(ultima.version)} ya está aquí`}</h2><p>${historial ? `Estás usando SAIR ${escapeHtml(actual)}.` : `Esto es lo nuevo de la actualización del ${escapeHtml(fechaNovedad(ultima.fecha))}.`}</p></header><div class="nov-cuerpo">${historial ? versiones.map((v, i) => htmlVersionNovedad(v, false, i === 0)).join("") : htmlVersionNovedad(ultima, true)}</div><footer class="nov-pie">${historial ? "" : '<button type="button" class="btn btn-ghost btn-small" id="nov-historial">Ver historial completo</button>'}<button type="button" class="btn btn-primary btn-small" id="nov-ok">${historial ? "Cerrar" : "¡Entendido!"}</button></footer></div>`;
+  document.body.appendChild(m);
+  m.addEventListener("click", (e) => {
+    if (e.target === m || e.target.closest(".nov-cerrar, #nov-ok")) cerrarNovedades();
+    else if (e.target.closest("#nov-historial")) abrirNovedades(true);
+  });
+  requestAnimationFrame(() => m.classList.add("visible"));
+  m.querySelector("#nov-ok")?.focus({ preventScroll: true });
+  return true;
+}
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.getElementById("novedades-modal")) {
+    e.stopPropagation();
+    cerrarNovedades();
+  }
+}, true);
+async function mostrarNovedadesSiToca() {
+  const actual = window.SAIR_VERSION?.numero;
+  if (!actual) return;
+  try {
+    if (localStorage.getItem(NOVEDADES_VISTA_KEY) === actual) return;
+  } catch {
+    return;
+  }
+  if (politicasModal?.classList.contains("visible") || document.getElementById("novedades-modal")) return;
+  if (currentUser && localStorage.getItem(POLITICAS_ACEPTADAS_KEY) !== POLITICAS_VERSION) return;
+  if (await abrirNovedades(false)) {
+    try {
+      localStorage.setItem(NOVEDADES_VISTA_KEY, actual);
+    } catch {
+    }
+  }
+}
+document.getElementById("btn-ver-novedades")?.addEventListener("click", () => {
+  closeModal("settings-modal");
+  abrirNovedades(true);
+});
+setTimeout(mostrarNovedadesSiToca, (typeof INTRO_LIMPIEZA_MS === "number" ? INTRO_LIMPIEZA_MS : 2600) + 600);
