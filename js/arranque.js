@@ -408,7 +408,7 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
   btn.textContent = "Creando...";
   msgEl.className = "form-message";
   try {
-    const { error } = await sbClient.auth.signUp({ email, password, options: { data: { mayor_13: true, mayor_18: !!edad18?.checked } } });
+    const { error } = await sbClient.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}${location.pathname}`, data: { mayor_13: true, mayor_18: !!edad18?.checked } } });
     if (error) {
       playErrorSound();
       shakeElement(document.getElementById("register-email"));
