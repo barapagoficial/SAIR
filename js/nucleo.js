@@ -346,12 +346,20 @@ function showToast(message, type = "success") {
     arrancarTemporizadorToast(toastDuracion);
   });
 }
+const ESCAPES_HTML = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 function escapeHtml(str) {
-  if (!str) return "";
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
+  if (str === null || str === void 0 || str === "") return "";
+  return String(str).replace(/[&<>"']/g, (c) => ESCAPES_HTML[c]);
 }
+document.addEventListener("click", (e) => {
+  const b = e.target?.closest?.("[data-sair-accion]");
+  if (!b) return;
+  const accion = b.dataset.sairAccion;
+  if (accion === "reintentar-comunidad") cargarComunidad(true);
+  else if (accion === "reintentar-anuncios") renderAnuncios();
+  else if (accion === "reintentar-personajes") renderCharacters();
+  else if (accion === "nuevo-personaje") document.getElementById("btn-nuevo-personaje")?.click();
+});
 function hexToRgba(hex, alpha) {
   if (!hex) return "rgba(255,77,143,0.35)";
   hex = hex.replace("#", "");
@@ -377,7 +385,7 @@ function lightenColor(hex, percent) {
 function sanitizeImageUrl(url) {
   if (!url || typeof url !== "string") return "";
   const trimmed = url.trim(), cleanData = trimmed.replace(/[\r\n\s]+/g, "");
-  if (/^biblioteca\/(perfiles|banners|personajes|owner)\/[a-z0-9-]+\.(webp|gif|png|jpg)$/.test(trimmed)) return trimmed;
+  if (/^biblioteca\/(fotos|perfiles|banners|personajes|owner)\/[a-z0-9-]+\.(webp|gif|png|jpg)$/.test(trimmed)) return trimmed;
   if (cleanData.startsWith("data:image/")) return /^data:image\/[a-z0-9\+\-\.]+;(?:base64|utf8),/i.test(cleanData) ? cleanData : "";
   try {
     const u = new URL(trimmed);

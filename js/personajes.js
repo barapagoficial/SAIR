@@ -37,7 +37,7 @@ async function guardarPersonajeConRepliegue(ejecutar, payload) {
 }
 function colorAuraDe(p) {
   if (/^#[0-9a-f]{6}$/i.test(p?.color_aura || "")) return sanitizeThemeColor(p.color_aura.toLowerCase());
-  return parsearSystemPrompt(p?.system_prompt).themeColor || "#ff4d8f";
+  return sanitizeThemeColor(parsearSystemPrompt(p?.system_prompt).themeColor);
 }
 async function crearPersonaje(datos) {
   if (!currentUser) throw new Error("No hay sesión");
@@ -644,6 +644,10 @@ async function renderCharacters() {
     renderPersonas();
     return;
   }
+  if (currentView === "mis-chats") {
+    renderMisChats();
+    return;
+  }
   if (currentView === "community") {
     renderComunidad();
     return;
@@ -672,7 +676,7 @@ async function renderCharacters() {
     renderCharactersGrid(personajes, esComunidad);
   } catch (err) {
     console.error("Error en renderCharacters:", err);
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Error al cargar</h3><p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p><button type="button" class="btn btn-primary" onclick="renderCharacters()">🔄 Reintentar</button></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Error al cargar</h3><p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p><button type="button" class="btn btn-primary" data-sair-accion="reintentar-personajes">🔄 Reintentar</button></div>`;
   } finally {
     LOADING[cacheKey] = false;
   }
@@ -686,7 +690,7 @@ function renderCharactersGrid(personajes, esComunidad, container = document.getE
     } else if (esComunidad) {
       container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌍</div><h3>Aún no hay personajes públicos</h3><p>Sé el primero en compartir un personaje con la comunidad</p></div>`;
     } else {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✨</div><h3>Aún no tienes personajes</h3><p>Crea tu primer personaje para empezar a chatear</p><button type="button" class="btn btn-primary" onclick="document.getElementById('btn-nuevo-personaje').click()">Crear mi primer personaje</button></div>`;
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✨</div><h3>Aún no tienes personajes</h3><p>Crea tu primer personaje para empezar a chatear</p><button type="button" class="btn btn-primary" data-sair-accion="nuevo-personaje">Crear mi primer personaje</button></div>`;
     }
     return;
   }

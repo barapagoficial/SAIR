@@ -1,5 +1,22 @@
 SAIR — Changelog
 
+[5.4] — 2026-11-27
+
+✨ Novedades
+- 💬 Nueva pestaña «Mis chats»: todos los personajes con los que has chateado, tuyos o de la Comunidad, ordenados por actividad, con el último mensaje y un botón para continuar justo donde lo dejaste.
+- 📢 Los anuncios muestran la foto, el nombre y el rango de quien los publica; tócalo para ver su perfil.
+- 🎮 SAIR ya tiene servidor de Discord: únete desde Ajustes o desde Anuncios para compartir personajes, pedir ayuda y enterarte primero de los drops.
+- 🐍 Nuevo logo de SAIR: una burbuja de chat con una serpiente que forma la S y su flor de cerezo.
+- 🖼️ Biblioteca ampliada: nuevas fotos y banners (algunos animados), y ahora todas las fotos sirven tanto para tu perfil como para tus personajes.
+
+🔧 Arreglos
+- La sección «Personas» ahora sí muestra a los recién llegados sin tener que buscar.
+- Los «Me gusta» de los personajes ya no se pueden alterar: solo cuentan los reales.
+- El botón para bajar al final del chat ya no choca con el saldo de Créditos de Rol ni con el medidor de contexto.
+- 🔒 Mejoras de seguridad en la Comunidad, en los pagos y en los Créditos de Rol.
+- Los enlaces de pago vencen junto con tu cupo apartado.
+
+
 [5.3] — 2026-11-27
 
 ✨ Novedades

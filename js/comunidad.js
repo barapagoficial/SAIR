@@ -158,7 +158,7 @@ async function cargarComunidad(reiniciar) {
       btn.disabled = false;
       btn.textContent = "Cargar más";
     }
-    if (reiniciar) res.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error al cargar</h3><p>${escapeHtml(err.message)}</p><button type="button" class="btn btn-primary" onclick="cargarComunidad(true)">🔄 Reintentar</button></div>`;
+    if (reiniciar) res.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error al cargar</h3><p>${escapeHtml(err.message)}</p><button type="button" class="btn btn-primary" data-sair-accion="reintentar-comunidad">🔄 Reintentar</button></div>`;
     else showToast(`❌ ${err.message}`, "error");
   }
 }
@@ -277,10 +277,33 @@ async function renderAnuncios() {
     renderAnunciosContent(anuncios);
   } catch (err) {
     console.error("Error en renderAnuncios:", err);
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Error al cargar anuncios</h3><p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p><button type="button" class="btn btn-primary" onclick="renderAnuncios()">🔄 Reintentar</button></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3 style="font-family:var(--font-display);color:var(--text-1);margin-bottom:.5rem">Error al cargar anuncios</h3><p style="color:var(--text-3);margin-bottom:1.5rem">${escapeHtml(err.message)}</p><button type="button" class="btn btn-primary" data-sair-accion="reintentar-anuncios">🔄 Reintentar</button></div>`;
   } finally {
     LOADING.anuncios = false;
   }
+}
+const RANGOS_SAIR = { owner: "Owner", admin: "Admin", moderador: "Moderador" };
+function datosPerfilPropio() {
+  return { user_id: currentUser?.id, username: userUsername, descripcion: userDescription, avatar_url: userAvatarUrl, fondo_url: userBackgroundUrl, avatar_pos_x: userAvatarPos?.x, avatar_pos_y: userAvatarPos?.y, fondo_pos_x: userBackgroundPos?.x, fondo_pos_y: userBackgroundPos?.y, rol: userRole || "user" };
+}
+async function cargarAutoresAnuncios(ids) {
+  const autores = {};
+  const otros = ids.filter((id) => id !== currentUser?.id);
+  if (ids.includes(currentUser?.id) && userUsername) autores[currentUser.id] = datosPerfilPropio();
+  if (!otros.length) return autores;
+  const nombres = await obtenerUsernamesBatch(otros);
+  await Promise.all(otros.map(async (id) => {
+    const username = nombres[id];
+    if (!username) return;
+    autores[id] = { username };
+    try {
+      const { data } = await sbClient.rpc("buscar_usuarios", { p_busqueda: username });
+      const u = (data || []).find((x) => x.user_id === id);
+      if (u) autores[id] = u;
+    } catch {
+    }
+  }));
+  return autores;
 }
 function tiempoRelativoAnuncio(iso) {
   const min = Math.floor((Date.now() - new Date(iso).getTime()) / 6e4);
@@ -301,21 +324,43 @@ function renderAnunciosContent(anuncios) {
   if (isOwner()) {
     html += `<details class="anuncio-nuevo"><summary><span class="anuncio-nuevo-mas" aria-hidden="true">+</span>Publicar un anuncio</summary><form id="form-anuncio"><input type="text" id="anuncio-titulo" class="form-input" placeholder="Título" required maxlength="100"><textarea id="anuncio-contenido" class="form-textarea" placeholder="¿Qué quieres contarle a la comunidad?" required maxlength="2000"></textarea><div class="anuncio-nuevo-acciones"><button type="submit" class="btn btn-primary btn-small">Publicar</button></div></form></details>`;
   }
+  html += `<a class="anuncio-discord" href="https://discord.gg/yFVjc4E9jr" target="_blank" rel="noopener"><span class="anuncio-discord-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 5.5a14 14 0 0 0-4 1.3C2.6 9.8 2 12.7 2.3 15.6a14 14 0 0 0 4.3 2.2l1-1.6"/><path d="M15.5 5.5a14 14 0 0 1 4 1.3c1.9 3 2.5 5.9 2.2 8.8a14 14 0 0 1-4.3 2.2l-1-1.6"/><path d="M7 16.2c3.3 1.4 6.7 1.4 10 0"/><path d="M7.5 7.6c3-1 6-1 9 0"/><circle cx="9" cy="12.3" r="1.2"/><circle cx="15" cy="12.3" r="1.2"/></svg></span><span class="anuncio-discord-texto"><strong>Únete al Discord de SAIR</strong><small>Comparte tus personajes, pide ayuda y entérate primero de los drops.</small></span><span class="btn btn-primary btn-small">Unirme</span></a>`;
   if (anuncios.length === 0) {
     html += `<div class="anuncios-vacio">${megafono}<h3>Todavía no hay anuncios</h3><p>Aquí verás las novedades de SAIR, los drops de Créditos de Rol y los avisos importantes.</p></div>`;
   } else {
     const ahora = Date.now();
     html += `<div class="anuncios-lista">${anuncios.map((a, i) => {
       const nuevo = ahora - new Date(a.creado_en).getTime() < 3 * 864e5;
-      return `<article class="anuncio${i === 0 ? " destacado" : ""}" data-id="${a.id}"><header class="anuncio-cabeza"><span class="anuncio-ico">${megafono}</span><span class="anuncio-meta"><span class="anuncio-autor" data-user-id="${a.user_id}">SAIR</span><time datetime="${escapeHtml(a.creado_en)}" title="${escapeHtml(formatDate(a.creado_en))}">${escapeHtml(tiempoRelativoAnuncio(a.creado_en))}</time></span>${nuevo ? '<span class="anuncio-nuevo-pill">Nuevo</span>' : ""}${isOwner() ? `<button type="button" class="anuncio-borrar" data-id="${a.id}" title="Eliminar anuncio" aria-label="Eliminar anuncio">${papelera}</button>` : ""}</header><h3 class="anuncio-titulo">${escapeHtml(a.titulo)}</h3><p class="anuncio-texto">${escapeHtml(a.contenido)}</p></article>`;
+      return `<article class="anuncio${i === 0 ? " destacado" : ""}" data-id="${a.id}"><header class="anuncio-cabeza"><button type="button" class="anuncio-autor-btn" data-user-id="${a.user_id}" aria-label="Ver el perfil del autor" disabled><span class="anuncio-ico">${megafono}</span><span class="anuncio-meta"><span class="anuncio-autor-fila"><span class="anuncio-autor">SAIR</span><span class="anuncio-rango" hidden></span></span><time datetime="${escapeHtml(a.creado_en)}" title="${escapeHtml(formatDate(a.creado_en))}">${escapeHtml(tiempoRelativoAnuncio(a.creado_en))}</time></span></button>${nuevo ? '<span class="anuncio-nuevo-pill">Nuevo</span>' : ""}${isOwner() ? `<button type="button" class="anuncio-borrar" data-id="${a.id}" title="Eliminar anuncio" aria-label="Eliminar anuncio">${papelera}</button>` : ""}</header><h3 class="anuncio-titulo">${escapeHtml(a.titulo)}</h3><p class="anuncio-texto">${escapeHtml(a.contenido)}</p></article>`;
     }).join("")}</div>`;
   }
   container.innerHTML = html;
   const authorUserIds = [...new Set(anuncios.map((a) => a.user_id))];
-  obtenerUsernamesBatch(authorUserIds).then((usernamesMap) => {
-    container.querySelectorAll(".anuncio-autor[data-user-id]").forEach((el) => {
-      const username = usernamesMap[el.dataset.userId];
-      if (username) el.textContent = `@${username}`;
+  cargarAutoresAnuncios(authorUserIds).then((autores) => {
+    container.querySelectorAll(".anuncio-autor-btn[data-user-id]").forEach((btn) => {
+      const u = autores[btn.dataset.userId];
+      if (!u?.username) return;
+      btn.dataset.username = u.username;
+      btn.disabled = false;
+      btn.setAttribute("aria-label", `Ver el perfil de ${u.username}`);
+      btn.querySelector(".anuncio-autor").textContent = `@${u.username}`;
+      const foto = sanitizeImageUrl(u.avatar_url), ico = btn.querySelector(".anuncio-ico");
+      if (foto) {
+        ico.classList.add("con-foto");
+        ico.innerHTML = `<img src="${escapeHtml(foto)}" alt="" loading="lazy" style="object-position:${Number(u.avatar_pos_x) || 50}% ${Number(u.avatar_pos_y) || 50}%">`;
+      }
+      const rango = RANGOS_SAIR[u.rol], badge = btn.querySelector(".anuncio-rango");
+      if (rango) {
+        badge.hidden = false;
+        badge.textContent = rango;
+        badge.dataset.rol = u.rol;
+      }
+    });
+  }).catch(() => {
+  });
+  container.querySelectorAll(".anuncio-autor-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.username) abrirPerfilBuscado(btn.dataset.username);
     });
   });
   container.querySelectorAll(".anuncio-borrar").forEach((btn) => {
@@ -738,7 +783,7 @@ async function abrirPerfilBuscado(username) {
   try {
     const { data, error } = await sbClient.rpc("buscar_usuarios", { p_busqueda: username });
     if (error) throw error;
-    const user = (data || []).find((item) => item.username === username) || data?.[0];
+    const user = (data || []).find((item) => item.username === username) || (username === userUsername ? datosPerfilPropio() : data?.[0]);
     if (user) mostrarPerfilPublico(user);
   } catch (err) {
     const { data, error } = await sbClient.from("perfiles").select("user_id,username,descripcion,avatar_url,fondo_url,avatar_pos_x,avatar_pos_y,fondo_pos_x,fondo_pos_y").eq("username", username).maybeSingle();
@@ -779,16 +824,9 @@ async function buscarPersonas() {
   titulo.textContent = term ? `Resultados para «${term}»` : "Recién llegados a SAIR";
   out.innerHTML = Array(6).fill('<div class="persona-card persona-esqueleto" aria-hidden="true"><span class="persona-banner"></span><span class="persona-avatar"></span><span class="skeleton-line short"></span><span class="skeleton-line"></span></div>').join("");
   try {
-    let filas;
-    if (term) {
-      const { data, error } = await sbClient.rpc("buscar_usuarios", { p_busqueda: term });
-      if (error) throw error;
-      filas = data || [];
-    } else {
-      const { data, error } = await sbClient.from("perfiles").select("user_id,username,descripcion,avatar_url,fondo_url,avatar_pos_x,avatar_pos_y,fondo_pos_x,fondo_pos_y,creado_en").neq("user_id", currentUser.id).not("username", "is", null).order("creado_en", { ascending: false }).limit(30);
-      if (error) throw error;
-      filas = data || [];
-    }
+    const { data, error } = await sbClient.rpc("buscar_usuarios", { p_busqueda: term || "" });
+    if (error) throw error;
+    const filas = data || [];
     const cuenta = await contarPersonajesPublicos(filas.map((u) => u.user_id));
     if (peticion !== personasEstado.peticion) return;
     renderPersonasResultados(filas.map((u) => ({ ...u, publicos: cuenta[u.user_id] || 0 })), term);
@@ -821,6 +859,104 @@ document.getElementById("characters-container").addEventListener("click", (e) =>
   const card = e.target.closest(".persona-card[data-username]");
   if (card) abrirPerfilBuscado(card.dataset.username);
 });
+const misChatsEstado = { q: "", lista: [], peticion: 0 };
+function textoPreviaMisChats(texto, personaje) {
+  const limpio = String(texto || "").replace(/\{\{\s*user\s*\}\}/gi, userRoleName || userUsername || "Tú").replace(/\{\{\s*char\s*\}\}/gi, personaje || "").replace(/\[\[\s*NORMAS[^\]]*\]?\]?/gi, "🚫 Aviso de las Normas").replace(/[*_~`>#]+/g, "").replace(/\s+/g, " ").trim();
+  return limpio.length > 110 ? limpio.slice(0, 110).trimEnd() + "…" : limpio;
+}
+function renderMisChats() {
+  const container = document.getElementById("characters-container");
+  container.innerHTML = `<div class="mischats-vista"><div class="personas-buscador mischats-buscador">${ICONO_BUSCAR_PERSONAS}<input id="mischats-input" class="form-input" type="search" placeholder="Buscar por personaje" autocomplete="off" maxlength="60" aria-label="Buscar en tus chats" value="${escapeHtml(misChatsEstado.q)}"></div><div class="mischats-lista" id="mischats-lista" aria-live="polite">${Array(4).fill('<div class="mischat mischat-esqueleto" aria-hidden="true"><span class="mischat-avatar"></span><span class="mischat-cuerpo"><span class="skeleton-line short"></span><span class="skeleton-line"></span></span></div>').join("")}</div></div>`;
+  let timer = null;
+  document.getElementById("mischats-input").addEventListener("input", (e) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      misChatsEstado.q = e.target.value.trim();
+      pintarMisChats();
+    }, 200);
+  });
+  cargarMisChats();
+}
+async function cargarMisChats() {
+  if (!currentUser || !sbClient) return;
+  const peticion = ++misChatsEstado.peticion;
+  try {
+    const columnas = titulosEnNube ? "id,personaje_id,actualizado_en,titulo" : "id,personaje_id,actualizado_en";
+    const { data: chats, error } = await sbClient.from("chats").select(columnas).eq("user_id", currentUser.id).order("actualizado_en", { ascending: false }).limit(400);
+    if (error) throw error;
+    const grupos = new Map();
+    for (const c of chats || []) {
+      const g = grupos.get(c.personaje_id);
+      if (g) g.n++;
+      else grupos.set(c.personaje_id, { personajeId: c.personaje_id, n: 1, ultimo: c });
+    }
+    const ids = [...grupos.keys()];
+    let personajes = [];
+    if (ids.length) {
+      const r = await sbClient.from("personajes").select("id,nombre,avatar_url,descripcion_corta,user_id,publico").in("id", ids);
+      if (r.error) throw r.error;
+      personajes = r.data || [];
+    }
+    const porId = new Map(personajes.map((p) => [p.id, p]));
+    const lista = [...grupos.values()].map((g) => ({ ...g, personaje: porId.get(g.personajeId) || null }));
+    const autores = [...new Set(personajes.filter((p) => p.user_id !== currentUser.id).map((p) => p.user_id))];
+    const [nombres, previas] = await Promise.all([
+      autores.length ? obtenerUsernamesBatch(autores).catch(() => ({})) : {},
+      Promise.all(lista.slice(0, 30).map((g) => sbClient.from("mensajes").select("rol,contenido").eq("chat_id", g.ultimo.id).order("creado_en", { ascending: false }).limit(1).maybeSingle().then((r) => r.data || null, () => null)))
+    ]);
+    if (peticion !== misChatsEstado.peticion) return;
+    lista.forEach((g, i) => {
+      g.previa = previas[i] || null;
+      g.autor = g.personaje && g.personaje.user_id !== currentUser.id ? nombres[g.personaje.user_id] || "" : "";
+    });
+    misChatsEstado.lista = lista;
+    pintarMisChats();
+  } catch (err) {
+    if (peticion !== misChatsEstado.peticion) return;
+    console.error("Error cargando Mis chats:", err);
+    const out = document.getElementById("mischats-lista");
+    if (out) out.innerHTML = '<div class="personas-vacio"><strong>No se pudieron cargar tus chats</strong>Intenta de nuevo en un momento.</div>';
+  }
+}
+function pintarMisChats() {
+  const out = document.getElementById("mischats-lista");
+  if (!out) return;
+  const todos = misChatsEstado.lista;
+  if (!todos.length) {
+    out.innerHTML = '<div class="personas-vacio"><strong>Aún no tienes chats</strong>Cuando chatees con un personaje, tuyo o de la Comunidad, aparecerá aquí para que retomes la historia.</div>';
+    return;
+  }
+  const q = normalizarParaBuscar(misChatsEstado.q);
+  const lista = q ? todos.filter((g) => normalizarParaBuscar(g.personaje?.nombre || "").includes(q)) : todos;
+  if (!lista.length) {
+    out.innerHTML = '<div class="personas-vacio"><strong>Ningún personaje coincide</strong>Prueba con otra parte del nombre.</div>';
+    return;
+  }
+  out.innerHTML = lista.map((g, i) => {
+    const p = g.personaje, cuando = tiempoRelativoAnuncio(g.ultimo.actualizado_en);
+    const chats = `${g.n} ${g.n === 1 ? "chat" : "chats"}`;
+    if (!p) {
+      return `<div class="mischat no-disponible" style="animation-delay:${Math.min(i, 8) * 30}ms"><span class="mischat-avatar">?</span><span class="mischat-cuerpo"><span class="mischat-fila"><strong class="mischat-nombre">Personaje no disponible</strong><time>${escapeHtml(cuando)}</time></span><span class="mischat-previa">Su creador lo hizo privado o lo eliminó, o está en revisión. Tus ${escapeHtml(chats)} siguen guardados.</span></span></div>`;
+    }
+    const avatar = sanitizeImageUrl(p.avatar_url), nombre = escapeHtml(p.nombre || "Personaje");
+    const avatarHtml = avatar ? `<img src="${escapeHtml(avatar)}" alt="" loading="lazy">` : escapeHtml((p.nombre || "?").charAt(0).toUpperCase());
+    const previa = g.previa ? `${g.previa.rol === "user" ? '<span class="mischat-tu">Tú:</span> ' : ""}${escapeHtml(textoPreviaMisChats(g.previa.contenido, p.nombre))}` : escapeHtml(p.descripcion_corta || "Sin mensajes todavía");
+    const origen = p.user_id === currentUser.id ? "Tuyo" : g.autor ? `por @${escapeHtml(g.autor)}` : "Comunidad";
+    return `<div class="mischat" style="animation-delay:${Math.min(i, 8) * 30}ms"><button type="button" class="mischat-abrir" data-personaje="${escapeHtml(p.id)}" aria-label="Ver tus chats con ${nombre}"><span class="mischat-avatar">${avatarHtml}</span><span class="mischat-cuerpo"><span class="mischat-fila"><strong class="mischat-nombre">${nombre}</strong><time datetime="${escapeHtml(g.ultimo.actualizado_en || "")}">${escapeHtml(cuando)}</time></span><span class="mischat-previa">${previa}</span><span class="mischat-meta"><span>${escapeHtml(chats)}</span><span>${origen}</span></span></span></button><button type="button" class="btn btn-primary btn-small mischat-seguir" data-personaje="${escapeHtml(p.id)}" data-chat="${escapeHtml(g.ultimo.id)}">${ICONOS.chat}<span>Continuar</span></button></div>`;
+  }).join("");
+}
+document.getElementById("characters-container").addEventListener("click", async (e) => {
+  const seguir = e.target.closest(".mischat-seguir[data-chat]");
+  const abrir = seguir || e.target.closest(".mischat-abrir[data-personaje]");
+  if (!abrir || abrir.disabled) return;
+  abrir.disabled = true;
+  try {
+    await abrirChatConPersonaje(abrir.dataset.personaje);
+    if (seguir && currentCharacter?.id === seguir.dataset.personaje) await seleccionarChat(seguir.dataset.chat);
+  } finally {
+    abrir.disabled = false;
+  }
+});
 document.querySelectorAll(".dashboard-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
     if (!tab.dataset.view) return;
@@ -843,6 +979,11 @@ document.querySelectorAll(".dashboard-tab").forEach((tab) => {
       subtitle.textContent = isOwner() ? "Publica anuncios para toda la comunidad" : "Anuncios oficiales del Owner";
       btnNuevo.style.display = "none";
       renderAnuncios();
+    } else if (currentView === "mis-chats") {
+      title.textContent = "Mis chats";
+      subtitle.textContent = "Retoma tus historias justo donde las dejaste";
+      btnNuevo.style.display = "none";
+      renderMisChats();
     } else if (currentView === "personas") {
       title.textContent = "Personas";
       subtitle.textContent = "Encuentra a otros roleros de SAIR y mira sus perfiles";
@@ -878,7 +1019,7 @@ async function abrirChatConPersonaje(personajeId) {
     document.getElementById("dashboard").style.display = "none";
     document.body.style.overflow = "hidden";
     const parsed = parsearSystemPrompt(currentCharacter.system_prompt);
-    const themeColor = currentCharacter.theme_color || parsed.themeColor || "#ff4d8f";
+    const themeColor = sanitizeThemeColor(currentCharacter.theme_color || parsed.themeColor);
     const glowColor = hexToRgba(themeColor, 0.35);
     const hoverColor = lightenColor(themeColor, 15);
     const chatViewEl = document.getElementById("chat-view");

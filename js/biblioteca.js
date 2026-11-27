@@ -1,15 +1,14 @@
 const BIBLIOTECA = {
-  perfiles: ["lonely-girl-animated.gif", "gtavi.webp", "red-talking.gif", "tuff.webp", "stark.webp", "frieren.webp"],
-  banners: ["musashi-katana-black.webp", "hunter-x-hunter.webp", "hanekawa-hasumi.webp", "banner.webp", "pink-white-sakura.webp", "mylove.webp", "takemyhand.webp", "moon.webp"],
-  personajes: ["ritsu-anime-girl-pfp.webp", "anime-girl.webp", "naoya-zenin-manga.webp", "pink-anime.webp", "frieren.webp", "gothic-bat-girl.webp", "pink-anime-girl.webp", "anime-girl-2.webp", "fern.webp", "purple-anime.webp", "anime-girl-3.webp", "anime-pfp.webp", "bel.webp", "asako-natsume.webp", "hood-anime-boy-hoodie-10-10.webp", "anime-guys.webp", "anime-girl-cool-pfp.webp", "anime-guys-2.webp", "anime-guys-user-icon.webp"],
+  fotos: ["ritsu-anime-girl-pfp.webp", "anime-girl.webp", "naoya-zenin-manga.webp", "lonely-girl-animated.gif", "pink-anime.webp", "gtavi.webp", "frieren.webp", "red-talking.gif", "gothic-bat-girl.webp", "pink-anime-girl.webp", "anime-girl-2.webp", "fern.webp", "purple-anime.webp", "anime-girl-3.webp", "tuff.webp", "anime-pfp.webp", "stark.webp", "bel.webp", "asako-natsume.webp", "hood-anime-boy-hoodie-10-10.webp", "bill-cipher-animated-pfp.gif", "anime-girl-animated.gif", "anime-guys.webp", "anime-girl-cool-pfp.webp", "yoru-red-pfp.webp", "anime-guys-2.webp", "frieren-2.webp", "anime-guys-user-icon.webp"],
+  banners: ["musashi-katana-black.webp", "hunter-x-hunter.webp", "citrus.webp", "jjk.webp", "hanekawa-hasumi.webp", "banner.webp", "black-rock-shooter.gif", "pink-white-sakura.webp", "mylove.webp", "animegif.gif", "takemyhand.webp", "moon.webp"],
   owner: ["foto-bruh.webp", "foto-lo-que-sea-esto-xd.webp", "banner-dark-black.gif", "banner-l.gif"]
 };
 const BIBLIOTECA_TIPOS = {
-  avatar: { titulo: "Elige tu foto de perfil", carpeta: "perfiles", owner: "foto-", forma: "circulo" },
+  avatar: { titulo: "Elige tu foto de perfil", carpeta: "fotos", owner: "foto-", forma: "circulo" },
   fondo: { titulo: "Elige tu fondo", carpeta: "banners", owner: "banner-", forma: "banner" },
-  personaje: { titulo: "Elige la foto del personaje", carpeta: "personajes", owner: "foto-", forma: "cuadro" }
+  personaje: { titulo: "Elige la foto del personaje", carpeta: "fotos", owner: "foto-", forma: "cuadro" }
 };
-const BIBLIOTECA_RUTA = /^biblioteca\/(perfiles|banners|personajes|owner)\/[a-z0-9-]+\.(webp|gif|png|jpg)$/;
+const BIBLIOTECA_RUTA = /^biblioteca\/(fotos|perfiles|banners|personajes|owner)\/[a-z0-9-]+\.(webp|gif|png|jpg)$/;
 const bibliotecaEstado = { resolver: null };
 function esImagenBiblioteca(url) {
   return typeof url === "string" && BIBLIOTECA_RUTA.test(url);
