@@ -34,7 +34,7 @@ function renderComunidad() {
   container.innerHTML = `<div class="comunidad-toolbar com-barra">
 <label class="comunidad-busqueda-wrap">${lupa}<input id="comunidad-q" class="form-input comunidad-busqueda" type="search" placeholder="Buscar personajes…" maxlength="60" autocomplete="off" aria-label="Buscar personajes de la comunidad"></label>
 <button type="button" class="btn btn-ghost btn-small com-filtros-btn" id="btn-comunidad-filtros" aria-expanded="false" aria-controls="comunidad-panel">${icoFiltros}<span class="com-filtros-txt">Filtros</span><span class="com-filtros-n" id="comunidad-filtros-n" hidden></span></button>
-${isOwner() ? `<button type="button" class="btn btn-ghost btn-small com-icono" id="btn-ver-reportes" title="Reportes" aria-label="Ver reportes">${ICONOS.bandera}</button>` : ""}
+${isOwner() ? `<button type="button" class="btn btn-ghost btn-small com-icono" id="btn-ver-metricas" title="Métricas" aria-label="Ver métricas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></button><button type="button" class="btn btn-ghost btn-small com-icono" id="btn-ver-reportes" title="Reportes" aria-label="Ver reportes">${ICONOS.bandera}</button>` : ""}
 </div>
 <div class="com-panel" id="comunidad-panel" hidden>
 <div class="com-panel-grupo"><span class="com-panel-titulo">Ordenar por</span><div class="com-segmento" id="comunidad-orden" role="group" aria-label="Ordenar personajes">${Object.entries(NOMBRES_ORDEN_COMUNIDAD).map(([k, v]) => `<button type="button" data-orden="${k}" aria-pressed="false">${v}</button>`).join("")}</div></div>
@@ -86,6 +86,7 @@ ${isOwner() ? `<button type="button" class="btn btn-ghost btn-small com-icono" i
   });
   document.getElementById("btn-comunidad-mas").addEventListener("click", () => cargarComunidad(false));
   document.getElementById("btn-ver-reportes")?.addEventListener("click", abrirReportes);
+  document.getElementById("btn-ver-metricas")?.addEventListener("click", () => abrirMetricas());
   cargarComunidad(true);
 }
 function pintarFiltrosComunidad() {
@@ -212,6 +213,54 @@ document.getElementById("form-report")?.addEventListener("submit", async (e) => 
     btn.disabled = false;
   }
 });
+const DOLAR_COP_APROX = 4e3;
+let metricasDias = 14;
+function fechaCortaMetricas(v) {
+  if (!v) return "—";
+  const d = new Date(v);
+  return isNaN(d) ? "—" : d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
+}
+function usdMetricas(v) {
+  const n = Number(v) || 0;
+  return `$${n.toLocaleString("en-US", { minimumFractionDigits: n && n < 1 ? 4 : 2, maximumFractionDigits: n && n < 1 ? 4 : 2 })}`;
+}
+function copMetricas(v) {
+  return `$${Math.round(Number(v) || 0).toLocaleString("es-CO")}`;
+}
+async function abrirMetricas(dias) {
+  if (!isOwner()) return;
+  if (dias) metricasDias = dias;
+  const cont = document.getElementById("metricas-contenido");
+  document.querySelectorAll("#metricas-dias [data-dias]").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.dias) === metricasDias)));
+  cont.innerHTML = '<p class="reportes-vacio">Cargando métricas…</p>';
+  if (!document.getElementById("metricas-modal").classList.contains("visible")) openModal("metricas-modal");
+  try {
+    const { data, error } = await sbClient.rpc("metricas_owner", { p_dias: metricasDias });
+    if (error) throw new Error(/SOLO_OWNER/.test(error.message) ? "Solo el Owner puede ver las métricas" : "No se pudieron cargar las métricas");
+    const t = data.totales || {}, a = data.activos || {}, dias = data.dias || [], usuarios = data.usuarios || [];
+    const tarjeta = (valor, etiqueta, nota = "") => `<div class="met-tarjeta"><strong>${escapeHtml(String(valor))}</strong><span>${escapeHtml(etiqueta)}</span>${nota ? `<small>${escapeHtml(nota)}</small>` : ""}</div>`;
+    const sumar = (k) => dias.reduce((s, d) => s + (Number(d[k]) || 0), 0);
+    const maxMensajes = Math.max(1, ...dias.map((d) => Number(d.mensajes) || 0));
+    cont.innerHTML = `<h3 class="met-titulo">Usuarios</h3>
+<div class="met-grid">${tarjeta(t.usuarios ?? 0, "Registrados", `${t.confirmados ?? 0} confirmados`)}${tarjeta(a.d1 ?? 0, "Activos hoy", "últimas 24 h")}${tarjeta(a.d7 ?? 0, "Activos 7 días")}${tarjeta(a.d30 ?? 0, "Activos 30 días")}</div>
+<h3 class="met-titulo">Contenido</h3>
+<div class="met-grid">${tarjeta(t.personajes ?? 0, "Personajes", `${t.publicos ?? 0} públicos`)}${tarjeta(t.chats ?? 0, "Chats")}${tarjeta((t.mensajes ?? 0).toLocaleString("es-CO"), "Mensajes enviados", "solo los del usuario")}${tarjeta(sumar("registros"), `Registros en ${metricasDias} días`)}</div>
+<h3 class="met-titulo">Dinero</h3>
+<div class="met-grid">${tarjeta(copMetricas(t.ingresos_cop), "Ingresos", `${t.compras ?? 0} ${t.compras === 1 ? "compra aprobada" : "compras aprobadas"}`)}${tarjeta(usdMetricas(t.costo_api_usd), "Gasto en DeepSeek", `≈ ${copMetricas((Number(t.costo_api_usd) || 0) * DOLAR_COP_APROX)} COP`)}${tarjeta((t.cr_vendidos ?? 0).toLocaleString("es-CO"), "CR vendidos")}${tarjeta((t.cr_pendientes ?? 0).toLocaleString("es-CO"), "CR sin usar", "deuda vigente")}</div>
+<h3 class="met-titulo">Día por día <small>(hora de Colombia)</small></h3>
+<div class="met-tabla-wrap"><table class="met-tabla"><thead><tr><th>Día</th><th>Registros</th><th>Mensajes</th><th>Chateando</th><th>Personajes</th><th>CR usados</th></tr></thead><tbody>${dias.map((d) => `<tr><td>${escapeHtml(fechaCortaMetricas(`${d.dia}T12:00:00`))}</td><td>${Number(d.registros) || 0}</td><td><span class="met-barrita" style="--p:${Math.round((Number(d.mensajes) || 0) / maxMensajes * 100)}%"></span>${Number(d.mensajes) || 0}</td><td>${Number(d.chateadores) || 0}</td><td>${Number(d.personajes) || 0}</td><td>${Number(d.cr_usados) || 0}</td></tr>`).join("")}</tbody></table></div>
+<h3 class="met-titulo">Gasto por usuario</h3>
+<div class="met-tabla-wrap"><table class="met-tabla"><thead><tr><th>Usuario</th><th>Gasto API</th><th>CR usados</th><th>Pagó</th><th>Mensajes</th><th>Último</th></tr></thead><tbody>${usuarios.map((u) => `<tr><td class="met-usuario">${escapeHtml(u.username || "")}</td><td title="≈ ${escapeHtml(copMetricas((Number(u.costo_usd) || 0) * DOLAR_COP_APROX))} COP">${escapeHtml(usdMetricas(u.costo_usd))}</td><td>${Number(u.cr_usados) || 0}</td><td>${escapeHtml(copMetricas(u.pagado_cop))}</td><td>${Number(u.mensajes) || 0}</td><td>${escapeHtml(fechaCortaMetricas(u.ultimo_mensaje))}</td></tr>`).join("")}</tbody></table></div>
+<p class="met-pie">El gasto en COP es aproximado (dólar a ${copMetricas(DOLAR_COP_APROX)}). Actualizado ${escapeHtml(new Date(data.generado_en || Date.now()).toLocaleTimeString("es-CO", { hour: "numeric", minute: "2-digit" }))}.</p>`;
+  } catch (err) {
+    cont.innerHTML = `<p class="reportes-vacio">❌ ${escapeHtml(err.message)}</p>`;
+  }
+}
+document.getElementById("metricas-dias")?.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-dias]");
+  if (b) abrirMetricas(Number(b.dataset.dias));
+});
+document.getElementById("btn-metricas-recargar")?.addEventListener("click", () => abrirMetricas());
 async function abrirReportes() {
   if (!isOwner()) return;
   const lista = document.getElementById("reportes-lista");

@@ -1,5 +1,13 @@
 SAIR — Changelog
 
+[5.5] — 2026-11-27
+
+✨ Novedades
+- 🎭 Cinco personajes nuevos en la Comunidad para empezar a rolear ya: Vesper, una vampira de 400 años en su catedral en ruinas; Kai, un hacker ciberpunk perseguido por una corporación; Ren, un príncipe guerrero exiliado; Nyx, una aprendiz de bruja caótica que te invocó por error; y Mika, tu vecina streamer.
+
+🔧 Arreglos
+- Mejoras internas para cuidar mejor el servicio y tus datos.
+
 [5.4] — 2026-11-27
 
 ✨ Novedades
