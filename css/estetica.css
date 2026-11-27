@@ -5417,3 +5417,20 @@ button.aura-color-option {
   .nov-pie { padding: .8rem 1rem; }
   .nov-pie .btn { flex: 1; }
 }
+
+.char-vista-tarjeta { background: var(--surface-solid, var(--bg-card)); }
+.char-vista-banner::after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, var(--surface-solid, var(--bg-card)) 100%);
+}
+.char-vista-avatar {
+  background:
+    radial-gradient(circle at 50% 35%, var(--cv-glow), transparent 70%),
+    var(--surface-solid, var(--bg-card));
+}.char-vista-banner::after {
+  background: linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--surface-solid, #110e1a) 25%, transparent) 30%,
+    color-mix(in srgb, var(--surface-solid, #110e1a) 60%, transparent) 55%,
+    color-mix(in srgb, var(--surface-solid, #110e1a) 88%, transparent) 78%,
+    var(--surface-solid, #110e1a) 96%);
+}
