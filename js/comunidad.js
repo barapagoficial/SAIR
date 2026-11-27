@@ -1,7 +1,7 @@
 const COMUNIDAD_POR_PAGINA = 24;
 const ORDENES_COMUNIDAD = { recientes: [["creado_en", false]], antiguos: [["creado_en", true]], nombre: [["nombre", true]], populares: [["likes_count", false], ["creado_en", false]] };
 const comunidad = { q: "", orden: "recientes", etiqueta: "", favoritos: false, lista: [], hayMas: false, peticion: 0 };
-const MOTIVOS_REPORTE = { contenido_sexual_menores: "Contenido sexual con menores", odio_acoso: "Odio o acoso", violencia_extrema: "Violencia extrema", spam: "Spam o publicidad", suplantacion: "Suplanta a una persona real", otro: "Otro motivo" };
+const MOTIVOS_REPORTE = { normas_ia: "La IA avisó que infringe las Normas", contenido_sexual_menores: "Contenido sexual con menores", contenido_sexual: "Contenido sexual explícito", odio_acoso: "Odio o acoso", violencia_extrema: "Violencia extrema", spam: "Spam o publicidad", suplantacion: "Suplanta a una persona real", otro: "Otro motivo" };
 function limpiarBusquedaComunidad(q) {
   return String(q || "").replace(/[%_,()*\\:."'`]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
 }
@@ -192,24 +192,25 @@ async function abrirReportes() {
   lista.innerHTML = '<p class="reportes-vacio">Cargando reportes…</p>';
   openModal("reportes-modal");
   try {
-    const { data, error } = await sbClient.from("reportes_personajes").select("id,motivo,detalle,creado_en,personaje_id,personajes(nombre)").order("creado_en", { ascending: false }).limit(200);
+    const { data, error } = await sbClient.from("reportes_personajes").select("id,motivo,detalle,creado_en,personaje_id,personajes(nombre,oculto)").order("creado_en", { ascending: false }).limit(200);
     if (error) {
       if (esErrorTablaInexistente(error)) throw new Error("Los reportes no están disponibles en este momento");
       throw new Error(error.message);
     }
     const grupos = /* @__PURE__ */ new Map();
     for (const r of data || []) {
-      if (!grupos.has(r.personaje_id)) grupos.set(r.personaje_id, { nombre: r.personajes?.nombre || "(personaje eliminado)", reportes: [] });
+      if (!grupos.has(r.personaje_id)) grupos.set(r.personaje_id, { nombre: r.personajes?.nombre || "(personaje eliminado)", oculto: !!r.personajes?.oculto, reportes: [] });
       grupos.get(r.personaje_id).reportes.push(r);
     }
     if (!grupos.size) {
       lista.innerHTML = '<p class="reportes-vacio">🎉 No hay reportes pendientes</p>';
       return;
     }
-    lista.innerHTML = [...grupos.entries()].sort((a, b) => b[1].reportes.length - a[1].reportes.length).map(([pid, g]) => `<div class="reporte-item" data-personaje-id="${escapeHtml(pid)}">
-<div class="reporte-cabecera"><strong>${escapeHtml(g.nombre)}</strong><span class="reporte-contador">${g.reportes.length} ${g.reportes.length === 1 ? "reporte" : "reportes"}</span></div>
+    const prioridad = (g) => (g.reportes.some((r) => r.motivo === "normas_ia") ? 1e3 : 0) + (g.oculto ? 500 : 0) + g.reportes.length;
+    lista.innerHTML = [...grupos.entries()].sort((a, b) => prioridad(b[1]) - prioridad(a[1])).map(([pid, g]) => `<div class="reporte-item${g.reportes.some((r) => r.motivo === "normas_ia") ? " reporte-ia" : ""}" data-personaje-id="${escapeHtml(pid)}">
+<div class="reporte-cabecera"><strong>${escapeHtml(g.nombre)}</strong>${g.oculto ? '<span class="reporte-oculto">Oculto automáticamente</span>' : ""}<span class="reporte-contador">${g.reportes.length} ${g.reportes.length === 1 ? "reporte" : "reportes"}</span></div>
 <ul class="reporte-motivos">${g.reportes.slice(0, 5).map((r) => `<li>${escapeHtml(MOTIVOS_REPORTE[r.motivo] || r.motivo)}${r.detalle ? ` — <em>${escapeHtml(r.detalle)}</em>` : ""}</li>`).join("")}${g.reportes.length > 5 ? `<li>…y ${g.reportes.length - 5} más</li>` : ""}</ul>
-<div class="reporte-acciones"><button type="button" class="btn btn-danger btn-small" data-accion="retirar">Retirar de la Comunidad</button><button type="button" class="btn btn-ghost btn-small" data-accion="descartar">Descartar</button></div>
+<div class="reporte-acciones"><button type="button" class="btn btn-danger btn-small" data-accion="retirar">Retirar de la Comunidad</button><button type="button" class="btn btn-ghost btn-small" data-accion="descartar">${g.oculto ? "Descartar y volver a mostrar" : "Descartar"}</button></div>
 </div>`).join("");
   } catch (err) {
     lista.innerHTML = `<p class="reportes-vacio">⚠️ ${escapeHtml(err.message)}</p>`;
@@ -1142,9 +1143,10 @@ function agregarBotones(bubble, rol) {
   let buttonsHTML = "";
   buttonsHTML += `<button type="button" class="btn-message btn-copy" title="Copiar mensaje"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copiar</button>`;
   buttonsHTML += `<button type="button" class="btn-message btn-delete-msg" title="Eliminar mensaje" aria-label="Eliminar este mensaje"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Eliminar</button>`;
+  const esAvisoNormas = rol === "assistant" && razonAvisoNormas(bubble.dataset.originalText) !== null;
   if (rol === "user") {
     buttonsHTML += `<button type="button" class="btn-message btn-edit-msg" title="Editar mensaje"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Editar</button>`;
-  } else if (rol === "assistant") {
+  } else if (rol === "assistant" && !esAvisoNormas) {
     if (vozDisponible) buttonsHTML += `<button type="button" class="btn-message btn-leer" title="Leer en voz alta" aria-pressed="false">${ICONO_ALTAVOZ}Leer</button>`;
     buttonsHTML += `<button type="button" class="btn-message btn-regenerate" data-mensaje-id="${bubble.dataset.mensajeId || ""}" title="Regenerar respuesta"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.63 4.36a9 9 0 0 0 14.85-3.36L23 14"></path></svg>Regenerar</button>`;
   }

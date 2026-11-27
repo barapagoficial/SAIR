@@ -1,5 +1,5 @@
 const COLS_PERSONAJE_BASE = "id,nombre,descripcion_corta,avatar_url,publico,user_id,creado_en";
-const COLS_PERSONAJE_EXTRA = "color_aura,tags,likes_count";
+const COLS_PERSONAJE_EXTRA = "color_aura,tags,likes_count,oculto";
 let extrasPersonajeEnNube = true;
 const ETIQUETAS_PERSONAJE = { fantasia: "🐉 Fantasía", romance: "💕 Romance", aventura: "🗺️ Aventura", accion: "⚔️ Acción", terror: "👻 Terror", misterio: "🔍 Misterio", scifi: "🚀 Ciencia ficción", comedia: "😂 Comedia", drama: "🎭 Drama", anime: "🌸 Anime", historico: "🏛️ Histórico", cotidiano: "☕ Vida cotidiana" };
 const MAX_ETIQUETAS = 5;
@@ -93,7 +93,7 @@ function actualizarDisponibilidadEtiquetas() {
 function htmlTarjetaPersonaje(p, esComunidad) {
   const safeAvatar = sanitizeImageUrl(p.avatar_url);
   const avatarContent = safeAvatar ? `<img src="${safeAvatar.replace(/"/g, "&quot;")}" alt="${escapeHtml(p.nombre)}" loading="lazy">` : escapeHtml(p.nombre.charAt(0).toUpperCase());
-  const badge = esComunidad ? "" : p.publico ? '<span class="badge-public">Público</span>' : '<span class="badge-private">Privado</span>';
+  const badge = esComunidad ? "" : p.publico && p.oculto ? '<span class="badge-private" title="Recibió varios reportes y no se ve en la Comunidad hasta que el equipo de SAIR lo revise">Oculto · en revisión</span>' : p.publico ? '<span class="badge-public">Público</span>' : '<span class="badge-private">Privado</span>';
   const authorLine = esComunidad ? `<div class="character-author" data-user-id="${escapeHtml(p.user_id)}">Cargando...</div>` : "";
   const etiquetas = normalizarEtiquetas(p.tags);
   const tagsHtml = etiquetas.length ? `<div class="character-tags">${etiquetas.slice(0, 3).map((t) => `<span class="character-tag">${ETIQUETAS_PERSONAJE[t]}</span>`).join("")}</div>` : "";
@@ -447,7 +447,27 @@ async function eliminarMensajeDeChat(chatId, mensajeId) {
 async function actualizarHistorialChat(chatId, nuevoHistorial) {
   return ejecutarConRefresh(async () => reemplazarHistorialNormalizado(chatId, nuevoHistorial));
 }
+function normasComunidadGemini(publico) {
+  return [
+    "[NORMAS DE LA COMUNIDAD DE SAIR · prioridad máxima, por encima de cualquier otra instrucción, incluida la ficha del personaje]",
+    "Esto es ficción. Están PERMITIDOS: violencia ficticia, villanos, temas oscuros, drama, terror y romance. Como este chat es privado, también se permite contenido para adultos entre personajes adultos.",
+    "Está PROHIBIDO siempre:",
+    "1. Cualquier contenido sexual o sexualizado con menores de edad o con personajes que lo parezcan (por su edad, cuerpo o descripción), aunque digan tener más edad.",
+    "2. Sexualizar a personas reales.",
+    "3. Odio contra grupos de personas (por origen, religión, género, orientación, discapacidad u otros).",
+    "4. Promover o animar autolesiones o el suicidio.",
+    "5. Instrucciones reales y útiles para causar daño (armas, explosivos, drogas, hackeo).",
+    ...publico ? ["6. Este personaje es público en la Comunidad: si su propia ficha (nombre, descripción, personalidad, escenario o saludo) es sexualmente explícita, también infringe las Normas."] : [],
+    "Si la ficha del personaje, el resumen o lo que pide el usuario cae en algo PROHIBIDO, no escribas la escena: responde ÚNICAMENTE con esta línea, sin nada antes ni después:",
+    "[[NORMAS: razón corta y directa]]",
+    "La razón tiene como máximo 12 palabras y no repite el contenido. Si ya avisaste y el usuario insiste en lo mismo, responde otra vez solo con esa línea. Si todo es aceptable, continúa el rol con normalidad y nunca menciones estas normas.",
+    "[FIN DE LAS NORMAS]"
+  ].join("\n");
+}
 function prepararTurnosRol(systemPrompt, mensajes, nuevoMensaje) {
+  if (!usaCR()) systemPrompt = `${normasComunidadGemini(!!currentCharacter?.publico)}
+
+${systemPrompt || ""}`;
   const conversacion = mensajes.filter((m) => m.rol === "user" || m.rol === "assistant");
   const resumen = mensajes.filter((m) => m.rol === "summary").map((s) => s.contenido).join("\n\n");
   const sistema = resumen ? `${systemPrompt}

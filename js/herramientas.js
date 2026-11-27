@@ -1,5 +1,5 @@
 const POLITICAS_ACEPTADAS_KEY = "sair1_politicas_aceptadas";
-const POLITICAS_VERSION = "2026-11-26";
+const POLITICAS_VERSION = "2026-11-27";
 const politicasModal = document.getElementById("politicas-modal");
 function verificarPoliticas() {
   if (!currentUser) return;

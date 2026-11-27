@@ -27,6 +27,7 @@ function pintarStreaming(bubble, texto) {
   const ahora = performance.now();
   if (ahora - streamUltimoPintado < STREAM_PINTADO_MS) return;
   streamUltimoPintado = ahora;
+  if (/^\s*\[\[?[a-z]{0,6}$/i.test(texto)) return;
   bubble.innerHTML = renderMarkdown(texto) + '<span class="streaming-cursor"></span>';
   scrollChatToBottom();
 }
@@ -166,6 +167,8 @@ async function transmitirStream(bubble, generator, prefijo = "") {
     pintarStreaming(bubble, prefijo + texto);
   }
   if (bubble) bubble.innerHTML = renderMarkdown(prefijo + texto);
+  const razonNormas = razonAvisoNormas(texto);
+  if (razonNormas !== null) registrarAvisoNormas(razonNormas);
   anunciarEstado("Respuesta lista");
   return texto;
 }

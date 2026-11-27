@@ -386,8 +386,25 @@ function sanitizeImageUrl(url) {
   }
   return "";
 }
+const AVISO_NORMAS_RE = /^\s*\[\[\s*NORMAS\s*:?\s*([^\]\n]*)\]?\]?/i;
+function razonAvisoNormas(texto) {
+  const m = AVISO_NORMAS_RE.exec(String(texto || ""));
+  if (!m) return null;
+  return m[1].trim().replace(/\s+/g, " ").slice(0, 160) || "contenido no permitido";
+}
+function htmlAvisoNormas(razon) {
+  return `<div class="aviso-normas" role="note"><span class="aviso-normas-ico" aria-hidden="true">🚫</span><div class="aviso-normas-texto"><strong>No puedo continuar.</strong> Este personaje infringe las Normas de la comunidad.<span class="aviso-normas-razon">Razón: ${escapeHtml(razon)}</span></div></div>`;
+}
+function registrarAvisoNormas(razon) {
+  if (!sbClient || !currentUser || !currentCharacter?.id || currentCharacter.publico === false) return;
+  sbClient.rpc("registrar_aviso_normas", { p_personaje_id: currentCharacter.id, p_razon: razon }).then(() => {
+  }, () => {
+  });
+}
 function renderMarkdown(texto) {
   if (!texto) return "";
+  const razonNormas = razonAvisoNormas(texto);
+  if (razonNormas !== null) return htmlAvisoNormas(razonNormas);
   let textoProcesado = reemplazarUserEnTexto(texto);
   const escaped = textoProcesado.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return escaped.replace(/\*\*(?=\S)([^*\n]+?)\*\*/g, "<strong>$1</strong>").replace(/\*([^*\n]+)\*/g, (m, p1) => `<em class="accion">*${p1}*</em>`).replace(/\n/g, "<br>");

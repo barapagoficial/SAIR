@@ -4281,3 +4281,38 @@ body[data-theme=light] .historiador-pagina {
     grid-template-columns: 1fr;
   }
 }
+.aviso-normas {
+  display: flex;
+  gap: .7rem;
+  align-items: flex-start;
+  padding: .85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(239, 68, 68, .45);
+  background: rgba(239, 68, 68, .1);
+  line-height: 1.5;
+}
+.aviso-normas-ico {
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+.aviso-normas-texto strong {
+  color: #f87171;
+}
+.aviso-normas-razon {
+  display: block;
+  margin-top: .3rem;
+  font-size: .85em;
+  color: var(--text-2);
+}
+.reporte-item.reporte-ia {
+  border-color: rgba(239, 68, 68, .5);
+}
+.reporte-oculto {
+  margin-left: .5rem;
+  padding: .1rem .5rem;
+  border-radius: 999px;
+  font-size: .7rem;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, .12);
+}

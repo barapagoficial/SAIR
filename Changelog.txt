@@ -1,5 +1,13 @@
 SAIR — Changelog
 
+[5.2] — 2026-11-27
+
+✨ Novedades
+- 🛡️ Normas de la comunidad: con cualquier modelo, si un personaje o una conversación cae en algo prohibido, la IA no continúa y te dice por qué. Ese aviso no se puede regenerar.
+- 🚩 Nuevos motivos para reportar: «La IA avisó que infringe las Normas» y «Contenido sexual explícito».
+- Un personaje público con varios reportes se oculta de la Comunidad hasta que lo revisemos. Su creador lo ve marcado como «Oculto · en revisión».
+- 📜 Los Términos se actualizaron con estas reglas: hay que aceptarlos de nuevo.
+
 [5.1] — 2026-11-26
 
 ✨ Novedades
