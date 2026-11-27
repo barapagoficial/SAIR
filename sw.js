@@ -78,7 +78,7 @@ self.addEventListener("fetch", (e) => {
     })());
     return;
   }
-  const esCodigoApp = /\/(js|css)\/[^/]+\.(js|css)$/.test(url.pathname) || url.pathname.endsWith("/manifest.json") || url.pathname.endsWith("/sw.js") || url.pathname.endsWith("/version.js");
+  const esCodigoApp = /\/(js|css)\/[^/]+\.(js|css)$/.test(url.pathname) || url.pathname.endsWith("/manifest.json") || url.pathname.endsWith("/sw.js") || url.pathname.endsWith("/version.js") || url.pathname.endsWith("/Changelog.txt");
   if (esCodigoApp) {
     e.respondWith((async () => {
       const red = fetch(e.request, { cache: "no-cache" }).then((response) => {

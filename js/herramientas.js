@@ -1198,11 +1198,11 @@ enviarAGeminiStream = async function* (systemPrompt, mensajes, nuevoMensaje, max
   }
 };
 
-const NOVEDADES_VISTA_KEY = "sair1_novedades_vista";
+const NOVEDADES_VISTA_KEY = "sair1_novedades_vista2";
 let changelogSAIR = null;
 async function cargarChangelogSAIR() {
   if (changelogSAIR) return changelogSAIR;
-  const r = await fetch("./Changelog.txt", { cache: "no-cache" });
+  const r = await fetch(`./Changelog.txt?v=${encodeURIComponent(window.SAIR_VERSION?.numero || Date.now())}`, { cache: "no-cache" });
   if (!r.ok) throw new Error("No se pudo cargar el historial de cambios");
   const versiones = [];
   let v = null, s = null;
@@ -1260,7 +1260,8 @@ async function abrirNovedades(historial = false) {
   if (!versiones.length) return false;
   document.getElementById("novedades-modal")?.remove();
   const actual = window.SAIR_VERSION?.numero || versiones[0].version;
-  const ultima = versiones.find((v) => v.version === actual) || versiones[0];
+  const ultima = versiones.find((v) => v.version === actual) || (historial ? versiones[0] : null);
+  if (!ultima) return false;
   const m = document.createElement("div");
   m.id = "novedades-modal";
   m.className = "nov-overlay";
