@@ -1,5 +1,25 @@
 SAIR — Changelog
 
+[5.0] — 2026-11-26
+
+✨ Novedades
+- 📖 Diario de Personajes 2.0: «Actualizar» ya no reescribe el diario desde cero. Lee solo los mensajes nuevos y anota lo que cambió; los personajes que no aparecen se quedan tal cual, aunque la historia se haya resumido.
+- ✍️ Cada personaje que vivió algo contigo escribe «Lo último que escribió», y su tarjeta se marca como «Nuevo» o «Actualizado».
+- 🗂️ El diario guarda hasta 16 personajes y puedes quitar a cualquiera con la ✕.
+- Si no hay mensajes nuevos, «Actualizar» te avisa y no gasta Créditos de Rol.
+- 🛡️ Privacidad y Términos nuevos: cuentan de verdad qué datos se guardan, cómo se procesan los chats (Gemini o DeepSeek) y los pagos con Wompi. Hay que aceptarlos de nuevo.
+- 📜 Pestaña «Términos y compras»: qué son los CR, vencimientos, cupos, retracto de 5 días hábiles y reembolsos.
+- ✅ Para pagar hay que confirmar que eres mayor de 18 años (o tienes permiso) y aceptar los Términos de compra.
+- 🔑 «¿Olvidaste tu contraseña?»: pides un enlace al correo y creas una contraseña nueva.
+- 👁️ Botón para ver la contraseña al escribirla.
+- 🧾 En la tienda: «En qué se fueron tus créditos», con lo que gastaste cada día de los últimos 30 días.
+- 🔎 Buscador en «Mis personajes».
+- 💬 Las confirmaciones (eliminar, borrar, rechazar…) ahora usan una ventana propia de SAIR en vez de la del navegador.
+
+🔧 Arreglos
+- La bienvenida y la descripción de la app ya no hablan solo de la API Key de Gemini.
+- Una compra que no se terminó de pagar ya no se queda como «Pendiente» para siempre.
+
 [4.6.0 Oficial A] — 2026-11-26
 
 ✨ Novedades

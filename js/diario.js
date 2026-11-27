@@ -1,6 +1,8 @@
 const DIARIO_PREFIX = "sair1_diario_";
-const DIARIO_VERSION = 1;
-const DIARIO_MAX_PERSONAJES = 8;
+const DIARIO_VERSION = 2;
+const DIARIO_MAX_PERSONAJES = 16;
+const DIARIO_PARTES = ["opina", "gustaria_saber", "siente", "como_se_siente"];
+const DIARIO_MAX_LECTURA_SIN_MARCA = 24e3;
 const DIARIO_MAX_SECCION = 2200;
 const DIARIO_MAX_TEXTO = 6e4;
 const DIARIO_COLORES = ["#ff4d8f", "#a855f7", "#4d79ff", "#22c1a6", "#f59e0b", "#ef4444", "#06b6d4", "#84cc16"];
@@ -30,6 +32,34 @@ TAREA:
 
 FORMATO DE RESPUESTA: responde ÚNICAMENTE con un JSON válido, sin texto antes ni después, con esta forma exacta:
 ` + DIARIO_ESQUEMA_JSON;
+const DIARIO_ESQUEMA_CAMBIOS = '{"personajes":[{"nombre":"Nombre exacto del personaje","nuevo":false,"rol":"solo si es nuevo o cambió","opina":"solo si cambia","gustaria_saber":"solo si cambia","siente":"solo si cambia","como_se_siente":"solo si cambia","novedad":"..."}]}';
+const DIARIO_INSTRUCCION_ACTUALIZAR = 'Actualiza ahora el "Diario de Personajes" con lo que ocurrió en los mensajes nuevos. Incluye solo a los personajes que aparecen en ellos y solo las partes que cambian. Responde ÚNICAMENTE con el JSON indicado, sin texto antes ni después.';
+const DIARIO_INSTRUCCION_ACTUALIZAR_NEUTRA = 'Con lo ocurrido en las notas anteriores, actualiza el diario breve en primera persona de los personajes que aparecen en ellas. Incluye solo las claves que cambian ("opina", "gustaria_saber", "siente", "como_se_siente") y siempre "novedad" (1 a 3 frases). Responde ÚNICAMENTE con este JSON: ' + DIARIO_ESQUEMA_CAMBIOS;
+const DIARIO_PROMPT_ACTUALIZAR = `Eres un escritor experto en ficción. Vas a ACTUALIZAR el "Diario de Personajes" de una historia de rol: el diario personal de cada personaje que ha compartido escena con el usuario. El diario YA EXISTE y se te entrega abajo como "DIARIO ACTUAL". NO lo reescribas desde cero: solo anota lo que cambió.
+
+CONTEXTO:
+- El usuario de la app interpreta a un personaje al que llamamos {{user}}. Los personajes se dirigen a él/ella como "{{user}}".
+- La historia es ficción narrativa entre personajes imaginarios.
+- La conversación que recibes contiene SOLO los mensajes nuevos desde la última vez que se escribió el diario. Lo anterior ya está reflejado en el DIARIO ACTUAL y en el resumen.
+
+CADA DIARIO TIENE CUATRO PARTES:
+- "opina": Qué opina de {{user}}.
+- "gustaria_saber": Qué le gustaría saber de {{user}}.
+- "siente": Qué siente (hacia {{user}} o por la situación que viven).
+- "como_se_siente": Cómo se siente con {{user}}.
+
+TAREA:
+1) Lee los mensajes nuevos y busca a los personajes que vivieron algo con {{user}} en ellos (hablaron, actuaron o reaccionaron). NO incluyas a {{user}}, ni a quienes solo se mencionan de pasada, ni objetos o lugares.
+2) Los personajes del DIARIO ACTUAL que NO aparecen en los mensajes nuevos NO van en tu respuesta: se conservan tal cual. Nunca los borres ni los resumas.
+3) Para cada personaje que ya está en el diario y aparece en los mensajes nuevos: escribe su "nombre" EXACTAMENTE como figura en el DIARIO ACTUAL, "nuevo": false, y solo las partes que cambian. Cada parte que incluyas debe ser la versión COMPLETA y actualizada de esa parte: conserva lo que sigue siendo cierto del texto actual y añade o ajusta lo que cambió, como una evolución, no como un reemplazo. Si una parte sigue igual, no la incluyas.
+4) Para cada personaje NUEVO que de verdad interactuó con {{user}} en los mensajes nuevos: "nuevo": true, "rol" y las cuatro partes completas.
+5) Para cada personaje que incluyas, escribe "novedad": de 1 a 3 frases en primera persona, como una entrada reciente de su diario, sobre lo que acaba de vivir con {{user}}.
+6) Escribe en PRIMERA PERSONA, con la voz de cada personaje, entre 2 y 6 frases por parte, en el mismo idioma de la conversación, y menciona a {{user}} escribiendo exactamente "{{user}}".
+7) Básate SOLO en lo que ocurre en la historia. No contradigas los hechos ni inventes sucesos nuevos.
+8) Si en los mensajes nuevos ningún personaje vivió nada relevante con {{user}}, responde exactamente {"personajes":[]}.
+
+FORMATO DE RESPUESTA: responde ÚNICAMENTE con un JSON válido, sin texto antes ni después, con esta forma:
+` + DIARIO_ESQUEMA_CAMBIOS;
 function detectarEtiquetaDiario(linea) {
   const limpia = String(linea || "").replace(/^[-•*\s]+/, "").replace(/\*\*/g, "").trim();
   const coincidencia = limpia.match(/^([^:：]{2,70})\s*[:：]\s*(.*)$/);
@@ -69,15 +99,126 @@ function normalizarDiario(valor) {
       como_se_siente: limpiarCampoDiario(item.como_se_siente || item.se_siente || item.como_se_siente_con_el_usuario || item.con_el_usuario)
     };
     if (!p.nombre || !(p.opina || p.gustaria_saber || p.siente || p.como_se_siente)) return null;
+    const novedad = limpiarCampoDiario(item.novedad || item.ultima_entrada, 900);
+    if (novedad) p.novedad = novedad;
+    const ronda = Math.max(0, Math.floor(Number(item.ronda) || 0));
+    if (ronda) p.ronda = ronda;
+    const desde = Math.max(0, Math.floor(Number(item.desde_ronda) || 0));
+    if (desde) p.desde_ronda = desde;
+    const actualizado = limpiarCampoDiario(item.actualizado_en, 40);
+    if (actualizado) p.actualizado_en = actualizado;
     return p;
   }).filter(Boolean).slice(0, DIARIO_MAX_PERSONAJES);
   if (!personajes.length) return null;
-  return {
+  const diario = {
     version: Number(data.version) || DIARIO_VERSION,
     generado_en: limpiarCampoDiario(data.generado_en || data.fecha, 40) || (/* @__PURE__ */ new Date()).toISOString(),
     modelo: limpiarCampoDiario(data.modelo, 60),
+    ronda: Math.max(1, Math.floor(Number(data.ronda) || 1)),
     personajes
   };
+  const actualizado = limpiarCampoDiario(data.actualizado_en, 40);
+  if (actualizado) diario.actualizado_en = actualizado;
+  const marca = data.leido_hasta;
+  if (marca && typeof marca === "object" && (marca.id || marca.creado_en)) {
+    diario.leido_hasta = { id: limpiarCampoDiario(marca.id, 80) || null, creado_en: limpiarCampoDiario(marca.creado_en, 40) || null };
+  }
+  return diario;
+}
+function claveNombreDiario(nombre) {
+  return normalizarParaBuscar(nombre).replace(/[^a-z0-9]+/g, " ").trim();
+}
+function buscarPersonajeDiario(lista, nombre) {
+  const clave = claveNombreDiario(nombre);
+  if (!clave) return -1;
+  const exacto = lista.findIndex((p) => claveNombreDiario(p.nombre) === clave);
+  if (exacto >= 0) return exacto;
+  const palabras = clave.split(" ").filter((w) => w.length >= 3);
+  if (!palabras.length) return -1;
+  return lista.findIndex((p) => {
+    const otras = claveNombreDiario(p.nombre).split(" ").filter((w) => w.length >= 3);
+    if (!otras.length) return false;
+    const [corta, larga] = otras.length <= palabras.length ? [otras, palabras] : [palabras, otras];
+    return corta.every((w) => larga.includes(w));
+  });
+}
+function normalizarCambiosDiario(valor) {
+  const lista = Array.isArray(valor?.personajes) ? valor.personajes : Array.isArray(valor?.entradas) ? valor.entradas : Array.isArray(valor?.characters) ? valor.characters : Array.isArray(valor) ? valor : null;
+  if (!lista) return null;
+  return lista.map((item) => {
+    if (!item || typeof item !== "object") return null;
+    const c = {
+      nombre: limpiarCampoDiario(item.nombre || item.personaje || item.name, 80),
+      nuevo: item.nuevo === true || item.nuevo === "true",
+      rol: limpiarCampoDiario(item.rol || item.rol_en_la_historia || item.tipo, 140),
+      opina: limpiarCampoDiario(item.opina || item.que_opina || item.opinion),
+      gustaria_saber: limpiarCampoDiario(item.gustaria_saber || item.le_gustaria_saber || item.quiere_saber || item.curiosidad),
+      siente: limpiarCampoDiario(item.siente || item.que_siente || item.sentimientos),
+      como_se_siente: limpiarCampoDiario(item.como_se_siente || item.se_siente || item.como_se_siente_con_el_usuario || item.con_el_usuario),
+      novedad: limpiarCampoDiario(item.novedad || item.ultima_entrada, 900)
+    };
+    return c.nombre && (c.novedad || c.rol || DIARIO_PARTES.some((k) => c[k])) ? c : null;
+  }).filter(Boolean);
+}
+function fusionarDiario(actual, cambios) {
+  const ronda = (actual.ronda || 1) + 1;
+  const ahora = (/* @__PURE__ */ new Date()).toISOString();
+  const personajes = actual.personajes.map((p) => ({ ...p }));
+  let actualizados = 0, nuevos = 0, sinCupo = 0;
+  for (const c of cambios) {
+    const indice = buscarPersonajeDiario(personajes, c.nombre);
+    if (indice >= 0) {
+      const p = personajes[indice];
+      let cambio = false;
+      for (const clave of ["rol", ...DIARIO_PARTES, "novedad"]) {
+        if (c[clave] && c[clave] !== p[clave]) {
+          p[clave] = c[clave];
+          cambio = true;
+        }
+      }
+      if (cambio) {
+        p.ronda = ronda;
+        p.actualizado_en = ahora;
+        actualizados++;
+      }
+      continue;
+    }
+    if (!DIARIO_PARTES.some((k) => c[k])) continue;
+    if (personajes.length >= DIARIO_MAX_PERSONAJES) {
+      sinCupo++;
+      continue;
+    }
+    const nuevo = { nombre: c.nombre, rol: c.rol };
+    for (const clave of DIARIO_PARTES) nuevo[clave] = c[clave];
+    if (c.novedad) nuevo.novedad = c.novedad;
+    nuevo.ronda = ronda;
+    nuevo.desde_ronda = ronda;
+    nuevo.actualizado_en = ahora;
+    personajes.push(nuevo);
+    nuevos++;
+  }
+  return { diario: { ...actual, version: DIARIO_VERSION, ronda, actualizado_en: ahora, personajes }, actualizados, nuevos, sinCupo };
+}
+function marcaLecturaDiario(utiles) {
+  const ultimo = utiles[utiles.length - 1];
+  return ultimo ? { id: ultimo.id ? String(ultimo.id) : null, creado_en: ultimo.creado_en || null } : null;
+}
+function mensajesNuevosDiario(diario, utiles) {
+  const marca = diario?.leido_hasta;
+  if (!marca) return null;
+  if (marca.id) {
+    const indice = utiles.findIndex((m) => String(m.id) === marca.id);
+    if (indice >= 0) return utiles.slice(indice + 1);
+  }
+  const limite = Date.parse(marca.creado_en || "");
+  if (!isNaN(limite) && utiles.some((m) => !isNaN(Date.parse(m.creado_en || "")))) {
+    return utiles.filter((m) => Date.parse(m.creado_en || "") > limite);
+  }
+  return null;
+}
+function diarioParaPrompt(diario) {
+  const recorte = (t) => String(t || "").slice(0, 1400);
+  return JSON.stringify({ personajes: diario.personajes.map((p) => ({ nombre: p.nombre, rol: p.rol || "", opina: recorte(p.opina), gustaria_saber: recorte(p.gustaria_saber), siente: recorte(p.siente), como_se_siente: recorte(p.como_se_siente) })) });
 }
 function leerDiarioLocal(chatId) {
   try {
@@ -278,19 +419,19 @@ function detenerMensajesDiario() {
   }
   diarioProgresoTexto = "";
 }
-async function generarDiarioDesdeDigesto({ cabecera, utiles, nivelBase, onProgreso }) {
+async function generarDiarioDesdeDigesto({ cabecera, utiles, nivelBase, onProgreso, prompt = DIARIO_PROMPT, instruccion = DIARIO_INSTRUCCION, instruccionNeutra = DIARIO_INSTRUCCION_NEUTRA }) {
   const { partes, omitidos, total } = await digestoTramos(utiles, { nivelInicial: "bloqueo_minimo", onProgreso, maxIntentosPorTramo: 3 });
   if (!partes.length) throw crearErrorBloqueo("Los filtros de seguridad de Gemini bloquearon toda la conversación.", null, { tipo: "bloqueo" });
   const { texto, modelo, parcial, intentos } = await generarConGeminiResiliente({
-    systemPrompt: `${DIARIO_PROMPT}
+    systemPrompt: `${prompt}
 
 ${cabecera}`,
     sistemaNeutro: SISTEMA_NEUTRO,
     contenido: `NOTAS DE LA HISTORIA (resumen por tramos, en orden cronológico):
 
 ${unirDigestoTramos(partes)}`,
-    instruccion: DIARIO_INSTRUCCION,
-    instruccionNeutra: DIARIO_INSTRUCCION_NEUTRA,
+    instruccion,
+    instruccionNeutra,
     maxOutputTokens: 8192,
     temperature: 0.85,
     nivelInicial: "bloqueo_minimo"
@@ -303,14 +444,20 @@ function actualizarProgresoDiario(texto) {
   const el = document.getElementById("diario-loading-sub");
   if (el && diarioProgresoTexto) el.textContent = diarioProgresoTexto;
 }
-function mostrarDiarioCargando() {
+function mostrarDiarioCargando(actualizando = false) {
   diarioProgresoTexto = "";
   const contenedor = diarioContenido();
   if (!contenedor) return;
   const usuario = nombreMostradoUsuario();
-  contenedor.innerHTML = htmlCargaHerramienta({ tema: "diario", titulo: "La IA está escribiendo los diarios…", sub: "Buscando a los personajes que han interactuado contigo", idSub: "diario-loading-sub", pasos: ["Buscando a los personajes", `Leyendo lo que vivieron con ${usuario}`, "Escribiendo sus diarios"] });
+  contenedor.innerHTML = actualizando ? htmlCargaHerramienta({ tema: "diario", titulo: "Los personajes están abriendo sus diarios…", sub: "Leyendo lo que pasó desde la última vez", idSub: "diario-loading-sub", pasos: ["Leyendo los mensajes nuevos", "Buscando quién vivió algo contigo", "Anotando lo que cambió"] }) : htmlCargaHerramienta({ tema: "diario", titulo: "La IA está escribiendo los diarios…", sub: "Buscando a los personajes que han interactuado contigo", idSub: "diario-loading-sub", pasos: ["Buscando a los personajes", `Leyendo lo que vivieron con ${usuario}`, "Escribiendo sus diarios"] });
   iniciarCargaHerramienta(contenedor, 7e3);
-  const mensajes = [
+  const mensajes = actualizando ? [
+    "Leyendo lo que pasó desde la última vez",
+    `Buscando quién vivió algo nuevo con ${usuario}`,
+    "Pasando a la página siguiente del diario",
+    "Anotando lo que cambió, sin borrar lo que ya estaba",
+    "Casi listo: guardando las páginas nuevas"
+  ] : [
     "Buscando a los personajes que han interactuado contigo",
     `Leyendo lo que cada personaje ha vivido con ${usuario}`,
     "Anotando qué opinan de ti en secreto",
@@ -326,19 +473,20 @@ function mostrarDiarioCargando() {
     if (el) el.textContent = mensajes[indice];
   }, 2600);
 }
-function mostrarDiarioError(mensaje) {
+function mostrarDiarioError(mensaje, conDiario = false) {
   detenerMensajesDiario();
   const contenedor = diarioContenido();
   if (!contenedor) return;
+  const volver = conDiario && obtenerDiarioActual() ? '<button type="button" class="btn btn-ghost" data-diario-accion="ver">📖 Ver mi diario</button>' : "";
   contenedor.innerHTML = `
     <div class="recap-confirm" style="padding:1.8rem 1rem;">
       <div class="recap-icon-wrapper" style="background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.1));margin-bottom:1rem;">
         <svg viewBox="0 0 24 24" style="stroke:#fca5a5;width:42px;height:42px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       </div>
-      <div class="recap-title" style="background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;background-clip:text;font-size:1.25rem;">No se pudo escribir el diario</div>
-      <div class="recap-subtitle" style="color:#fca5a5;font-size:.88rem;">${escapeHtml(mensaje || "Error desconocido")}</div>
+      <div class="recap-title" style="background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;background-clip:text;font-size:1.25rem;">${conDiario ? "No se pudo actualizar el diario" : "No se pudo escribir el diario"}</div>
+      <div class="recap-subtitle" style="color:#fca5a5;font-size:.88rem;">${escapeHtml(mensaje || "Error desconocido")}${conDiario ? "<br>Tu diario sigue tal como estaba." : ""}</div>
       <div class="diario-acciones" style="justify-content:center;">
-        <button type="button" class="btn btn-ghost" data-diario-accion="cerrar">Cerrar</button>
+        ${volver || '<button type="button" class="btn btn-ghost" data-diario-accion="cerrar">Cerrar</button>'}
         <button type="button" class="btn btn-primary" data-diario-accion="generar">🔄 Reintentar</button>
       </div>
     </div>`;
@@ -377,18 +525,26 @@ function fechaDiario(valor) {
     return fecha.toLocaleString();
   }
 }
+function etiquetaRondaDiario(personaje, diario) {
+  if (!(diario.ronda > 1) || personaje.ronda !== diario.ronda) return "";
+  return personaje.desde_ronda === diario.ronda ? '<span class="diario-badge nuevo">Nuevo</span>' : '<span class="diario-badge actualizado">Actualizado</span>';
+}
 function renderizarDiario(diario, fechaTexto) {
   detenerMensajesDiario();
   const contenedor = diarioContenido();
   if (!contenedor || !diario) return;
   const usuario = escapeHtml(nombreMostradoUsuario());
+  const puedeQuitar = diario.personajes.length > 1;
   const tarjetas = diario.personajes.map((personaje, indice) => {
     const seccion = (icono, titulo, valor, clase) => valor ? `<section class="diario-seccion ${clase}"><div class="diario-seccion-titulo"><span aria-hidden="true">${icono}</span> ${titulo}</div><div class="diario-seccion-cuerpo">${prosaHtml(textoDiario(valor))}</div></section>` : "";
-    return `<article class="diario-card" style="animation-delay:${Math.min(indice, 8) * 60}ms">
+    const fechaNovedad = personaje.actualizado_en ? ` · ${escapeHtml(fechaDiario(personaje.actualizado_en))}` : "";
+    return `<article class="diario-card${personaje.ronda === diario.ronda && diario.ronda > 1 ? " diario-card-reciente" : ""}" style="animation-delay:${Math.min(indice, 8) * 60}ms">
       <div class="diario-card-head">
         ${avatarDiario(personaje, indice)}
-        <div><div class="diario-nombre">${escapeHtml(personaje.nombre)}</div>${personaje.rol ? `<div class="diario-rol">${escapeHtml(textoDiario(personaje.rol))}</div>` : ""}</div>
+        <div class="diario-card-titulos"><div class="diario-nombre">${escapeHtml(personaje.nombre)}${etiquetaRondaDiario(personaje, diario)}</div>${personaje.rol ? `<div class="diario-rol">${escapeHtml(textoDiario(personaje.rol))}</div>` : ""}</div>
+        ${puedeQuitar ? `<button type="button" class="diario-quitar" data-diario-accion="quitar" data-indice="${indice}" title="Quitar del diario" aria-label="Quitar a ${escapeHtml(personaje.nombre)} del diario">✕</button>` : ""}
       </div>
+      ${personaje.novedad ? `<section class="diario-seccion novedad"><div class="diario-seccion-titulo"><span aria-hidden="true">✍️</span> Lo último que escribió${fechaNovedad}</div><div class="diario-seccion-cuerpo">${prosaHtml(textoDiario(personaje.novedad))}</div></section>` : ""}
       ${seccion("💭", `Lo que opina de ${usuario}`, personaje.opina, "opina")}
       ${seccion("❓", `Lo que le gustaría saber de ${usuario}`, personaje.gustaria_saber, "saber")}
       ${seccion("💗", "Lo que siente", personaje.siente, "siente")}
@@ -396,7 +552,7 @@ function renderizarDiario(diario, fechaTexto) {
     </article>`;
   }).join("");
   contenedor.innerHTML = `
-    <p class="diario-meta">${diario.personajes.length} personaje${diario.personajes.length !== 1 ? "s" : ""} escribieron sobre ${usuario} · ${escapeHtml(fechaTexto || fechaDiario(diario.generado_en))}${diarioEnNube ? "" : ' · <span style="color:#fcd34d">guardado solo en este dispositivo</span>'}</p>
+    <p class="diario-meta">${diario.personajes.length} personaje${diario.personajes.length !== 1 ? "s" : ""} escribieron sobre ${usuario} · ${diario.ronda > 1 ? "actualizado" : "escrito"} ${escapeHtml(fechaTexto || fechaDiario(diario.actualizado_en || diario.generado_en))}${diarioEnNube ? "" : ' · <span style="color:#fcd34d">guardado solo en este dispositivo</span>'}</p>
     <div class="diario-grid">${tarjetas}</div>
     <footer class="herr-barra diario-acciones">
       <button type="button" class="btn btn-ghost btn-danger" data-diario-accion="borrar" title="Borrar" aria-label="Borrar">🗑️<span class="herr-btn-txt"> Borrar</span></button>
@@ -410,6 +566,7 @@ function diarioATextoPlano(diario) {
   const lineas = [`📖 DIARIO DE PERSONAJES — ${currentCharacter?.nombre || "Chat"}`, fechaDiario(diario.generado_en), ""];
   diario.personajes.forEach((personaje) => {
     lineas.push(`── ${personaje.nombre}${personaje.rol ? ` (${textoDiario(personaje.rol)})` : ""} ──`);
+    if (personaje.novedad) lineas.push(`✍️ Lo último que escribió: ${textoDiario(personaje.novedad)}`);
     if (personaje.opina) lineas.push(`💭 Lo que opina de ${usuario}: ${textoDiario(personaje.opina)}`);
     if (personaje.gustaria_saber) lineas.push(`❓ Lo que le gustaría saber de ${usuario}: ${textoDiario(personaje.gustaria_saber)}`);
     if (personaje.siente) lineas.push(`💗 Lo que siente: ${textoDiario(personaje.siente)}`);
@@ -425,6 +582,8 @@ async function generarDiarioPersonajes() {
     return;
   }
   if (!exigirIA(mostrarDiarioError)) return;
+  const existente = diarioCache.chatId === currentChatId ? diarioCache.diario : obtenerDiarioActual();
+  if (existente) return actualizarDiarioPersonajes(existente);
   diarioGenerando = true;
   mostrarDiarioCargando();
   try {
@@ -475,6 +634,13 @@ ${cabecera}`,
     const diario = parsearDiarioGemini(texto);
     diario.modelo = diario.modelo || modelo || "";
     diario.generado_en = (/* @__PURE__ */ new Date()).toISOString();
+    diario.version = DIARIO_VERSION;
+    diario.ronda = 1;
+    diario.leido_hasta = marcaLecturaDiario(utiles);
+    diario.personajes.forEach((p) => {
+      p.ronda = 1;
+      p.desde_ronda = 1;
+    });
     const sincronizado = await guardarDiario(currentChatId, diario);
     renderizarDiario(diario);
     if (omitidosDiario > 0) showToast(`📖 Diario escrito (no se pudieron leer ${omitidosDiario} fragmento${omitidosDiario !== 1 ? "s" : ""} por los filtros)`, "success");
@@ -487,6 +653,107 @@ ${cabecera}`,
   } finally {
     diarioGenerando = false;
   }
+}
+function parsearCambiosDiario(texto) {
+  const json = extraerJsonDeTexto(texto);
+  const cambios = json ? normalizarCambiosDiario(json) : null;
+  if (cambios) return cambios;
+  const heuristica = parsearDiarioEnTexto(texto);
+  if (heuristica.length) return heuristica;
+  throw new Error("La IA no devolvió los cambios del diario en un formato legible. Pulsa “🔄 Reintentar” para intentarlo de nuevo.");
+}
+async function actualizarDiarioPersonajes(actual) {
+  if (diarioGenerando) return;
+  const chatId = currentChatId;
+  diarioGenerando = true;
+  try {
+    const { mensajes } = await cargarHistorialCompleto(chatId);
+    const utiles = mensajes.filter((m) => m.rol === "user" || m.rol === "assistant");
+    let nuevos = mensajesNuevosDiario(actual, utiles);
+    const sinMarca = nuevos === null;
+    if (sinMarca) nuevos = limitarMensajesPorLongitud(utiles, DIARIO_MAX_LECTURA_SIN_MARCA, true);
+    if (!nuevos.some((m) => m.rol === "user")) {
+      renderizarDiario(actual);
+      showToast(`📖 No hay mensajes nuevos desde la última actualización${usaCR() ? " (no se gastaron CR)" : ""}`);
+      return;
+    }
+    mostrarDiarioCargando(true);
+    const resumen = mensajes.find((m) => m.rol === "summary")?.contenido || "";
+    const diarioPrompt = diarioParaPrompt(actual);
+    const cabecera = `${construirCabeceraDiario(resumen)}
+
+DIARIO ACTUAL (lo que cada personaje ya escribió; consérvalo y solo anota lo que cambia):
+${diarioPrompt}`;
+    const nuevosLimitados = limitarMensajesPorLongitud(nuevos, Math.max(8e3, DIARIO_MAX_TEXTO - cabecera.length), true);
+    const parsedDiario = parsearSystemPrompt(currentCharacter?.system_prompt);
+    const nivelDiario = normalizarIntensidad(currentCharacter?.intensidad || parsedDiario.intensidad || "suave");
+    let texto = "", modelo = "", omitidos = 0;
+    try {
+      const respuesta = await generarConGeminiResiliente({
+        systemPrompt: `${DIARIO_PROMPT_ACTUALIZAR}
+
+${cabecera}`,
+        sistemaNeutro: SISTEMA_NEUTRO,
+        mensajes: nuevosLimitados,
+        instruccion: DIARIO_INSTRUCCION_ACTUALIZAR,
+        instruccionNeutra: DIARIO_INSTRUCCION_ACTUALIZAR_NEUTRA,
+        maxOutputTokens: 8192,
+        temperature: 0.75,
+        nivelInicial: nivelDiario,
+        accionCR: "diario"
+      });
+      texto = respuesta.texto;
+      modelo = respuesta.modelo;
+    } catch (err) {
+      if (!esErrorDeBloqueo(err)) throw err;
+      console.warn("🛡️ Diario: la actualización fue bloqueada; leyendo los mensajes nuevos por tramos…");
+      const respuesta = await generarDiarioDesdeDigesto({
+        cabecera,
+        utiles: nuevosLimitados,
+        nivelBase: nivelDiario,
+        prompt: DIARIO_PROMPT_ACTUALIZAR,
+        instruccion: DIARIO_INSTRUCCION_ACTUALIZAR,
+        instruccionNeutra: DIARIO_INSTRUCCION_ACTUALIZAR_NEUTRA,
+        onProgreso: (i, n) => actualizarProgresoDiario(`Leyendo los mensajes nuevos por partes… (${i}/${n})`)
+      });
+      texto = respuesta.texto;
+      modelo = respuesta.modelo;
+      omitidos = respuesta.omitidos;
+    }
+    const cambios = parsearCambiosDiario(texto);
+    const { diario, actualizados, nuevos: agregados, sinCupo } = fusionarDiario(actual, cambios);
+    diario.modelo = modelo || diario.modelo || "";
+    diario.leido_hasta = marcaLecturaDiario(utiles);
+    if (currentChatId !== chatId) {
+      await guardarDiario(chatId, diario);
+      return;
+    }
+    const sincronizado = await guardarDiario(chatId, diario);
+    renderizarDiario(diarioCache.diario || diario);
+    const partes = [];
+    if (actualizados) partes.push(`${actualizados} actualizado${actualizados !== 1 ? "s" : ""}`);
+    if (agregados) partes.push(`${agregados} nuevo${agregados !== 1 ? "s" : ""}`);
+    let aviso = partes.length ? `📖 Diario actualizado: ${partes.join(" y ")}` : "📖 Nada nuevo que anotar: nadie vivió algo importante en los mensajes nuevos";
+    if (sinCupo) aviso += ` · no cupieron ${sinCupo} personaje${sinCupo !== 1 ? "s" : ""} más (máximo ${DIARIO_MAX_PERSONAJES})`;
+    if (omitidos > 0) aviso += ` · ${omitidos} fragmento${omitidos !== 1 ? "s" : ""} no se pudieron leer por los filtros`;
+    if (!sincronizado) aviso += " · guardado solo en este dispositivo";
+    showToast(aviso, "success");
+  } catch (err) {
+    console.error("Error actualizando el Diario de Personajes:", err);
+    mostrarDiarioError(esErrorDeBloqueo(err) ? mensajeBloqueoConAyuda(err) : err.message || "Error desconocido", true);
+  } finally {
+    diarioGenerando = false;
+  }
+}
+async function quitarPersonajeDiario(indice) {
+  const diario = obtenerDiarioActual();
+  const personaje = diario?.personajes?.[indice];
+  if (!personaje || diario.personajes.length <= 1) return;
+  if (!await confirmarSAIR(`¿Quitar a ${personaje.nombre} del diario?`, "Su página se borra de este diario. Si vuelve a aparecer en la historia, una próxima actualización puede escribirla de nuevo.", { aceptar: "Quitar", peligro: true })) return;
+  const copia = { ...diario, personajes: diario.personajes.filter((_, i) => i !== indice) };
+  await guardarDiario(currentChatId, copia);
+  renderizarDiario(diarioCache.diario || copia);
+  showToast(`🗑️ ${personaje.nombre} ya no está en el diario`);
 }
 async function abrirDiario() {
   if (!currentChatId) {
@@ -572,7 +839,7 @@ function descargarDiario() {
 }
 async function borrarDiarioActual() {
   if (!currentChatId || !obtenerDiarioActual()) return;
-  if (!confirm("¿Borrar el Diario de Personajes de este chat?")) return;
+  if (!await confirmarSAIR("¿Borrar el Diario de Personajes?", "Se borra el diario de este chat. Podrás generar otro después.", { aceptar: "Borrar", peligro: true })) return;
   borrarDiarioLocal(currentChatId);
   diarioCache = { chatId: currentChatId, diario: null };
   actualizarIndicadorDiario();
@@ -610,6 +877,11 @@ document.getElementById("diario-modal")?.addEventListener("click", (e) => {
   else if (accion === "copiar") copiarDiario();
   else if (accion === "descargar") descargarDiario();
   else if (accion === "borrar") borrarDiarioActual();
+  else if (accion === "quitar") quitarPersonajeDiario(Number(boton.dataset.indice));
+  else if (accion === "ver") {
+    const diario = obtenerDiarioActual();
+    if (diario) renderizarDiario(diario);
+  }
   else if (accion === "cerrar") closeModal("diario-modal");
 });
 document.getElementById("diario-modal")?.addEventListener("click", (e) => {

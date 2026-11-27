@@ -221,7 +221,7 @@ document.getElementById("reportes-lista")?.addEventListener("click", async (e) =
   const item = btn.closest(".reporte-item"), pid = item?.dataset.personajeId;
   if (!pid) return;
   const retirar = btn.dataset.accion === "retirar";
-  if (retirar && !confirm("¿Retirar este personaje de la Comunidad? Pasará a ser privado para su autor.")) return;
+  if (retirar && !await confirmarSAIR("¿Retirar este personaje de la Comunidad?", "Pasará a ser privado para su autor.", { aceptar: "Retirar", peligro: true })) return;
   item.querySelectorAll("button").forEach((b) => b.disabled = true);
   try {
     const { error } = retirar ? await sbClient.rpc("retirar_personaje_reportado", { p_personaje_id: pid }) : await sbClient.from("reportes_personajes").delete().eq("personaje_id", pid);
@@ -282,7 +282,7 @@ function renderAnunciosContent(anuncios) {
   container.querySelectorAll(".announcement-delete").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      if (confirm("¿Eliminar este anuncio?")) {
+      if (await confirmarSAIR("¿Eliminar este anuncio?", "Dejará de verse para todos.", { aceptar: "Eliminar", peligro: true })) {
         try {
           await fetchWithRetry(() => eliminarAnuncio(btn.dataset.id));
           showToast("Anuncio eliminado");
@@ -794,7 +794,7 @@ function pintarListaChats() {
   list.querySelectorAll(".chat-list-delete").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      if (confirm("¿Eliminar este chat?")) {
+      if (await confirmarSAIR("¿Eliminar este chat?", "Se borran sus mensajes, notas y diario. No se puede deshacer.", { aceptar: "Eliminar", peligro: true })) {
         try {
           await eliminarChat(btn.dataset.id);
           borrarNotasRolLocal(btn.dataset.id);
@@ -1019,7 +1019,7 @@ document.getElementById("chat-import-file").addEventListener("change", async (e)
         return;
       }
       if (data.character.id !== currentCharacter.id) {
-        if (!confirm(`Este chat es de "${data.character.name}" pero estás en "${currentCharacter.nombre}". ¿Importar de todos modos?`)) {
+        if (!await confirmarSAIR("¿Importar de todos modos?", `Este chat es de «${data.character.name}», pero estás en «${currentCharacter.nombre}».`, { aceptar: "Importar" })) {
           return;
         }
       }

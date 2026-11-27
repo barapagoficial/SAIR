@@ -36,6 +36,11 @@ async function initApp() {
       console.log("✅ Supabase client creado en initApp (fallback)");
     }
     sbClient.auth.onAuthStateChange((event, session2) => {
+      if (event === "PASSWORD_RECOVERY") {
+        SAIR_RECUPERACION.activa = true;
+        if (session2) currentUser = session2.user;
+        if (dashboard.classList.contains("visible")) revisarRecuperacionClave();
+      }
       if (event === "SIGNED_OUT") {
         currentUser = null;
         userRole = null;
@@ -122,6 +127,7 @@ function showAuth() {
   }
   void authScreen.offsetWidth;
   forzarRepintado();
+  avisarEnlaceRecuperacionInvalido();
 }
 function showDashboard() {
   authScreen.classList.remove("visible", "guest-welcome");
@@ -133,13 +139,196 @@ function showDashboard() {
   forzarRepintado();
   abrirPersonajeCompartidoPendiente();
   iniciarCreditosRol();
+  revisarRecuperacionClave();
 }
+const OJO_CLAVE = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const OJO_CLAVE_TACHADO = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.6 3.4"/><path d="M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/></svg>';
+function ocultarClave(input) {
+  const b = input.parentNode?.querySelector(".clave-ver");
+  input.type = "password";
+  if (b) {
+    b.innerHTML = OJO_CLAVE;
+    b.setAttribute("aria-label", "Mostrar contraseña");
+    b.setAttribute("aria-pressed", "false");
+  }
+}
+function prepararVerClave() {
+  document.querySelectorAll('#auth-screen input[type="password"], #nueva-clave-modal input[type="password"]').forEach((input) => {
+    if (input.dataset.verClave) return;
+    input.dataset.verClave = "1";
+    const caja = document.createElement("div");
+    caja.className = "clave-caja";
+    input.parentNode.insertBefore(caja, input);
+    caja.appendChild(input);
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "clave-ver";
+    caja.appendChild(b);
+    ocultarClave(input);
+    b.addEventListener("click", () => {
+      if (input.type !== "password") return ocultarClave(input);
+      input.type = "text";
+      b.innerHTML = OJO_CLAVE_TACHADO;
+      b.setAttribute("aria-label", "Ocultar contraseña");
+      b.setAttribute("aria-pressed", "true");
+    });
+  });
+}
+prepararVerClave();
+const TEXTOS_AUTH = {
+  recover: { titulo: "Recupera tu cuenta", sub: "Te ayudamos a crear una contraseña nueva" },
+  otro: { titulo: "Bienvenido a SAIR", sub: "Inicia sesión o crea una cuenta para continuar" }
+};
+function mostrarFormularioAuth(cual) {
+  const textos = TEXTOS_AUTH[cual] || TEXTOS_AUTH.otro;
+  const titulo = document.querySelector("#auth-screen .auth-title"), sub = document.querySelector("#auth-screen .auth-subtitle");
+  if (titulo) titulo.textContent = textos.titulo;
+  if (sub) sub.textContent = textos.sub;
+  document.querySelector("#auth-screen .auth-tabs")?.classList.toggle("oculto", cual === "recover");
+  document.querySelectorAll('#auth-screen input[data-ver-clave]').forEach(ocultarClave);
+  document.querySelectorAll(".auth-form").forEach((f) => f.classList.toggle("active", f.id === `${cual}-form`));
+  document.querySelectorAll(".auth-tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === cual));
+  document.querySelectorAll(".form-message").forEach((m) => {
+    m.className = "form-message";
+    m.textContent = "";
+  });
+}
+function avisarEnlaceRecuperacionInvalido() {
+  if (!SAIR_RECUPERACION.error || SAIR_RECUPERACION.mostrada) return;
+  SAIR_RECUPERACION.mostrada = true;
+  try {
+    history.replaceState(null, "", location.pathname);
+  } catch (e) {
+  }
+  showToast("⚠️ El enlace del correo expiró o ya se usó. Si querías cambiar tu contraseña, pide otro desde «¿Olvidaste tu contraseña?».", "error");
+}
+function revisarRecuperacionClave() {
+  avisarEnlaceRecuperacionInvalido();
+  if (!SAIR_RECUPERACION.activa || SAIR_RECUPERACION.mostrada || !currentUser) return;
+  SAIR_RECUPERACION.mostrada = true;
+  document.getElementById("nueva-clave-form").reset();
+  document.querySelectorAll('#nueva-clave-modal input[data-ver-clave]').forEach(ocultarClave);
+  document.getElementById("nueva-clave-message").className = "form-message";
+  document.getElementById("nueva-clave-message").textContent = "";
+  openModal("nueva-clave-modal");
+  setTimeout(() => document.getElementById("nueva-clave")?.focus(), 300);
+}
+function unirListaES(partes) {
+  if (partes.length <= 1) return partes.join("");
+  return partes.slice(0, -1).join(", ") + " y " + partes[partes.length - 1];
+}
+function requisitosClaveFaltantes(err) {
+  const m = String(err?.message || "");
+  const razones = Array.isArray(err?.reasons) ? err.reasons : [];
+  const partes = [];
+  const largo = m.match(/at least (\d+) characters?/i);
+  if (largo) partes.push(`al menos ${largo[1]} caracteres`);
+  else if (razones.includes("length")) partes.push("más caracteres");
+  const lista = (m.split(/of each:/i)[1] || "").trim();
+  if (lista) {
+    if (/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ/.test(lista)) partes.push("una letra");
+    else {
+      if (/abcdefghijklmnopqrstuvwxyz/.test(lista)) partes.push("una minúscula");
+      if (/ABCDEFGHIJKLMNOPQRSTUVWXYZ/.test(lista)) partes.push("una mayúscula");
+    }
+    if (/0123456789/.test(lista)) partes.push("un número");
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|<>?~`]/.test(lista)) partes.push("un símbolo");
+  } else if (razones.includes("characters")) partes.push("letras y números");
+  return partes;
+}
+function traducirErrorClave(err) {
+  const m = String(err?.message || err || "");
+  const razones = Array.isArray(err?.reasons) ? err.reasons : [];
+  if (/different from the old/i.test(m)) return "La contraseña nueva debe ser distinta de la anterior.";
+  if (razones.includes("pwned") || /pwned|easy to guess|known to be weak/i.test(m)) return "Esa contraseña es muy común y aparece en filtraciones. Elige otra.";
+  if (err?.code === "weak_password" || /password should|weak password|too short/i.test(m)) {
+    const faltan = requisitosClaveFaltantes(err);
+    return faltan.length ? `Tu contraseña necesita ${unirListaES(faltan)}.` : "La contraseña es muy débil. Prueba con una más larga, con letras y números.";
+  }
+  if (/already registered|already been registered|already exists/i.test(m)) return "Ya existe una cuenta con ese correo. Inicia sesión o recupera tu contraseña.";
+  if (/email not confirmed/i.test(m)) return "Primero confirma tu correo: abre el enlace que te enviamos (revisa también spam).";
+  if (/invalid login|invalid credentials/i.test(m)) return "Correo o contraseña incorrectos.";
+  if (/valid email|invalid email|unable to validate email/i.test(m)) return "Ese correo no parece válido.";
+  if (/security purposes|rate limit|too many/i.test(m)) return "Hiciste muchos intentos seguidos. Espera un momento y vuelve a intentarlo.";
+  if (/signups? not allowed|signup is disabled/i.test(m)) return "El registro de cuentas nuevas está cerrado por ahora.";
+  if (/session|jwt|expired/i.test(m)) return "Tu enlace expiró. Pide uno nuevo desde «¿Olvidaste tu contraseña?».";
+  return "No se pudo completar. Revisa tu conexión e intenta de nuevo.";
+}
+document.getElementById("btn-olvide-clave")?.addEventListener("click", () => {
+  const email = document.getElementById("login-email").value.trim();
+  mostrarFormularioAuth("recover");
+  if (email) document.getElementById("recover-email").value = email;
+  requestAnimationFrame(() => document.getElementById("recover-email")?.focus());
+});
+document.getElementById("btn-volver-login")?.addEventListener("click", () => mostrarFormularioAuth("login"));
+document.getElementById("recover-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("recover-email").value.trim();
+  const msgEl = document.getElementById("recover-message");
+  const btn = e.target.querySelector('button[type="submit"]');
+  if (!email || !sbClient) return;
+  btn.disabled = true;
+  btn.textContent = "Enviando…";
+  msgEl.className = "form-message";
+  msgEl.textContent = "";
+  try {
+    const { error } = await sbClient.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}${location.pathname}` });
+    if (error) throw error;
+    msgEl.className = "form-message success";
+    msgEl.textContent = "Listo. Si hay una cuenta con ese correo, te llegará un enlace en unos minutos. Revisa también la carpeta de spam.";
+    btn.textContent = "Enviar de nuevo";
+    setTimeout(() => {
+      btn.disabled = false;
+    }, 30e3);
+  } catch (err) {
+    console.warn("Recuperar contraseña:", err);
+    playErrorSound();
+    msgEl.className = "form-message error";
+    msgEl.textContent = traducirErrorClave(err);
+    btn.disabled = false;
+    btn.textContent = "Enviar enlace";
+  }
+});
+document.getElementById("nueva-clave-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const clave = document.getElementById("nueva-clave").value;
+  const confirmar = document.getElementById("nueva-clave-confirmar").value;
+  const msgEl = document.getElementById("nueva-clave-message");
+  const btn = document.getElementById("nueva-clave-guardar");
+  msgEl.className = "form-message";
+  msgEl.textContent = "";
+  if (clave !== confirmar) {
+    playErrorSound();
+    shakeElement(document.getElementById("nueva-clave-confirmar"));
+    msgEl.className = "form-message error";
+    msgEl.textContent = "Las contraseñas no coinciden";
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = "Guardando…";
+  try {
+    const { error } = await sbClient.auth.updateUser({ password: clave });
+    if (error) throw error;
+    SAIR_RECUPERACION.activa = false;
+    closeModal("nueva-clave-modal");
+    showToast("✅ Contraseña actualizada", "success");
+  } catch (err) {
+    console.warn("Nueva contraseña:", err);
+    playErrorSound();
+    msgEl.className = "form-message error";
+    msgEl.textContent = traducirErrorClave(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Guardar contraseña";
+  }
+});
 document.getElementById("auth-start-btn")?.addEventListener("click", () => {
   authScreen.classList.remove("guest-welcome");
   requestAnimationFrame(() => document.getElementById("login-email")?.focus());
 });
 document.querySelectorAll(".auth-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
+    if (typeof mostrarFormularioAuth === "function") return mostrarFormularioAuth(tab.dataset.tab);
     document.querySelectorAll(".auth-tab").forEach((t) => t.classList.remove("active"));
     tab.classList.add("active");
     document.querySelectorAll(".auth-form").forEach((f) => f.classList.remove("active"));
@@ -163,7 +352,7 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
       shakeElement(document.getElementById("login-email"));
       shakeElement(document.getElementById("login-password"));
       msgEl.className = "form-message error";
-      msgEl.textContent = error.message.includes("Invalid") ? "Credenciales inválidas" : error.message;
+      msgEl.textContent = traducirErrorClave(error);
       btn.disabled = false;
       btn.textContent = "Iniciar Sesión";
     } else {
@@ -217,7 +406,7 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
       shakeElement(document.getElementById("register-email"));
       shakeElement(document.getElementById("register-password"));
       msgEl.className = "form-message error";
-      msgEl.textContent = error.message;
+      msgEl.textContent = traducirErrorClave(error);
       btn.disabled = false;
       btn.textContent = "Crear Cuenta";
     } else {

@@ -2,7 +2,7 @@
   "name": "SAIR — Roleplay con IA",
   "short_name": "SAIR",
   "id": "sair2",
-  "description": "Aplicación premium de roleplay conversacional con personajes de IA impulsados por Gemini.",
+  "description": "Crea personajes, chatea con ellos y vive historias con IA. Gratis con tu API Key de Gemini o con Créditos de Rol, sin configurar nada.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

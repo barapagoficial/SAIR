@@ -342,7 +342,7 @@ document.getElementById("chat-messages").addEventListener("click", async (e) => 
   const btnDelMensaje = e.target.closest(".btn-delete-msg");
   if (btnDelMensaje) {
     const bubble = btnDelMensaje.closest(".message-bubble"), id = bubble && bubble.dataset ? bubble.dataset.mensajeId : "";
-    if (id && !isStreaming && confirm("¿Eliminar este mensaje?")) {
+    if (id && !isStreaming && await confirmarSAIR("¿Eliminar este mensaje?", "Se borra de este chat y no se puede deshacer.", { aceptar: "Eliminar", peligro: true })) {
       try {
         await eliminarMensajeDeChat(currentChatId, id);
         refrescarMedidorContexto();

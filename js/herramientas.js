@@ -1,8 +1,9 @@
 const POLITICAS_ACEPTADAS_KEY = "sair1_politicas_aceptadas";
+const POLITICAS_VERSION = "2026-11-26";
 const politicasModal = document.getElementById("politicas-modal");
 function verificarPoliticas() {
   if (!currentUser) return;
-  const aceptadas = localStorage.getItem(POLITICAS_ACEPTADAS_KEY) === "true";
+  const aceptadas = localStorage.getItem(POLITICAS_ACEPTADAS_KEY) === POLITICAS_VERSION;
   if (!aceptadas) {
     politicasModal.classList.add("visible");
     politicasModal._preventClose = true;
@@ -25,7 +26,7 @@ function verificarPoliticas() {
   }
 }
 document.getElementById("btn-aceptar-politicas").addEventListener("click", function() {
-  localStorage.setItem(POLITICAS_ACEPTADAS_KEY, "true");
+  localStorage.setItem(POLITICAS_ACEPTADAS_KEY, POLITICAS_VERSION);
   politicasModal._preventClose = false;
   politicasModal.classList.remove("visible");
   document.querySelectorAll(".modal-overlay").forEach((m) => {
@@ -34,11 +35,11 @@ document.getElementById("btn-aceptar-politicas").addEventListener("click", funct
       m.style.opacity = "";
     }
   });
-  showToast("✅ Políticas de privacidad aceptadas", "success");
+  showToast("✅ Privacidad y Términos aceptados", "success");
   console.log("✅ Políticas aceptadas por el usuario");
 });
-document.getElementById("btn-rechazar-politicas")?.addEventListener("click", function() {
-  if (confirm("⚠️ Al rechazar las políticas no podrás usar la aplicación. ¿Deseas continuar?")) {
+document.getElementById("btn-rechazar-politicas")?.addEventListener("click", async function() {
+  if (await confirmarSAIR("¿Rechazar y cerrar sesión?", "Sin aceptar la Privacidad y los Términos no puedes usar SAIR. Se cerrará tu sesión.", { aceptar: "Rechazar y salir", cancelar: "Volver", peligro: true })) {
     if (sbClient) {
       sbClient.auth.signOut().then(() => {
         localStorage.removeItem(POLITICAS_ACEPTADAS_KEY);
@@ -67,7 +68,22 @@ politicasModal.addEventListener("click", function(e) {
     e.stopPropagation();
   }
 });
-document.getElementById("btn-ver-politicas").addEventListener("click", function() {
+function mostrarPestanaPoliticas(cual) {
+  document.querySelectorAll(".politicas-tab").forEach((t) => {
+    const activa = t.dataset.politica === cual;
+    t.classList.toggle("active", activa);
+    t.setAttribute("aria-selected", activa ? "true" : "false");
+  });
+  document.getElementById("politicas-privacidad").hidden = cual !== "privacidad";
+  document.getElementById("politicas-terminos").hidden = cual !== "terminos";
+  const panel = document.getElementById(cual === "terminos" ? "politicas-terminos" : "politicas-privacidad");
+  panel.scrollTop = 0;
+  const overlay = document.getElementById("politicas-modal");
+  if (overlay.scrollTop > 0) overlay.scrollTop = 0;
+}
+document.querySelectorAll(".politicas-tab").forEach((t) => t.addEventListener("click", () => mostrarPestanaPoliticas(t.dataset.politica)));
+function abrirPoliticas(cual = "privacidad") {
+  mostrarPestanaPoliticas(cual);
   const modal = document.getElementById("politicas-modal");
   modal._preventClose = false;
   modal.classList.add("visible");
@@ -78,7 +94,8 @@ document.getElementById("btn-ver-politicas").addEventListener("click", function(
       modal.removeEventListener("click", handler);
     }
   }, { once: true });
-});
+}
+document.getElementById("btn-ver-politicas").addEventListener("click", () => abrirPoliticas());
 function prosaHtml(texto) {
   return String(texto || "").trim().split(/\n{2,}/).map((p) => p.trim()).filter(Boolean).map((p) => `<p>${renderMarkdown(p)}</p>`).join("");
 }

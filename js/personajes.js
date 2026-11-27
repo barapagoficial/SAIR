@@ -186,7 +186,7 @@ async function compartirPersonaje(id, nombre) {
     await navigator.clipboard.writeText(url);
     showToast("🔗 Enlace copiado. Pégalo donde quieras compartirlo");
   } catch {
-    window.prompt("Copia este enlace:", url);
+    mostrarEnlaceSAIR(url);
   }
 }
 const PERSONAJE_COMPARTIDO_KEY = "sair1_personaje_compartido";
@@ -666,9 +666,25 @@ function renderCharactersGrid(personajes, esComunidad, container = document.getE
     return;
   }
   const titulo = esComunidad ? `Personajes de la Comunidad <span class="section-count">${personajes.length}${comunidad.hayMas ? "+" : ""}</span>` : `Mis personajes <span class="section-count">${personajes.length}</span>`;
-  container.innerHTML = `<div style="max-width:1280px;margin:0 auto 1.5rem"><h2 class="section-title">${titulo}</h2></div><div class="characters-grid" id="characters-grid-content"></div>`;
+  const conBuscador = !esComunidad && personajes.length >= 6;
+  const buscador = conBuscador ? `<label class="mis-buscar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="mis-personajes-buscar" placeholder="Buscar en tus personajes…" aria-label="Buscar en tus personajes" autocomplete="off" maxlength="60"></label>` : "";
+  container.innerHTML = `<div class="mis-cabecera" style="max-width:1280px;margin:0 auto 1.5rem"><h2 class="section-title">${titulo}</h2>${buscador}</div><div class="characters-grid" id="characters-grid-content"></div><div class="empty-state mis-sin-resultados" hidden><div class="empty-state-icon">🔎</div><h3>Sin resultados</h3><p>Ningún personaje coincide con tu búsqueda</p></div>`;
   const grid = container.querySelector("#characters-grid-content");
   grid.innerHTML = personajes.map((p) => htmlTarjetaPersonaje(p, esComunidad)).join("");
+  if (conBuscador) {
+    const claves = personajes.map((p) => normalizarParaBuscar([p.nombre, p.descripcion_corta, ...normalizarEtiquetas(p.tags).map((t) => ETIQUETAS_PERSONAJE[t] || t)].join(" ")));
+    const vacio = container.querySelector(".mis-sin-resultados");
+    container.querySelector("#mis-personajes-buscar").addEventListener("input", (e) => {
+      const q = normalizarParaBuscar(e.target.value.trim());
+      let visibles = 0;
+      [...grid.children].forEach((card, i) => {
+        const ok = !q || (claves[i] || "").includes(q);
+        card.hidden = !ok;
+        if (ok) visibles++;
+      });
+      vacio.hidden = visibles > 0;
+    });
+  }
   if (esComunidad) {
     const userIds = [...new Set(personajes.map((p) => p.user_id))];
     obtenerUsernamesBatch(userIds).then((usernamesMap) => {
@@ -681,7 +697,7 @@ function renderCharactersGrid(personajes, esComunidad, container = document.getE
   grid.querySelectorAll(".btn-delete").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      if (confirm("¿Eliminar este personaje? Se borrarán también sus chats.")) {
+      if (await confirmarSAIR("¿Eliminar este personaje?", "Se borrarán también todos sus chats. No se puede deshacer.", { aceptar: "Eliminar", peligro: true })) {
         try {
           await fetchWithRetry(() => eliminarPersonaje(btn.dataset.id));
           showToast("Personaje eliminado");

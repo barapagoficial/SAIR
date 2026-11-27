@@ -216,7 +216,7 @@ document.getElementById("lorebook-lista")?.addEventListener("click", async (e) =
       return;
     }
     if (b.dataset.accion === "borrar") {
-      if (!confirm(`¿Borrar la ficha «${entrada.nombre}»?`)) return;
+      if (!await confirmarSAIR(`¿Borrar la ficha «${entrada.nombre}»?`, "Se quita del Lorebook de este personaje.", { aceptar: "Borrar", peligro: true })) return;
       await borrarEntradaLorebook(entrada.id);
     }
     if (b.dataset.accion === "alternar") await guardarEntradaLorebook({ ...entrada, claves: (entrada.claves || []).join(","), activa: entrada.activa === false });
@@ -316,8 +316,8 @@ document.getElementById("chat-uso-indicator")?.addEventListener("keydown", (e) =
     abrirUso();
   }
 });
-document.getElementById("uso-reiniciar")?.addEventListener("click", () => {
-  if (!confirm("¿Poner a cero los contadores de este chat y de hoy?")) return;
+document.getElementById("uso-reiniciar")?.addEventListener("click", async () => {
+  if (!await confirmarSAIR("¿Poner a cero los contadores?", "Se reinician los contadores de este chat y los de hoy.", { aceptar: "Reiniciar" })) return;
   try {
     if (currentChatId) localStorage.removeItem(USO_CHAT_PREFIX + currentChatId);
     localStorage.removeItem(USO_DIA_KEY);

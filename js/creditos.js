@@ -374,13 +374,58 @@ const CR_PAQUETE_INFO = {
   flash_grande: { lema: "El favorito para rolear todos los días", ico: "🔥", destacado: true },
   pro_pequeno: { lema: "Respuestas más profundas y elaboradas", ico: "💎" }
 };
-let crTienda = { paquetes: [], drops: [], cupos: {}, apartados: {}, compras: [], cargando: false, turno: 0 };
+let crTienda = { paquetes: [], drops: [], cupos: {}, apartados: {}, compras: [], consumos: [], cargando: false, turno: 0 };
+const CR_ACCIONES = {
+  mensaje: { uno: "mensaje", varios: "mensajes", ico: "💬" },
+  regenerar: { uno: "respuesta regenerada", varios: "respuestas regeneradas", ico: "🔄" },
+  editar: { uno: "mensaje editado", varios: "mensajes editados", ico: "✏️" },
+  continuar: { uno: "respuesta continuada", varios: "respuestas continuadas", ico: "➡️" },
+  historiador: { uno: "capítulo del Historiador", varios: "capítulos del Historiador", ico: "📜" },
+  historiador_sigue: { uno: "continuación de capítulo", varios: "continuaciones de capítulo", ico: "📜" },
+  recap: { uno: "recapitulación", varios: "recapitulaciones", ico: "🎬" },
+  diario: { uno: "diario de personajes", varios: "diarios de personajes", ico: "📖" },
+  generar_personaje: { uno: "personaje creado con IA", varios: "personajes creados con IA", ico: "✨" },
+  resumen: { uno: "resumen de memoria", varios: "resúmenes de memoria", ico: "🧠" }
+};
+function diaRelativoCR(fecha) {
+  const d = new Date(fecha), hoy = /* @__PURE__ */ new Date();
+  const clave = (x) => `${x.getFullYear()}-${x.getMonth()}-${x.getDate()}`;
+  const ayer = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 1);
+  if (clave(d) === clave(hoy)) return "Hoy";
+  if (clave(d) === clave(ayer)) return "Ayer";
+  return d.toLocaleDateString("es", { weekday: "short", day: "numeric", month: "short" });
+}
+function htmlMovimientosCR(consumos) {
+  if (!consumos.length) return "";
+  const dias = [];
+  for (const c of consumos) {
+    const dia = diaRelativoCR(c.creado_en);
+    let g = dias[dias.length - 1];
+    if (!g || g.dia !== dia) dias.push(g = { dia, total: 0, filas: /* @__PURE__ */ new Map() });
+    const devuelto = c.estado === "devuelto";
+    const clave = `${c.accion}|${devuelto ? "d" : c.estado === "reservado" ? "r" : "c"}`;
+    const f = g.filas.get(clave) || { accion: c.accion, estado: devuelto ? "devuelto" : c.estado === "reservado" ? "reservado" : "cobrado", n: 0, cr: 0 };
+    f.n++;
+    f.cr += Number(c.creditos) || 0;
+    g.filas.set(clave, f);
+    if (!devuelto) g.total += Number(c.creditos) || 0;
+  }
+  const filaHtml = (f) => {
+    const a = CR_ACCIONES[f.accion] || { uno: f.accion, varios: f.accion, ico: "•" };
+    const nombre = `${f.n} ${f.n === 1 ? a.uno : a.varios}`;
+    const valor = f.estado === "devuelto" ? '<span class="cr-mov-valor devuelto">Devuelto</span>' : f.estado === "reservado" ? '<span class="cr-mov-valor">En curso</span>' : f.cr === 0 ? '<span class="cr-mov-valor gratis">Gratis</span>' : `<span class="cr-mov-valor">−${f.cr.toLocaleString("es")} CR</span>`;
+    return `<li><span class="cr-mov-ico" aria-hidden="true">${a.ico}</span><span class="cr-mov-nombre">${escapeHtml(nombre)}</span>${valor}</li>`;
+  };
+  return `<section class="cr-seccion"><details class="cr-movimientos"><summary><h3 class="cr-seccion-titulo">En qué se fueron tus créditos</h3><span class="cr-mov-resumen">Últimos 30 días</span></summary>${dias.map((g) => `<div class="cr-mov-dia"><div class="cr-mov-dia-cab"><span>${escapeHtml(g.dia)}</span><strong>${g.total ? `−${g.total.toLocaleString("es")} CR` : "0 CR"}</strong></div><ul>${[...g.filas.values()].map(filaHtml).join("")}</ul></div>`).join("")}</details></section>`;
+}
 async function cargarTiendaCR() {
   const ahora = (/* @__PURE__ */ new Date()).toISOString();
-  const [paq, drops, compras] = await Promise.all([
+  const desde30 = new Date(Date.now() - 30 * 864e5).toISOString();
+  const [paq, drops, compras, consumos] = await Promise.all([
     sbClient.from("cr_paquetes").select("id,nombre,modelo,creditos,precio_cop,dias_vigencia,orden").order("orden"),
     sbClient.from("cr_drops").select("id,nombre,paquete_id,cupos,bono_pct,abre_en,cierra_en").or(`cierra_en.is.null,cierra_en.gt."${ahora}"`).order("abre_en"),
     sbClient.from("cr_compras").select("referencia,paquete_id,drop_id,monto_cop,creditos,estado,creado_en,reservado_hasta").eq("user_id", currentUser.id).order("creado_en", { ascending: false }).limit(6),
+    sbClient.from("cr_consumos").select("accion,creditos,estado,creado_en").eq("user_id", currentUser.id).gt("creado_en", desde30).order("creado_en", { ascending: false }).limit(400),
     cargarLotesCR()
   ]);
   const error = paq.error || drops.error;
@@ -396,7 +441,7 @@ async function cargarTiendaCR() {
     const fila = Array.isArray(a.data) ? a.data[0] : a.data;
     apartados[d.id] = !a.error && fila ? { n: Number(fila.apartados) || 0, libera: fila.libera_en } : { n: 0, libera: null };
   }));
-  return { paquetes: paq.data || [], drops: drops.data || [], cupos, apartados, compras: compras.data || [] };
+  return { paquetes: paq.data || [], drops: drops.data || [], cupos, apartados, compras: compras.data || [], consumos: consumos.error ? [] : consumos.data || [] };
 }
 async function renderTiendaCR() {
   const container = document.getElementById("characters-container");
@@ -481,11 +526,15 @@ function htmlProProximamenteCR() {
 <button type="button" class="btn btn-ghost" disabled>Próximamente</button>
 </article>`;
 }
-const CR_ESTADOS_COMPRA = { pendiente: "⏳ Pendiente", aprobada: "✅ Aprobada", rechazada: "❌ Rechazada", expirada: "⌛ Expirada", reversada: "↩️ Reversada" };
+const CR_ESTADOS_COMPRA = { pendiente: "⏳ Pendiente", sin_completar: "⌛ Sin completar", aprobada: "✅ Aprobada", rechazada: "❌ Rechazada", expirada: "⌛ Sin completar", reversada: "↩️ Reversada" };
+function estadoCompraCR(c) {
+  if (c.estado === "pendiente" && c.reservado_hasta && new Date(c.reservado_hasta).getTime() + 30 * 6e4 < Date.now()) return "sin_completar";
+  return c.estado;
+}
 function pintarTiendaCR() {
   const container = document.getElementById("characters-container");
   if (!container) return;
-  const { paquetes, compras } = crTienda;
+  const { paquetes, compras, consumos = [] } = crTienda;
   const m = usaCR() ? modeloCR() : "flash";
   const saldo = crSaldo[m] || 0;
   const porFecha = /* @__PURE__ */ new Map();
@@ -498,7 +547,7 @@ function pintarTiendaCR() {
   const hayPro = paquetes.some((p) => p.modelo === "pro");
   const comprasHtml = compras.length ? `<section class="cr-seccion"><h3 class="cr-seccion-titulo">Tus compras</h3><ul class="cr-compras">${compras.map((c) => {
     const p = paquetes.find((x) => x.id === c.paquete_id);
-    return `<li><span class="cr-compra-nombre">${escapeHtml(p?.nombre || c.paquete_id)} · ${Number(c.creditos).toLocaleString("es")} CR</span><span class="cr-compra-fecha">${escapeHtml(fechaCortaCR(c.creado_en))} · ${formatoCOP(c.monto_cop)}</span><span class="cr-compra-estado ${escapeHtml(c.estado)}">${CR_ESTADOS_COMPRA[c.estado] || escapeHtml(c.estado)}</span></li>`;
+    return `<li><span class="cr-compra-nombre">${escapeHtml(p?.nombre || c.paquete_id)} · ${Number(c.creditos).toLocaleString("es")} CR</span><span class="cr-compra-fecha">${escapeHtml(fechaCortaCR(c.creado_en))} · ${formatoCOP(c.monto_cop)}</span><span class="cr-compra-estado ${escapeHtml(estadoCompraCR(c))}">${CR_ESTADOS_COMPRA[estadoCompraCR(c)] || escapeHtml(c.estado)}</span></li>`;
   }).join("")}</ul></section>` : "";
   container.innerHTML = `<div class="cr-tienda">
 <section class="cr-hero">
@@ -530,9 +579,11 @@ ${motorBtn}
 <p class="cr-nota">Si la IA falla y no escribe nada, el crédito se devuelve solo. Al recargar, los créditos que te queden se extienden hasta la fecha del paquete nuevo.</p>
 </section>
 ${comprasHtml}
-<p class="cr-legal">🔒 Pagos seguros con Wompi (Bancolombia): tarjeta, PSE, Nequi y más. SAIR nunca ve los datos de tu tarjeta. Al pagar apartas tu cupo durante 15 minutos.</p>
+${htmlMovimientosCR(consumos)}
+<p class="cr-legal">🔒 Pagos seguros con Wompi (Bancolombia): tarjeta, PSE, Nequi y más. SAIR nunca ve los datos de tu tarjeta. Al pagar apartas tu cupo durante 15 minutos. <button type="button" class="cr-compra-terminos cr-ver-terminos">Términos de compra</button></p>
 </div>`;
   container.querySelectorAll(".cr-recargar").forEach((b) => b.addEventListener("click", renderTiendaCR));
+  container.querySelector(".cr-ver-terminos")?.addEventListener("click", () => abrirPoliticas("terminos"));
   container.querySelectorAll(".cr-comprar").forEach((b) => b.addEventListener("click", () => abrirCompraCR(b.dataset.drop, b.dataset.paquete)));
   document.getElementById("cr-activar")?.addEventListener("click", () => {
     fijarMotorIA("cr", crSaldo.flash <= 0 && crSaldo.pro > 0 ? "pro" : "flash");
@@ -553,12 +604,14 @@ function abrirCompraCR(dropId, paqueteId) {
 <div class="cr-compra-fila"><span>Vigencia</span><strong>${p.dias_vigencia} días</strong></div>
 <div class="cr-compra-fila total"><span>Total</span><strong>${formatoCOP(p.precio_cop)} COP</strong></div>`;
   const btn = document.getElementById("cr-compra-ir");
-  btn.disabled = false;
+  const acepto = document.getElementById("cr-compra-acepto");
+  acepto.checked = false;
+  btn.disabled = true;
   btn.textContent = "Ir a pagar con Wompi";
   openModal("cr-compra-modal");
 }
 async function irAPagarCR() {
-  if (!crCompraActual) return;
+  if (!crCompraActual || !document.getElementById("cr-compra-acepto").checked) return;
   const btn = document.getElementById("cr-compra-ir");
   btn.disabled = true;
   btn.textContent = "Apartando tu cupo…";
@@ -580,6 +633,13 @@ async function irAPagarCR() {
   }
 }
 document.getElementById("cr-compra-ir")?.addEventListener("click", irAPagarCR);
+document.getElementById("cr-compra-acepto")?.addEventListener("change", (e) => {
+  document.getElementById("cr-compra-ir").disabled = !e.target.checked;
+});
+document.getElementById("cr-compra-terminos")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  abrirPoliticas("terminos");
+});
 (function capturarRegresoWompi() {
   try {
     const params = new URLSearchParams(location.search);

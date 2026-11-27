@@ -1,5 +1,9 @@
 const CONFIG = { SUPABASE_URL: "https://tcnzimhqjyivlrvqzwpb.supabase.co", SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbnppbWhxanlpdmxydnF6d3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU3OTMsImV4cCI6MjA5ODA5MTc5M30.W9xY20IiIrkQHOsZYJNxrcE6tJ7WK-uE0cRiJNpMGqk", LS: { THEME: "sair1_theme", GEMINI_KEY: "sair1_gemini_key", GEMINI_MODEL: "sair1_gemini_model", GEMINI_SUMMARY_MODEL: "sair1_gemini_summary_model", DISPLAY_MODE: "sair1_display_mode" } };
 let sbClient = null, currentUser = null, userRole = null, userUsername = null, userDescription = "", userAvatarUrl = null, userRoleName = null, userAvatarPos = { x: 50, y: 50 }, userBackgroundUrl = null, userBackgroundPos = { x: 50, y: 50 }, currentView = "my-characters", currentCharacter = null, currentChatId = null, isStreaming = false, rateLimitTimer = null, rateLimitCountdown = 0, pendingAction = null, pendingData = null, lastGeminiFinishReason = "";
+const SAIR_RECUPERACION = (() => {
+  const params = new URLSearchParams(location.hash.replace(/^#/, "") + "&" + location.search.replace(/^\?/, ""));
+  return { activa: params.get("type") === "recovery", error: params.get("error_code") || params.get("error") || null, mostrada: false };
+})();
 if (window.supabase?.createClient) {
   sbClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
     auth: {
@@ -1497,6 +1501,105 @@ function openModal(id) {
     }
   }, 40);
 }
+const SAIR_DIALOGO_ICONOS = {
+  pregunta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5"/><path d="M12 17.5h.01"/></svg>',
+  peligro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
+  enlace: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'
+};
+const sairDialogo = { resolver: null, focoPrevio: null };
+function cerrarDialogoSAIR(valor) {
+  const el = document.getElementById("sair-dialogo");
+  if (!el || !sairDialogo.resolver) return;
+  const resolver = sairDialogo.resolver;
+  sairDialogo.resolver = null;
+  el.classList.remove("visible");
+  const previo = sairDialogo.focoPrevio;
+  sairDialogo.focoPrevio = null;
+  if (previo && typeof previo.focus === "function") {
+    try {
+      previo.focus({ preventScroll: true });
+    } catch {
+    }
+  }
+  resolver(valor);
+}
+function dialogoSAIR({ titulo = "¿Seguro?", texto = "", aceptar = "Aceptar", cancelar = "Cancelar", peligro = false, campo = null } = {}) {
+  const el = document.getElementById("sair-dialogo");
+  if (!el) return Promise.resolve(campo === null ? window.confirm(texto || titulo) : true);
+  if (sairDialogo.resolver) cerrarDialogoSAIR(false);
+  const caja = el.querySelector(".sair-dialogo");
+  caja.classList.toggle("peligro", !!peligro);
+  document.getElementById("sair-dialogo-ico").innerHTML = SAIR_DIALOGO_ICONOS[campo !== null ? "enlace" : peligro ? "peligro" : "pregunta"];
+  document.getElementById("sair-dialogo-titulo").textContent = titulo;
+  const p = document.getElementById("sair-dialogo-texto");
+  p.textContent = texto;
+  p.hidden = !texto;
+  const input = document.getElementById("sair-dialogo-campo");
+  input.hidden = campo === null;
+  input.value = campo === null ? "" : String(campo);
+  const btnSi = document.getElementById("sair-dialogo-aceptar");
+  const btnNo = document.getElementById("sair-dialogo-cancelar");
+  btnSi.textContent = aceptar;
+  btnSi.className = `btn ${peligro ? "btn-danger" : "btn-primary"}`;
+  btnNo.textContent = cancelar;
+  sairDialogo.focoPrevio = document.activeElement;
+  el.classList.add("visible");
+  setTimeout(() => {
+    try {
+      if (campo !== null) {
+        input.focus();
+        input.select();
+      } else (peligro ? btnNo : btnSi).focus({ preventScroll: true });
+    } catch {
+    }
+  }, 40);
+  return new Promise((resolve) => {
+    sairDialogo.resolver = resolve;
+  });
+}
+function confirmarSAIR(titulo, texto = "", opciones = {}) {
+  return dialogoSAIR({ ...opciones, titulo, texto });
+}
+async function mostrarEnlaceSAIR(url) {
+  const copiar = await dialogoSAIR({ titulo: "Copia este enlace", texto: "No pudimos copiarlo solo. Cópialo desde aquí:", campo: url, aceptar: "Copiar", cancelar: "Cerrar" });
+  if (!copiar) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("🔗 Enlace copiado");
+  } catch {
+    const input = document.getElementById("sair-dialogo-campo");
+    try {
+      input.hidden = false;
+      input.value = url;
+      input.select();
+      document.execCommand("copy");
+      showToast("🔗 Enlace copiado");
+    } catch {
+      showToast("Selecciona el enlace y cópialo a mano", "error");
+    } finally {
+      input.hidden = true;
+    }
+  }
+}
+document.getElementById("sair-dialogo-aceptar")?.addEventListener("click", () => cerrarDialogoSAIR(true));
+document.getElementById("sair-dialogo-cancelar")?.addEventListener("click", () => cerrarDialogoSAIR(false));
+document.getElementById("sair-dialogo")?.addEventListener("click", (e) => {
+  if (e.target.id === "sair-dialogo") cerrarDialogoSAIR(false);
+});
+window.addEventListener("keydown", (e) => {
+  if (!sairDialogo.resolver) return;
+  if (e.key === "Escape") {
+    e.preventDefault();
+    e.stopPropagation();
+    cerrarDialogoSAIR(false);
+  } else if (e.key === "Tab") {
+    const focos = [document.getElementById("sair-dialogo-campo"), document.getElementById("sair-dialogo-cancelar"), document.getElementById("sair-dialogo-aceptar")].filter((b) => b && !b.hidden);
+    const i = focos.indexOf(document.activeElement);
+    e.preventDefault();
+    e.stopPropagation();
+    focos[(i + (e.shiftKey ? -1 : 1) + focos.length) % focos.length].focus();
+  }
+}, true);
 function closeModal(id) {
   if (id === "politicas-modal") {
     const modal = document.getElementById("politicas-modal");
@@ -1604,8 +1707,8 @@ document.getElementById("save-api-key").addEventListener("click", () => {
   actualizarIndicadoresChat();
   showToast(raw ? "✅ API Key y modelos guardados" : "✅ Modelos guardados");
 });
-document.getElementById("clear-api-key").addEventListener("click", () => {
-  if (getGeminiKey() && confirm("¿Eliminar tu API Key y modelos?")) {
+document.getElementById("clear-api-key").addEventListener("click", async () => {
+  if (getGeminiKey() && await confirmarSAIR("¿Eliminar tu API Key?", "Se borran tu API Key y los modelos elegidos de este dispositivo. Podrás volver a ponerla cuando quieras.", { aceptar: "Eliminar", peligro: true })) {
     GEMINI_KEY_STORAGE.removeItem(CONFIG.LS.GEMINI_KEY);
     try {
       window.sessionStorage.removeItem(CONFIG.LS.GEMINI_KEY);
@@ -2095,3 +2198,20 @@ function construirSystemPrompt({ nombre, personalidad, escenario, ejemplos, them
   partes.push(`[Final] Mantén siempre el rol de ${nombre}.`);
   return partes.join("\n");
 }
+(function protegerConsolaSAIR() {
+  const host = location.hostname;
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(host) || host.endsWith(".localhost")) return;
+  try {
+    console.log("%c¡Alto!", "color:#ff4d8f;font-size:44px;font-weight:800;");
+    console.log("%cEsta consola es solo para desarrolladores. Si alguien te pidió pegar algo aquí para «desbloquear» funciones o «ganar créditos», es una estafa: podría robarte la cuenta.", "font-size:15px;line-height:1.5;");
+  } catch {
+  }
+  const TECLAS = ["KeyI", "KeyJ", "KeyC"];
+  document.addEventListener("keydown", (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    const bloquear = e.key === "F12" || mod && (e.shiftKey || e.altKey) && TECLAS.includes(e.code) || mod && !e.shiftKey && !e.altKey && e.code === "KeyU";
+    if (!bloquear) return;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+})();
